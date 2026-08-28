@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -102,6 +102,19 @@ test('@claim:platform-builds defines releases for three operating systems', asyn
   expect(workflow).toContain('SHA256SUMS');
   expect(workflow).toContain('latest.json');
   expect(readFileSync(join(repo, 'site/public/install.sh'), 'utf8')).toContain('Checksum did not match');
+});
+
+test('regression: deployed asset route has a one-year immutable cache policy', async () => {
+  const config = JSON.parse(readFileSync(join(repo, 'dist/site/staticwebapp.config.json'), 'utf8')) as {
+    routes?: Array<{ route: string; headers?: Record<string, string> }>;
+  };
+  const assetRoute = config.routes?.find(route => route.route === '/assets/*');
+  expect(assetRoute?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
+
+  const assets = readdirSync(join(repo, 'dist/site/assets'));
+  expect(assets.some(name => /^app-[A-Za-z0-9_-]+\.js$/.test(name))).toBe(true);
+  expect(assets.some(name => /^index-[A-Za-z0-9_-]+\.css$/.test(name))).toBe(true);
+  expect(assets).toContain('field-guide-hero.webp');
 });
 
 test('@claim:binary-manifest reads Android binary XML', async () => {
