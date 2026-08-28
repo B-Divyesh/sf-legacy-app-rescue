@@ -1,12 +1,14 @@
 # Legacy App Rescue v0.1.0 handoff
 
-## Repair verification status — PASS locally; deployment pending
+## Repair verification status — PASS
 
 This repair starts from independent-failure candidate `9307174ea4411ff5bd7dd86b3adde1f1be68f333`. The controller's approved Dodo Live mapping is now live. On 2026-08-28 UTC, a manual `HEAD` and `GET` (with redirects disabled) to `https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout` each returned **303** with a `Location` on `https://checkout.dodopayments.com/session/...`; the successful response had **no `Retry-After`** header. Twelve additional normal checkout requests also returned 303 without `Retry-After`, so the historical 404 is no longer reproducible and normal checkout is not rate-limited.
 
 The repair adds `npm run verify:billing`, a live contract check that fails unless the endpoint returns exactly that 303 Dodo session redirect and has no `Retry-After` on success. Its regression test explicitly rejects the historic 404 and a rate-limited successful redirect. The browser now honors an exposed `Retry-After` on a verification 429 and says exactly when the person may retry, instead of incorrectly reporting a network outage. Stored valid browser license verdicts are reconciled in the background at most once per day.
 
-The only deployment action remaining is to publish this repair commit through the static-site configuration. The earlier independent report is retained in [`.factory/verification-2.md`](verification-2.md) as historical evidence.
+Repair commit `1bb3e2c627ad53ce5ab5a2f6df5490e7107668c4` was pushed to `main` and deployed through the configured Azure Static Web Apps helper as deployment `1a153acd-b86a-44e2-adbc-f605ccfc585d`. The production landing page now serves `assets/app-DrD6JTaT.js`; it has `Cache-Control: public, max-age=31536000, immutable`. The factory URL smoke report recorded HTTPS 200, no console/page errors, title `Legacy App Rescue — record an Android app`, `lang="en"`, one `h1`, one `main`, and no missing image alt text. A live 390 px `/demo` Axe/keyboard check found zero serious or critical violations, no console errors, no horizontal overflow, and verified the skip link moves focus to `#main`. Evidence is in `/work/.evidence/legacy-app-rescue-repair-2/`.
+
+The earlier independent report is retained in [`.factory/verification-2.md`](verification-2.md) as historical evidence.
 
 ## Earlier repair notes — superseded by the verification above
 
@@ -66,19 +68,19 @@ npm ci && npm run build:site
 npm run verify:billing
 ```
 
-All passed. `npm audit` found zero vulnerabilities. A clean consumer download of `rescue-linux-x86_64.tar.gz` matched published SHA-256 `8f01f1a71ed01a2a16dae85326943c6bd8c3c2a84c6a4532e4263539eb2e8e77`; its `--help` and `--json demo` commands passed with schema `1.0`.
+All passed. `npm audit` found zero vulnerabilities. `cargo package --locked --no-verify` created the crate, and it was extracted into a new temporary directory, installed with `cargo install --path … --root … --locked`, then its installed `rescue --help` and `rescue --json demo` commands passed. A clean consumer download of `rescue-linux-x86_64.tar.gz` matched published SHA-256 `8f01f1a71ed01a2a16dae85326943c6bd8c3c2a84c6a4532e4263539eb2e8e77`; its `--help` and `--json demo` commands passed with schema `1.0`.
 
 ## Measured results
 
-Lighthouse mobile preset against the repaired live deployment:
+Lighthouse mobile preset against the repaired live deployment (repeat run after deployment):
 
-- Performance: **98**
+- Performance: **100**
 - Accessibility: **100**
-- Best practices: **100**
+- Best practices: **96**
 - SEO: **100**
-- LCP: **2.482 s**
+- LCP: **1.762 s**
 - CLS: **0**
-- Total blocking time: **10 ms**
+- Total blocking time: **43 ms**
 
 The page has 7.22 KB gzip JavaScript, 3.89 KB gzip CSS, 35 KB of fonts, and a 108 KB hero WebP.
 
