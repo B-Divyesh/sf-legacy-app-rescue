@@ -14,7 +14,15 @@ The local clean install and quality checks completed: `npm ci`, `npm test`, `npm
 
 The fresh manual live boundary proof above used a clear client window. Subsequent attempts from this shared worker can correctly receive an early 429 because the proof itself consumes the same per-client allowance; use a fresh client window for `npm run verify:billing`. This is expected rate-limit state, not a missing limiter.
 
-Deployment and post-deploy URL evidence are recorded below once the configured Azure Static Web Apps deployment finishes. Historical notes remain for audit context.
+## Deployment and final post-deploy evidence
+
+Commit `b0ed066f25cc23eb1df43c722ab7bb6a634f7b01` was pushed to `main` and deployed with `/opt/fleet/lib/deploy-static.sh legacy-app-rescue dist/site`. Azure Static Web Apps deployment **`3c687048-41a3-47bf-a65c-012c12ecf644`** completed successfully; <https://legacy-app-rescue.sociobot.in> returned HTTPS 200.
+
+The required URL verifier passed and wrote its screenshot/report evidence to `/work/.evidence/legacy-app-rescue-repair-3/`: title `Legacy App Rescue — record an Android app`, `lang="en"`, one `h1`, one `main`, no missing image alt text or unnamed buttons, and no browser errors. The live 390 px reduced-motion `/demo` check passed with no horizontal overflow (`390 = 390`), no console/page errors, no external requests, zero axe serious/critical findings, and keyboard focus moving from the skip link to `#main`.
+
+Live response policy and identity checks passed. Production `assets/app-DEvmlwJk.js` SHA-256 is `c599edb22b977aaea4b52db2894e307a66d05126c330d3752527de48b258f805`, byte-for-byte equal to the local `dist/site` asset. It serves `Cache-Control: public, max-age=31536000, immutable`; HTML serves a 30-second revalidation policy. CSP restricts connections to self, GitHub's release API, and Sociobot; HSTS, `nosniff`, strict referrer policy, and restrictive permissions policy are present. `/robots.txt`, `/sitemap.xml`, `/privacy`, and `/terms` each return 200. The static site has zero service-worker registrations and zero Cache Storage entries; it makes no offline-reload claim, while the bundled CLI demo's no-network path is covered by `@claim:local-private`.
+
+Historical notes remain for audit context.
 
 ## Earlier repair notes — superseded by the verification above
 
