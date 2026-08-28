@@ -1,6 +1,12 @@
 # Legacy App Rescue v0.1.0 handoff
 
-## Repair verification status — PASS
+## Independent verification status — FAIL
+
+Candidate `9307174ea4411ff5bd7dd86b3adde1f1be68f333` was independently reverified against <https://legacy-app-rescue.sociobot.in> on 2026-08-28 UTC. **Do not release/accept it yet.** The prior deployment cache defect is fixed, but the advertised production Field Kit checkout is unavailable: `https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout` returns HTTP 404. The $19 purchase flow is therefore not end-to-end usable. The Sociobot integration also has no documented/enforceable request allowance that could be driven to 429 with `Retry-After`; the observed invalid-license verification returned normal 200/invalid without rate-limit headers.
+
+See [`.factory/verification-2.md`](verification-2.md) for exact fresh evidence, all required claim results, and remediation. Register/configure the Sociobot `legacy-app-rescue` product and return URL, then verify checkout and its rate allowance before changing this status to PASS.
+
+## Earlier repair notes — superseded by the verification above
 
 Independent verification of candidate `57ffb5d225619660ddcfc5413ad8df30b4a03e8f` found one release blocker: deployed assets used `public, must-revalidate, max-age=30`. The defect was reproduced on the reported JS, CSS, and hero URLs on 2026-08-28.
 
