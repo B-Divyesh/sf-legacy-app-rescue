@@ -23,7 +23,7 @@ struct Cli {
     /// Print machine-readable JSON to stdout.
     #[arg(long, global = true)]
     json: bool,
-    /// Disable decorative terminal output. No command prompts for input.
+    /// Disable decorative terminal output.
     #[arg(long, global = true)]
     ci: bool,
     #[command(subcommand)]
@@ -158,7 +158,7 @@ fn run() -> Result<()> {
             if cli.json {
                 println!("{}", serde_json::to_string(&manifest)?);
             } else {
-                println!("LEGACY APP RESCUE · DEMO SPECIMEN");
+                println!("LEGACY APP RESCUE · SAMPLE RECORD");
                 println!("✓ APK hash recorded");
                 println!(
                     "✓ Package: {}",
@@ -183,12 +183,27 @@ fn run() -> Result<()> {
         Command::License { command } => match command {
             LicenseCommand::Activate { token } => {
                 license::activate(&token)?;
-                println!("Field Kit license saved and active.");
+                if cli.json {
+                    println!("{}", serde_json::json!({ "license": "active" }));
+                } else {
+                    println!("Field Kit license saved and active.");
+                }
             }
-            LicenseCommand::Status => println!("Field Kit license: {}.", license::status()?),
+            LicenseCommand::Status => {
+                let status = license::status()?;
+                if cli.json {
+                    println!("{}", serde_json::json!({ "license": status }));
+                } else {
+                    println!("Field Kit license: {status}.");
+                }
+            }
             LicenseCommand::Remove => {
                 license::remove()?;
-                println!("Field Kit license removed from this computer.");
+                if cli.json {
+                    println!("{}", serde_json::json!({ "license": "removed" }));
+                } else {
+                    println!("Field Kit license removed from this computer.");
+                }
             }
         },
     }

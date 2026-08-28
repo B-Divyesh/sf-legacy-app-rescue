@@ -36,28 +36,22 @@ pub fn activate(token: &str) -> Result<()> {
 }
 
 pub fn is_unlocked() -> Result<bool> {
-    if std::env::var("LEGACY_RESCUE_LICENSE")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-        .is_some()
-    {
-        return Ok(true);
-    }
-    let Some(mut stored) = load()? else {
+    let Some(stored) = load()? else {
         return Ok(false);
     };
-    if stored.valid && now().saturating_sub(stored.checked_at) < 86_400 {
-        return Ok(true);
-    }
-    match verify(&stored.token) {
-        Ok(verdict) => {
-            stored.valid = verdict.valid;
-            stored.checked_at = now();
-            store(&stored)?;
-            Ok(verdict.valid)
-        }
-        Err(_) => Ok(stored.valid),
-    }
+    // A local config file is user-controlled, so it cannot by itself grant a
+    // paid capability. Verify every Field Kit operation with Sociobot.
+    let verdict = verify(&stored.token)?;
+    let checked = record_verdict(stored, now(), verdict);
+    let valid = checked.valid;
+    store(&checked)?;
+    Ok(valid)
+}
+
+fn record_verdict(mut stored: StoredLicense, checked_at: u64, verdict: Verdict) -> StoredLicense {
+    stored.valid = verdict.valid;
+    stored.checked_at = checked_at;
+    stored
 }
 
 pub fn status() -> Result<&'static str> {
@@ -127,4 +121,28 @@ fn set_private(path: &std::path::Path) -> Result<()> {
 #[cfg(not(unix))]
 fn set_private(_path: &std::path::Path) -> Result<()> {
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn invalid_verdict_never_unlocks_a_license() {
+        let stored = StoredLicense {
+            token: "not-a-real-license".into(),
+            valid: true,
+            checked_at: 0,
+        };
+        let checked = record_verdict(
+            stored,
+            100,
+            Verdict {
+                valid: false,
+                reason: "invalid".into(),
+            },
+        );
+        assert!(!checked.valid);
+        assert_eq!(checked.checked_at, 100);
+    }
 }

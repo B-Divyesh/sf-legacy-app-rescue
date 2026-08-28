@@ -33,13 +33,13 @@ function footer() {
   return `<footer class="site-footer"><div>
     <p><strong>Legacy App Rescue</strong> records Android app evidence on your computer.</p>
     <nav aria-label="Footer navigation"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a><a href="https://sociobot.in">Built by Param Factory <span class="sr-only">(external site)</span></a></nav>
-    <p class="build">Version 0.1.0 · build 2026.08</p>
+    <p class="build">Version 0.1.1 · build 2026.08</p>
   </div></footer>`;
 }
 
 function terminal(id = 'terminal') {
   return `<section class="terminal-specimen" aria-labelledby="${id}-title">
-    <div class="terminal-label"><span id="${id}-title">Recorded specimen 017</span><span>Orchard Notes · sample</span></div>
+    <div class="terminal-label"><span id="${id}-title">Sample preservation record</span><span>Orchard Notes · sample</span></div>
     <div class="terminal" role="region" aria-label="Recorded command output" tabindex="0">
       <div class="terminal-bar"><span class="terminal-dots" aria-hidden="true">● ● ●</span><code>rescue demo</code><button type="button" data-terminal-toggle>Pause</button></div>
       <pre aria-live="polite"><code data-terminal-output><span class="cursor">▋</span></code></pre>
@@ -78,7 +78,7 @@ function landing() {
     </section>
 
     <section class="how" aria-labelledby="how-title">
-      <div class="section-intro"><p class="eyebrow">Three field notes</p><h2 id="how-title">Make a record you can check later</h2></div>
+      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Make a record you can check later</h2></div>
       <ol class="ledger-steps">
         <li><span class="step-number">01</span><div><h3>Point to your APK</h3><p>Give the CLI a file you already own. It reads the archive in place.</p><code>rescue scan old-game.apk</code></div></li>
         <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record Android, CPU, and installed user packages.</p><code>rescue scan old-game.apk --device</code></div></li>
@@ -103,7 +103,7 @@ function landing() {
 
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
-      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Preserve a whole device shelf</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a href="#restore">Have a license?</a></div><p class="fine-print">Sociobot is the merchant of record. A refund turns off the license.</p></div>
+      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Have a license?</a></div><p class="fine-print">Sociobot is the merchant of record. A refund turns off the license.</p></div>
       <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required /><button type="submit">Verify license</button></div><p data-license-status aria-live="polite">The token stays in this browser and can be removed.</p></form>
     </section>
   </main>${footer()}`;
@@ -111,7 +111,7 @@ function landing() {
 
 function demoPage() {
   return `${header(true)}<main id="main" class="demo-page" tabindex="-1">
-    <section class="demo-heading"><p class="eyebrow">Sandbox field note</p><h1 id="page-title">Inspect a finished preservation record</h1><p>The sample is a fictional orchard notebook APK matched with an Android 13 phone.</p></section>
+    <section class="demo-heading"><p class="eyebrow">Sample data</p><h1 id="page-title">Inspect a finished preservation record</h1><p>The sample is a fictional orchard notebook APK matched with an Android 13 phone.</p></section>
     ${terminal('demo-terminal')}
     <section class="manifest-sheet" aria-labelledby="manifest-title">
       <div class="sheet-heading"><div><p class="eyebrow">Preservation manifest</p><h2 id="manifest-title">Orchard Notes 1.7.0</h2></div><span class="stamp compatible">✓ Compatible</span></div>
@@ -132,7 +132,7 @@ function privacyPage() {
     <h2>APK and device scans</h2><p>The CLI reads only the APK paths and device you choose. It does not upload APKs, manifests, package lists, or app data.</p><p>The device serial is stored as a 16-character SHA-256 prefix. The manifest may contain installed package names.</p>
     <h2>App-data export</h2><p>Field Kit asks Android <code>run-as</code> for access. If Android refuses, the CLI stops. It does not use root or a bypass.</p>
     <h2>Website storage</h2><p>The demo uses keys beginning with <code>demo:legacy-app-rescue:</code>. Leaving the demo removes them.</p><p>A license is stored under <code>sb_license:legacy-app-rescue</code>. Release details may be cached for one hour.</p>
-    <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. Sociobot allows 30 verification requests from one client in its active rate-limit window. After that it returns a retry time. The checkout opens Sociobot's hosted payment page.</p>
+    <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. If the service is busy, the site asks you to try again shortly. The checkout opens Sociobot's hosted payment page.</p>
     <h2>Remove stored data</h2><p>Use “Start for real” to clear demo data. Remove a site license with your browser's storage controls.</p>
     <h2>Contact</h2><p>Questions can be sent to <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p>
   </main>${footer()}`;
@@ -150,7 +150,7 @@ function termsPage() {
 }
 
 function missingPage() {
-  return `${header()}<main id="main" class="missing-page" tabindex="-1"><p class="eyebrow">Field note 404</p><h1 id="page-title">This specimen is missing</h1><p>The page may have moved. Your files were not involved.</p><a class="button primary" href="/" data-route>Return to the field guide</a></main>${footer()}`;
+  return `${header()}<main id="main" class="missing-page" tabindex="-1"><p class="eyebrow">Page not found</p><h1 id="page-title">This page is missing</h1><p>The page may have moved. Your files were not involved.</p><a class="button primary" href="/" data-route>Return to the home page</a></main>${footer()}`;
 }
 
 const routes: Record<string, { title: string; description: string; render: () => string }> = {
@@ -242,21 +242,31 @@ function bindDemo() {
   });
 }
 
-function detectedPlatform() {
+type Platform =
+  | { kind: 'single'; label: string; fragment: string; command: string; note: string }
+  | { kind: 'macos'; label: string; command: string; note: string }
+  | { kind: 'unsupported'; label: string; note: string };
+
+function detectedPlatform(): Platform {
   const value = `${navigator.userAgent} ${navigator.platform}`.toLowerCase();
-  if (value.includes('win')) return { label: 'Windows', fragment: 'windows-x86_64.zip', command: 'irm https://legacy-app-rescue.sociobot.in/install.ps1 | iex', note: 'The portable Windows build is unsigned. Windows may ask for confirmation.' };
-  if (value.includes('mac')) return { label: 'macOS', fragment: value.includes('arm') ? 'macos-arm64.pkg' : 'macos-x86_64.pkg', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'The macOS package is unsigned. Right-click the package, then choose Open.' };
-  return { label: 'Linux', fragment: 'linux-x86_64.tar.gz', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'The installer verifies SHA-256 before placing rescue on your PATH.' };
+  if (/(android|iphone|ipad|ipod)/.test(value)) return { kind: 'unsupported', label: 'mobile', note: 'Legacy App Rescue is a desktop CLI. Use macOS, Windows, or Linux to install it.' };
+  if (value.includes('win')) return { kind: 'single', label: 'Windows', fragment: 'windows-x86_64.zip', command: 'irm https://legacy-app-rescue.sociobot.in/install.ps1 | iex', note: 'The portable Windows build is unsigned. Windows may ask for confirmation.' };
+  if (value.includes('mac')) return { kind: 'macos', label: 'macOS', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'Choose the package for your Mac. The packages are unsigned; right-click, then choose Open.' };
+  return { kind: 'single', label: 'Linux', fragment: 'linux-x86_64.tar.gz', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'The installer verifies SHA-256 before placing rescue on your PATH.' };
 }
 
 async function bindDownloads() {
   const platform = detectedPlatform();
-  document.querySelector<HTMLElement>('[data-platform-message]')!.textContent = `Download the ${platform.label} build, or use a package manager.`;
-  document.querySelector<HTMLElement>('[data-install-command]')!.textContent = platform.command;
-  document.querySelector<HTMLElement>('[data-signing-note]')!.textContent = platform.note;
+  document.querySelector<HTMLElement>('[data-platform-message]')!.textContent = platform.kind === 'unsupported' ? platform.note : `Download the ${platform.label} build, or use a package manager.`;
+  const command = document.querySelector<HTMLElement>('[data-install-command]')!;
+  const commandRow = command.closest<HTMLElement>('.command-row')!;
+  const installCommand = platform.kind === 'unsupported' ? '' : platform.command;
+  command.textContent = installCommand;
+  commandRow.hidden = platform.kind === 'unsupported';
+  document.querySelector<HTMLElement>('[data-signing-note]')!.textContent = platform.kind === 'unsupported' ? 'No mobile build is available.' : platform.note;
   document.querySelector('[data-copy-command]')?.addEventListener('click', async event => {
     const button = event.currentTarget as HTMLButtonElement;
-    try { await navigator.clipboard.writeText(platform.command); button.textContent = 'Copied'; }
+    try { await navigator.clipboard.writeText(installCommand); button.textContent = 'Copied'; }
     catch { button.textContent = 'Select the command to copy'; }
   });
   const mount = document.querySelector<HTMLElement>('[data-download-action]')!;
@@ -270,6 +280,17 @@ async function bindDownloads() {
       if (!response.ok) throw new Error('release unavailable');
       release = await response.json() as Release;
       localStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), data: release }));
+    }
+    if (platform.kind === 'unsupported') {
+      mount.innerHTML = `<a class="button primary" href="${RELEASES}">Open desktop downloads <span class="sr-only">(external site)</span></a>`;
+      return;
+    }
+    if (platform.kind === 'macos') {
+      const arm = release.assets.find(item => item.name.includes('macos-arm64.pkg'));
+      const intel = release.assets.find(item => item.name.includes('macos-x86_64.pkg'));
+      if (!arm || !intel) throw new Error('macOS files unavailable');
+      mount.innerHTML = `<span>${release.tag_name} · choose your Mac chip · checksums listed in the release</span><span class="download-options"><a class="button primary" href="${arm.browser_download_url}">Apple silicon</a><a class="button primary" href="${intel.browser_download_url}">Intel Mac</a></span>`;
+      return;
     }
     const asset = release.assets.find(item => item.name.includes(platform.fragment));
     if (!asset) throw new Error('platform file unavailable');

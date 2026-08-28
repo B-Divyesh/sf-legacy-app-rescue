@@ -1,7 +1,7 @@
 use crate::apk::hex_hash;
 use crate::model::{DataExport, DeviceInfo};
 use anyhow::{bail, Context, Result};
-use std::fs::{self, File};
+use std::fs::{self, File, OpenOptions};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -63,7 +63,9 @@ pub fn export_data(serial: Option<&str>, package: &str, output: &Path) -> Result
     if let Some(parent) = output.parent() {
         fs::create_dir_all(parent)?;
     }
-    let file = File::create(output)?;
+    // This archive can contain private app data. On Unix set the mode at
+    // creation time, rather than repairing a world-readable file afterwards.
+    let file = create_private_file(output)?;
     let child = adb_command(Some(&selected))
         .args(["exec-out", "run-as", package, "tar", "-cf", "-", "."])
         .stdout(Stdio::from(file))
@@ -87,6 +89,22 @@ pub fn export_data(serial: Option<&str>, package: &str, output: &Path) -> Result
         size_bytes: bytes.len() as u64,
         method: "adb run-as + tar".into(),
     })
+}
+
+#[cfg(unix)]
+fn create_private_file(path: &Path) -> Result<File> {
+    use std::os::unix::fs::OpenOptionsExt;
+    Ok(OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600)
+        .open(path)?)
+}
+
+#[cfg(not(unix))]
+fn create_private_file(path: &Path) -> Result<File> {
+    Ok(File::create(path)?)
 }
 
 fn ensure_adb() -> Result<()> {
@@ -130,4 +148,68 @@ fn adb_output(serial: &str, arguments: &[&str]) -> Result<String> {
         );
     }
     Ok(String::from_utf8_lossy(&output.stdout).trim().into())
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn app_data_export_is_private_and_cleans_up_on_refusal() {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        let adb = bin.join("adb");
+        fs::write(
+            &adb,
+            r#"#!/bin/sh
+if [ "$1" = "version" ]; then exit 0; fi
+if [ "$1" = "-s" ]; then shift 2; fi
+if [ "$1" = "exec-out" ]; then
+  if [ "$LEGACY_RESCUE_TEST_ADB_REFUSE" = "1" ]; then echo "run-as refused" >&2; exit 1; fi
+  printf "private fixture data"; exit 0
+fi
+exit 1
+"#,
+        )
+        .unwrap();
+        fs::set_permissions(&adb, fs::Permissions::from_mode(0o755)).unwrap();
+        let old_path = std::env::var_os("PATH");
+        let old_refusal = std::env::var_os("LEGACY_RESCUE_TEST_ADB_REFUSE");
+        std::env::set_var(
+            "PATH",
+            format!(
+                "{}:{}",
+                bin.display(),
+                old_path.as_deref().unwrap_or_default().to_string_lossy()
+            ),
+        );
+
+        let archive = root.path().join("private.tar");
+        let exported = export_data(Some("FIELD123"), "in.sociobot.orchardnotes", &archive).unwrap();
+        assert_eq!(exported.size_bytes, 20);
+        assert_eq!(
+            fs::metadata(&archive).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+
+        std::env::set_var("LEGACY_RESCUE_TEST_ADB_REFUSE", "1");
+        let refused = root.path().join("refused.tar");
+        let error = export_data(Some("FIELD123"), "in.sociobot.orchardnotes", &refused)
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("no root bypass is attempted"));
+        assert!(!refused.exists());
+
+        match old_path {
+            Some(value) => std::env::set_var("PATH", value),
+            None => std::env::remove_var("PATH"),
+        }
+        match old_refusal {
+            Some(value) => std::env::set_var("LEGACY_RESCUE_TEST_ADB_REFUSE", value),
+            None => std::env::remove_var("LEGACY_RESCUE_TEST_ADB_REFUSE"),
+        }
+    }
 }

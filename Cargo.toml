@@ -1,6 +1,6 @@
 [package]
 name = "legacy-app-rescue"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Preservation-first inventory and compatibility checks for Android APKs"
 license = "MIT"
@@ -41,4 +41,3 @@ extended-description = "Inventory Android APKs, attached devices, and permitted 
 section = "utils"
 priority = "optional"
 assets = [["target/release/rescue", "usr/bin/", "755"]]
-

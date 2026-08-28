@@ -25,7 +25,7 @@ Generated from the built landing page on 28 August 2026. Navigation and code-onl
 | 18 | API 21 → 28 | 3 | — |
 | 19 | Device match | 2 | — |
 | 20 | ✓ Compatible | 1 | — |
-| 21 | Three field notes | 3 | — |
+| 21 | Three steps | 2 | — |
 | 22 | Make a record you can check later | 7 | — |
 | 23 | Point to your APK | 4 | — |
 | 24 | Give the CLI a file you already own. It reads the archive in place. | 14 | — |
@@ -51,7 +51,7 @@ Generated from the built landing page on 28 August 2026. Navigation and code-onl
 | 44 | Scoopscoop bucket add legacy-app-rescue https://github.com/B-Divyesh/sf-legacy-app-rescuescoop install legacy-app-rescue | 11 | — |
 | 45 | Cargocargo install --path . | 3 | — |
 | 46 | For more than one app | 5 | — |
-| 47 | Preserve a whole device shelf | 5 | — |
+| 47 | Scan more APKs at once | 5 | — |
 | 48 | The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export. | 19 | — |
 | 49 | Buy Field Kit for $19 | 5 | — |
 | 50 | Have a license? | 3 | — |
@@ -60,7 +60,7 @@ Generated from the built landing page on 28 August 2026. Navigation and code-onl
 | 53 | Verify license | 2 | — |
 | 54 | The token stays in this browser and can be removed. | 10 | — |
 | 55 | Legacy App Rescue records Android app evidence on your computer. | 10 | — |
-| 56 | Version 0.1.0 · build 2026.08 | 5 | — |
+| 56 | Version 0.1.1 · build 2026.08 | 5 | — |
 
 ## First-screen check
 

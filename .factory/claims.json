@@ -54,5 +54,26 @@
     "where": "README limits and safety",
     "test": "npm test -- --grep @claim:binary-manifest",
     "sandbox": "constructed Android binary XML fixture parsed by the Rust test"
+  },
+  {
+    "id": "installer-verified",
+    "claim": "The Linux installer verifies SHA-256 before placing rescue on PATH.",
+    "where": "landing install section, README",
+    "test": "npm test -- --grep @claim:installer-verified",
+    "sandbox": "mocked release archive and checksum; assert installed binary is executable only after the checksum matches"
+  },
+  {
+    "id": "browser-license-cache",
+    "claim": "The website verifies a stored license at most once a day.",
+    "where": "license form status, README",
+    "test": "npm test -- --grep @claim:browser-license-cache",
+    "sandbox": "fresh browser storage with a valid current cache; reload and count Sociobot verification requests"
+  },
+  {
+    "id": "export-refusal-cleanup",
+    "claim": "App-data export stops on Android refusal and does not use root.",
+    "where": "privacy page, README",
+    "test": "npm test -- --grep @claim:export-refusal-cleanup",
+    "sandbox": "fake adb refuses run-as; assert failure text and no archive remains"
   }
 ]

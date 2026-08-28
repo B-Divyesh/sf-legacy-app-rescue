@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -59,39 +60,23 @@ test('@claim:local-private demo scan and web sandbox make no external request', 
   expect(JSON.parse(result.stdout).apks).toHaveLength(1);
 });
 
-test('@claim:field-kit batch scan and permitted data export work', async () => {
+test('@claim:field-kit rejects arbitrary tokens and keeps permitted exports private', async () => {
   const root = mkdtempSync(join(tmpdir(), 'rescue-field-kit-'));
   const manifestPath = join(root, 'demo-manifest.json');
   execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', manifestPath], { cwd: repo });
   const apk = join(root, 'orchard-notes-1.7.apk');
-  const fakeBin = join(root, 'bin');
-  execFileSync('mkdir', ['-p', fakeBin]);
-  const adb = join(fakeBin, 'adb');
-  writeFileSync(adb, `#!/bin/sh
-if [ "$1" = "version" ]; then echo "Android Debug Bridge 1.0"; exit 0; fi
-if [ "$1" = "devices" ]; then printf "List of devices attached\\nFIELD123\\tdevice\\n"; exit 0; fi
-if [ "$1" = "-s" ]; then shift 2; fi
-if [ "$1 $2 $3" = "shell getprop ro.product.manufacturer" ]; then echo "Sample"; exit 0; fi
-if [ "$1 $2 $3" = "shell getprop ro.product.model" ]; then echo "Archive Phone"; exit 0; fi
-if [ "$1 $2 $3" = "shell getprop ro.build.version.release" ]; then echo "13"; exit 0; fi
-if [ "$1 $2 $3" = "shell getprop ro.build.version.sdk" ]; then echo "33"; exit 0; fi
-if [ "$1 $2 $3" = "shell getprop ro.product.cpu.abilist" ]; then echo "arm64-v8a,armeabi-v7a"; exit 0; fi
-if [ "$1 $2 $3 $4" = "shell pm list packages" ]; then echo "package:in.sociobot.orchardnotes"; exit 0; fi
-if [ "$1 $2 $3" = "exec-out run-as in.sociobot.orchardnotes" ]; then printf "sample-private-app-data"; exit 0; fi
-echo "unexpected adb call: $*" >&2; exit 1
-`);
-  chmodSync(adb, 0o755);
   const output = join(root, 'preservation-manifest.json');
-  execFileSync('cargo', ['run', '--quiet', '--', 'scan', apk, apk, '--device', '--export-data', 'in.sociobot.orchardnotes', '--output', output], {
+  execFileSync('cargo', ['build', '--release', '--locked'], { cwd: repo });
+  const bypass = spawnSync(join(repo, 'target/release/rescue'), ['scan', apk, apk, '--output', output], {
     cwd: repo,
-    env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}`, LEGACY_RESCUE_LICENSE: 'sandbox-license' }
+    encoding: 'utf8',
+    env: { ...process.env, LEGACY_RESCUE_LICENSE: 'not-a-real-license' }
   });
-  const result = JSON.parse(readFileSync(output, 'utf8'));
-  expect(result.apks).toHaveLength(2);
-  expect(result.compatibility.every((item: { verdict: string }) => item.verdict === 'compatible')).toBe(true);
-  expect(result.data_exports).toHaveLength(1);
-  expect(result.data_exports[0].method).toBe('adb run-as + tar');
-  expect(existsSync(result.data_exports[0].path)).toBe(true);
+  expect(bypass.status).toBe(1);
+  expect(bypass.stderr).toContain('batch scans and app-data export need the $19 Field Kit');
+  expect(existsSync(output)).toBe(false);
+  const privateExport = spawnSync('cargo', ['test', 'app_data_export_is_private_and_cleans_up_on_refusal'], { cwd: repo, encoding: 'utf8' });
+  expect(privateExport.status, privateExport.stderr).toBe(0);
 });
 
 test('@claim:platform-builds defines releases for three operating systems', async () => {
@@ -121,6 +106,15 @@ test('@claim:binary-manifest reads Android binary XML', async () => {
   const result = spawnSync('cargo', ['test', 'parses_binary_manifest'], { cwd: repo, encoding: 'utf8' });
   expect(result.status, result.stderr).toBe(0);
   expect(result.stdout).toContain('1 passed');
+});
+
+test('regression: JSON mode covers successful license status and removal', async () => {
+  const configHome = mkdtempSync(join(tmpdir(), 'rescue-license-json-'));
+  const env = { ...process.env, XDG_CONFIG_HOME: configHome };
+  const status = execFileSync('cargo', ['run', '--quiet', '--', '--json', 'license', 'status'], { cwd: repo, encoding: 'utf8', env });
+  expect(JSON.parse(status)).toEqual({ license: 'not active' });
+  const remove = execFileSync('cargo', ['run', '--quiet', '--', '--json', 'license', 'remove'], { cwd: repo, encoding: 'utf8', env });
+  expect(JSON.parse(remove)).toEqual({ license: 'removed' });
 });
 
 test('@claim:paid-license sends the license only to Sociobot', async ({ page }) => {
@@ -176,7 +170,7 @@ test('regression: verification allows exactly 30 requests, then requires 429 and
 
 });
 
-test('regression: license rate limits show the Retry-After wait time', async ({ page }) => {
+test('regression: license rate limits show an exposed Retry-After wait time when the service provides one', async ({ page }) => {
   await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
   await page.route('https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify**', route => route.fulfill({
     status: 429,
@@ -192,6 +186,83 @@ test('regression: license rate limits show the Retry-After wait time', async ({ 
   await page.getByLabel('Paste a license from your receipt').fill('rate-limited-token');
   await page.getByRole('button', { name: 'Verify license' }).click();
   await expect(page.getByText('License checks are busy. Try again in 90 seconds.')).toBeVisible();
+});
+
+test('@claim:browser-license-cache verifies a stored browser license at most once a day', async ({ page }) => {
+  let checks = 0;
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.route('https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify**', route => {
+    checks += 1;
+    return route.fulfill({ status: 200, contentType: 'application/json', body: '{"valid":true,"reason":"ok"}' });
+  });
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('sb_license:legacy-app-rescue', 'cached-token');
+    localStorage.setItem('sb_license_status:legacy-app-rescue', JSON.stringify({ valid: true, checkedAt: Date.now() }));
+  });
+  await page.reload();
+  await expect(page.getByText('A license is active in this browser. Sociobot checks it again at most once a day.')).toBeVisible();
+  expect(checks).toBe(0);
+});
+
+test('@claim:export-refusal-cleanup removes a refused app-data archive without root', async () => {
+  const result = spawnSync('cargo', ['test', 'app_data_export_is_private_and_cleans_up_on_refusal'], { cwd: repo, encoding: 'utf8' });
+  expect(result.status, result.stderr).toBe(0);
+});
+
+test('@claim:installer-verified verifies a Linux archive before placing the binary on PATH', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-installer-'));
+  const stage = join(root, 'stage');
+  const archive = join(root, 'rescue-linux-x86_64.tar.gz');
+  const sums = join(root, 'SHA256SUMS');
+  const bin = join(root, 'bin');
+  const installDir = join(root, 'installed');
+  execFileSync('mkdir', ['-p', stage, bin]);
+  const rescue = join(stage, 'rescue');
+  writeFileSync(rescue, '#!/bin/sh\necho rescue\n');
+  chmodSync(rescue, 0o755);
+  execFileSync('tar', ['-C', stage, '-czf', archive, 'rescue']);
+  const hash = createHash('sha256').update(readFileSync(archive)).digest('hex');
+  writeFileSync(sums, `${hash}  rescue-linux-x86_64.tar.gz\n`);
+  const curl = join(bin, 'curl');
+  writeFileSync(curl, `#!/bin/sh
+out=""
+previous=""
+for value in "$@"; do [ "$previous" = "-o" ] && out="$value"; previous="$value"; done
+case "$out" in *SHA256SUMS) cp "$TEST_SUMS" "$out" ;; *) cp "$TEST_ARCHIVE" "$out" ;; esac
+`);
+  chmodSync(curl, 0o755);
+  execFileSync('sh', ['site/public/install.sh'], {
+    cwd: repo,
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, TEST_SUMS: sums, TEST_ARCHIVE: archive, LEGACY_RESCUE_INSTALL_DIR: installDir }
+  });
+  const installed = join(installDir, 'rescue');
+  expect(existsSync(installed)).toBe(true);
+  expect(statSync(installed).mode & 0o111).not.toBe(0);
+});
+
+test('download selection gives mobile visitors desktop guidance and macOS visitors both architectures', async ({ page }) => {
+  const assets = [
+    { name: 'rescue-macos-arm64.pkg', browser_download_url: 'https://downloads.example/arm.pkg' },
+    { name: 'rescue-macos-x86_64.pkg', browser_download_url: 'https://downloads.example/intel.pkg' },
+    { name: 'rescue-linux-x86_64.tar.gz', browser_download_url: 'https://downloads.example/linux.tar.gz' }
+  ];
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ tag_name: 'v0.1.0', html_url: 'https://example.test/release', assets }) }));
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', { configurable: true, value: 'Mozilla/5.0 (Linux; Android 14; Pixel 7)' });
+    Object.defineProperty(navigator, 'platform', { configurable: true, value: 'Linux armv8l' });
+  });
+  await page.goto('/');
+  await expect(page.locator('[data-platform-message]')).toHaveText('Legacy App Rescue is a desktop CLI. Use macOS, Windows, or Linux to install it.');
+  await expect(page.getByRole('link', { name: 'Open desktop downloads' })).toBeVisible();
+
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', { configurable: true, value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0)' });
+    Object.defineProperty(navigator, 'platform', { configurable: true, value: 'MacIntel' });
+  });
+  await page.goto('/?mac');
+  await expect(page.getByRole('link', { name: 'Apple silicon' })).toHaveAttribute('href', 'https://downloads.example/arm.pkg');
+  await expect(page.getByRole('link', { name: 'Intel Mac' })).toHaveAttribute('href', 'https://downloads.example/intel.pkg');
 });
 
 for (const path of ['/', '/demo', '/privacy', '/terms']) {
@@ -213,11 +284,20 @@ test('mobile layout and keyboard path', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('#main')).toBeFocused();
+  const tooSmall = await page.locator('a, button, input, summary').evaluateAll(elements => elements
+    .filter(element => {
+      const rect = element.getBoundingClientRect();
+      return rect.width < 44 || rect.height < 44;
+    })
+    .map(element => `${element.tagName}:${(element.textContent || (element as HTMLInputElement).value).trim()}`));
+  expect(tooSmall).toEqual([]);
 });
 
-test('unknown routes show a real way home', async ({ page }) => {
+test('unknown routes show a real 404 configuration and a way home', async ({ page }) => {
   await page.goto('/missing-specimen');
   await expect(page).toHaveTitle('Page not found — Legacy App Rescue');
-  await expect(page.getByRole('heading', { name: 'This specimen is missing' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Return to the field guide' })).toHaveAttribute('href', '/');
+  await expect(page.getByRole('heading', { name: 'This page is missing' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Return to the home page' })).toHaveAttribute('href', '/');
+  const config = JSON.parse(readFileSync(join(repo, 'dist/site/staticwebapp.config.json'), 'utf8')) as { routes: Array<{ route: string; statusCode?: number }> };
+  expect(config.routes).toContainEqual({ route: '/*', statusCode: 404 });
 });
