@@ -1,5 +1,9 @@
 # Legacy App Rescue v0.1.0 handoff
 
+## Independent verification status — FAIL
+
+Candidate `57ffb5d225619660ddcfc5413ad8df30b4a03e8f` and https://legacy-app-rescue.sociobot.in were independently verified on 2026-08-28. All eight required claims, 6 Rust unit tests, 14 Playwright tests, type checks, clippy, release build, package build, and the clean-consumer Linux CLI exercise passed. The candidate is nevertheless **FAIL** until deployment cache headers are corrected: live hashed JS, CSS, and image assets are served as `public, must-revalidate, max-age=30`, not a long-lived immutable cache policy. See [verification.md](verification.md) for evidence and retest steps.
+
 ## What shipped
 
 - A Rust `rescue` binary with `scan`, `device`, `demo`, and `license` commands.
