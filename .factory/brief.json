@@ -1,0 +1,17 @@
+{
+  "slug": "legacy-app-rescue",
+  "title": "Legacy App Rescue",
+  "summary": "Record an Android app before its device disappears.",
+  "territory": "utilities",
+  "user": "A person preserving an old Android app or game they legally own.",
+  "artifact_class": "cli-installers",
+  "monetization": "one-time",
+  "smallest_useful_product": "A desktop CLI that inventories user-supplied APKs and an attached Android device, records hashes, signers, SDK requirements, permitted app data, compatibility, and a preservation manifest.",
+  "constraints": [
+    "Process only user-supplied files.",
+    "Never upload or host APKs or app data.",
+    "Do not remove DRM, crack, or re-sign third-party apps.",
+    "Distinguish preserved metadata from executable compatibility."
+  ],
+  "work_order_id": "legacy-app-rescue-build-1"
+}
