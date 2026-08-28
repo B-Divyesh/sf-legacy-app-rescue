@@ -82,7 +82,7 @@ fn verify(token: &str) -> Result<Verdict> {
         .call()
         .context("license check could not reach Sociobot; check the connection and try again")?;
     let body = response.body_mut().read_to_string()?;
-    Ok(serde_json::from_str(&body).context("license service returned an unreadable response")?)
+    serde_json::from_str(&body).context("license service returned an unreadable response")
 }
 
 fn store(value: &StoredLicense) -> Result<()> {

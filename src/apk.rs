@@ -251,10 +251,8 @@ fn decode_utf16_string(bytes: &[u8], mut offset: usize) -> Result<String> {
         .checked_add(units * 2)
         .context("string length overflow")?;
     let slice = bytes.get(offset..end).context("short UTF-16 string")?;
-    let values: Vec<u16> = slice
-        .chunks_exact(2)
-        .map(|part| u16::from_le_bytes([part[0], part[1]]))
-        .collect();
+    let (pairs, _) = slice.as_chunks::<2>();
+    let values: Vec<u16> = pairs.iter().map(|part| u16::from_le_bytes(*part)).collect();
     Ok(String::from_utf16(&values)?)
 }
 
@@ -308,7 +306,7 @@ fn extract_apk_signing_certificates(path: &Path) -> Result<Vec<Signer>> {
         return Ok(vec![]);
     }
     let size = u64::from_le_bytes(footer[0..8].try_into().unwrap());
-    if size < 24 || size > 16 * 1024 * 1024 || size + 8 > central_offset {
+    if !(24..=16 * 1024 * 1024).contains(&size) || size + 8 > central_offset {
         bail!("APK signing block has an unsafe size");
     }
     let start = central_offset - size - 8;

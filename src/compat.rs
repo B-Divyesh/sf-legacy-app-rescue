@@ -32,12 +32,15 @@ pub fn assess(apk: &ApkMetadata, device: &DeviceInfo) -> Compatibility {
             device.abis.join(", ")
         ));
     }
-    if device.sdk >= 34 && apk.target_sdk.unwrap_or(1) < 26 {
+    let target = apk.target_sdk.unwrap_or(1);
+    if device.sdk >= 35 && target < 24 {
         hard.push(
-            "Android 14 or newer blocks normal installation for apps targeting below API 26."
+            "Android 15 or newer blocks normal installation for apps targeting below API 24."
                 .into(),
         );
-    } else if apk.target_sdk.unwrap_or(1) < 26 {
+    } else if device.sdk == 34 && target < 23 {
+        hard.push("Android 14 blocks normal installation for apps targeting below API 23.".into());
+    } else if target < 26 {
         cautions.push(
             "The APK targets an old Android version and may lose features on a modern device."
                 .into(),
@@ -90,5 +93,22 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(assess(&apk, &device).verdict, Verdict::Incompatible);
+    }
+
+    #[test]
+    fn applies_android_sideload_floor() {
+        let apk = ApkMetadata {
+            sha256: "a".into(),
+            package: Some("in.sociobot.old".into()),
+            min_sdk: Some(14),
+            target_sdk: Some(22),
+            ..Default::default()
+        };
+        let android_14 = DeviceInfo {
+            serial_hash: "d".into(),
+            sdk: 34,
+            ..Default::default()
+        };
+        assert_eq!(assess(&apk, &android_14).verdict, Verdict::Incompatible);
     }
 }

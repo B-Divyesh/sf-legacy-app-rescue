@@ -50,7 +50,7 @@ function terminal(id = 'terminal') {
 function landing() {
   return `${header()}<main id="main" tabindex="-1">
     <section class="hero" aria-labelledby="page-title">
-      <img class="hero-plate" src="/assets/field-guide-hero.webp" width="1200" height="800" alt="A field-guide plate shows a fern sheltering an archive box and device cable." fetchpriority="high" />
+      <img class="hero-plate" src="/assets/field-guide-hero.webp" srcset="/assets/field-guide-hero-720.webp 720w, /assets/field-guide-hero.webp 1200w" sizes="(max-width: 760px) 100vw, 1200px" width="1200" height="800" alt="A field-guide plate shows a fern sheltering an archive box and device cable." fetchpriority="high" />
       <div class="hero-copy">
         <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
