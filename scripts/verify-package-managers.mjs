@@ -5,8 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const repository = 'B-Divyesh/sf-legacy-app-rescue';
 const releaseBase = `https://github.com/${repository}/releases/download`;
-const publicFormula = 'https://raw.githubusercontent.com/B-Divyesh/homebrew-legacy-app-rescue/main/Formula/legacy-app-rescue.rb';
-const publicScoop = `https://raw.githubusercontent.com/${repository}/main/scoop-bucket/legacy-app-rescue.json`;
+const githubApi = 'https://api.github.com/repos';
 
 function fail(message) {
   throw new Error(`Package-manager release check failed: ${message}`);
@@ -74,12 +73,22 @@ async function textFrom(fetchImplementation, url) {
   return response.text();
 }
 
+async function githubFile(fetchImplementation, ownerRepository, path) {
+  const response = await fetchImplementation(`${githubApi}/${ownerRepository}/contents/${path}?ref=main`, {
+    headers: { Accept: 'application/vnd.github+json' }
+  });
+  if (!response.ok) fail(`${ownerRepository}/${path} returned ${response.status}.`);
+  const file = await response.json();
+  if (typeof file.content !== 'string' || file.encoding !== 'base64') fail(`${ownerRepository}/${path} did not return file content.`);
+  return Buffer.from(file.content, 'base64').toString('utf8');
+}
+
 export async function verifyPublishedPackageManagers(fetchImplementation = fetch) {
   const version = packageVersion();
   const sums = parseSums(await textFrom(fetchImplementation, `${releaseBase}/v${version}/SHA256SUMS`));
   verifyRepositoryPackageManifests({ version, hashes: sums });
-  verifyFormula(await textFrom(fetchImplementation, publicFormula), version, sums, 'published Homebrew formula');
-  verifyScoop(await textFrom(fetchImplementation, publicScoop), version, sums, 'published Scoop manifest');
+  verifyFormula(await githubFile(fetchImplementation, 'B-Divyesh/homebrew-legacy-app-rescue', 'Formula/legacy-app-rescue.rb'), version, sums, 'published Homebrew formula');
+  verifyScoop(await githubFile(fetchImplementation, repository, 'scoop-bucket/legacy-app-rescue.json'), version, sums, 'published Scoop manifest');
   return { version, hashes: sums };
 }
 
