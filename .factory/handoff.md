@@ -43,13 +43,13 @@ Lighthouse mobile preset against the production build:
 
 - Performance: **99**
 - Accessibility: **100**
-- Best practices: **96** before the first release; the only deduction was the then-expected GitHub `releases/latest` 404
+- Best practices: **100**
 - SEO: **100**
-- LCP: **2.0 s**
+- LCP: **2.3 s**
 - CLS: **0**
-- Total blocking time: **50 ms**
+- Total blocking time: **20 ms**
 
-Desktop Lighthouse measured 100 performance, 100 accessibility, 96 best practices, and 100 SEO. The page has 7.1 KB gzip JavaScript, 3.9 KB gzip CSS, 35 KB of fonts, and a 108 KB hero WebP.
+The desktop pre-release run measured 100 performance, 100 accessibility, and 100 SEO. The page has 7.2 KB gzip JavaScript, 3.9 KB gzip CSS, 35 KB of fonts, and a 108 KB hero WebP.
 
 The axe pass reports no serious or critical violations on `/`, `/demo`, `/privacy`, or `/terms`. The 390 px test reports no horizontal overflow and verifies the skip-link path.
 
