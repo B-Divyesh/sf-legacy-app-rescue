@@ -110,6 +110,19 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           generate_release_notes: true
           files: release/*
+      - name: Publish package manifests in the product repository
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
+          cp release/legacy-app-rescue.rb Formula/legacy-app-rescue.rb
+          cp release/legacy-app-rescue-scoop.json bucket/legacy-app-rescue.json
+          cp release/legacy-app-rescue-scoop.json scoop-bucket/legacy-app-rescue.json
+          cp release/B-Divyesh.LegacyAppRescue.yaml winget/B-Divyesh.LegacyAppRescue.yaml
+          git config user.name "Param Factory release bot"
+          git config user.email "factory@sociobot.in"
+          git add Formula bucket scoop-bucket winget
+          git diff --cached --quiet || git commit -m "release: publish package manifests ${RELEASE_TAG}"
+          git push origin main
       - name: Update Homebrew tap when operator token is available
         if: env.TAP_TOKEN != ''
         run: |

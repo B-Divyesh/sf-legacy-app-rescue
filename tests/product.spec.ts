@@ -79,14 +79,24 @@ test('@claim:field-kit rejects arbitrary tokens and keeps permitted exports priv
   expect(privateExport.status, privateExport.stderr).toBe(0);
 });
 
-test('@claim:platform-builds defines releases for three operating systems', async () => {
+test('@claim:platform-builds defines releases for three operating systems and current package-manager paths', async () => {
   const workflow = readFileSync(join(repo, '.github/workflows/release.yml'), 'utf8');
   expect(workflow).toContain('ubuntu-latest');
   expect(workflow).toContain('windows-latest');
   expect(workflow).toContain('macos-latest');
   expect(workflow).toContain('SHA256SUMS');
   expect(workflow).toContain('latest.json');
+  expect(workflow).toContain('Publish package manifests in the product repository');
   expect(readFileSync(join(repo, 'site/public/install.sh'), 'utf8')).toContain('Checksum did not match');
+  const { verifyRepositoryPackageManifests } = await import('../scripts/verify-package-managers.mjs');
+  expect(verifyRepositoryPackageManifests({
+    hashes: {
+      'rescue-linux-x86_64.tar.gz': '502e045a0984b6cd055427e3758919d9f16314f5fc91b7fd4148f25069ad1206',
+      'rescue-macos-arm64.tar.gz': '913c59882f0443edb9676cd67097a2f3fcfffe12e6432c86e5a5c0e04b52202a',
+      'rescue-macos-x86_64.tar.gz': 'e18086e3ac9684d7217c0742903a835d0d66d6fb2ef7fb2bdbdd368eec162b93',
+      'rescue-windows-x86_64.zip': 'a43193326779486470bd2cccc3446e7f22d90015ce0635b0f72288d4b5e0c9e7'
+    }
+  })).toBe('0.1.1');
 });
 
 test('regression: deployed asset route has a one-year immutable cache policy', async () => {
@@ -203,6 +213,24 @@ test('@claim:browser-license-cache verifies a stored browser license at most onc
   await page.reload();
   await expect(page.getByText('A license is active in this browser. Sociobot checks it again at most once a day.')).toBeVisible();
   expect(checks).toBe(0);
+});
+
+test('@claim:browser-license-removal removes the token and cached verdict with the keyboard-accessible control', async ({ page }) => {
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('sb_license:legacy-app-rescue', 'remove-me');
+    localStorage.setItem('sb_license_status:legacy-app-rescue', JSON.stringify({ valid: false, checkedAt: Date.now() }));
+  });
+  await page.reload();
+  const remove = page.getByRole('button', { name: 'Remove stored license' });
+  await remove.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByText('Stored license removed from this browser.')).toBeVisible();
+  expect(await page.evaluate(() => ({
+    token: localStorage.getItem('sb_license:legacy-app-rescue'),
+    status: localStorage.getItem('sb_license_status:legacy-app-rescue')
+  }))).toEqual({ token: null, status: null });
 });
 
 test('@claim:export-refusal-cleanup removes a refused app-data archive without root', async () => {

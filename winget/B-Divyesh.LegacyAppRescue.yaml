@@ -1,5 +1,5 @@
 PackageIdentifier: B-Divyesh.LegacyAppRescue
-PackageVersion: 0.1.0
+PackageVersion: 0.1.1
 PackageLocale: en-US
 Publisher: Param Factory
 PackageName: Legacy App Rescue
@@ -13,7 +13,7 @@ Installers:
     NestedInstallerFiles:
       - RelativeFilePath: rescue.exe
         PortableCommandAlias: rescue
-    InstallerUrl: https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.0/rescue-windows-x86_64.zip
-    InstallerSha256: 8E1E5677EF42B4C5D599A6E4350BC95504A5BD699BCEFC00B04C7347565255A5
+    InstallerUrl: https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.1/rescue-windows-x86_64.zip
+    InstallerSha256: A43193326779486470BD2CCCC3446E7F22D90015CE0635B0F72288D4B5E0C9E7
 ManifestType: singleton
 ManifestVersion: 1.9.0

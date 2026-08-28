@@ -70,6 +70,13 @@
     "sandbox": "fresh browser storage with a valid current cache; reload and count Sociobot verification requests"
   },
   {
+    "id": "browser-license-removal",
+    "claim": "Stored license tokens can be removed from this browser.",
+    "where": "license form and privacy page",
+    "test": "npm test -- --grep @claim:browser-license-removal",
+    "sandbox": "fresh browser storage with a token and cached verdict; use the named removal control and inspect localStorage"
+  },
+  {
     "id": "export-refusal-cleanup",
     "claim": "App-data export stops on Android refusal and does not use root.",
     "where": "privacy page, README",

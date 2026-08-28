@@ -13,7 +13,8 @@
     "test:all": "npm test",
     "record:demo": "node scripts/record-demo.mjs",
     "check": "tsc --noEmit",
-    "verify:billing": "node scripts/verify-billing.mjs"
+    "verify:billing": "node scripts/verify-billing.mjs",
+    "verify:package-managers": "node scripts/verify-package-managers.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",

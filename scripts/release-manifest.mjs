@@ -54,3 +54,24 @@ const scoop = {
 };
 writeFileSync(join(directory, 'legacy-app-rescue-scoop.json'), JSON.stringify(scoop, null, 2) + '\n');
 
+const winget = `PackageIdentifier: B-Divyesh.LegacyAppRescue
+PackageVersion: ${tag.replace(/^v/, '')}
+PackageLocale: en-US
+Publisher: Param Factory
+PackageName: Legacy App Rescue
+License: MIT
+ShortDescription: Preserve Android APK evidence and check device compatibility locally.
+PackageUrl: https://legacy-app-rescue.sociobot.in
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: rescue.exe
+        PortableCommandAlias: rescue
+    InstallerUrl: ${url('rescue-windows-x86_64.zip')}
+    InstallerSha256: ${(assets['rescue-windows-x86_64.zip']?.sha256 || '').toUpperCase()}
+ManifestType: singleton
+ManifestVersion: 1.9.0
+`;
+writeFileSync(join(directory, 'B-Divyesh.LegacyAppRescue.yaml'), winget);

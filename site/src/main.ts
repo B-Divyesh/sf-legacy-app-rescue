@@ -104,7 +104,7 @@ function landing() {
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
       <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Have a license?</a></div><p class="fine-print">Sociobot is the merchant of record. A refund turns off the license.</p></div>
-      <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required /><button type="submit">Verify license</button></div><p data-license-status aria-live="polite">The token stays in this browser and can be removed.</p></form>
+      <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p data-license-status aria-live="polite">The token stays in this browser. Remove stored license deletes it and its check status.</p></div></form>
     </section>
   </main>${footer()}`;
 }
@@ -133,7 +133,7 @@ function privacyPage() {
     <h2>App-data export</h2><p>Field Kit asks Android <code>run-as</code> for access. If Android refuses, the CLI stops. It does not use root or a bypass.</p>
     <h2>Website storage</h2><p>The demo uses keys beginning with <code>demo:legacy-app-rescue:</code>. Leaving the demo removes them.</p><p>A license is stored under <code>sb_license:legacy-app-rescue</code>. Release details may be cached for one hour.</p>
     <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. If the service is busy, the site asks you to try again shortly. The checkout opens Sociobot's hosted payment page.</p>
-    <h2>Remove stored data</h2><p>Use “Start for real” to clear demo data. Remove a site license with your browser's storage controls.</p>
+    <h2>Remove stored data</h2><p>Use “Start for real” to clear demo data. Use <a href="/#restore" data-route>Remove stored license</a> to clear the license and its check status.</p>
     <h2>Contact</h2><p>Questions can be sent to <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p>
   </main>${footer()}`;
 }
@@ -353,6 +353,12 @@ function bindLicense() {
     status.textContent = 'Checking this license with Sociobot…';
     localStorage.setItem(`sb_license:${PRODUCT}`, token);
     status.textContent = await verifyLicense(token);
+  });
+  form.querySelector<HTMLButtonElement>('[data-remove-license]')?.addEventListener('click', () => {
+    localStorage.removeItem(`sb_license:${PRODUCT}`);
+    localStorage.removeItem(`sb_license_status:${PRODUCT}`);
+    form.reset();
+    status.textContent = 'Stored license removed from this browser.';
   });
 }
 
