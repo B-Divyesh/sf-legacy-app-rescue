@@ -1,8 +1,10 @@
 # Legacy App Rescue v0.1.0 handoff
 
-## Independent verification status — FAIL
+## Repair verification status — PASS
 
-Candidate `57ffb5d225619660ddcfc5413ad8df30b4a03e8f` and https://legacy-app-rescue.sociobot.in were independently verified on 2026-08-28. All eight required claims, 6 Rust unit tests, 14 Playwright tests, type checks, clippy, release build, package build, and the clean-consumer Linux CLI exercise passed. The candidate is nevertheless **FAIL** until deployment cache headers are corrected: live hashed JS, CSS, and image assets are served as `public, must-revalidate, max-age=30`, not a long-lived immutable cache policy. See [verification.md](verification.md) for evidence and retest steps.
+Independent verification of candidate `57ffb5d225619660ddcfc5413ad8df30b4a03e8f` found one release blocker: deployed assets used `public, must-revalidate, max-age=30`. The defect was reproduced on the reported JS, CSS, and hero URLs on 2026-08-28.
+
+Repair commit `1fcefcb` adds an Azure Static Web Apps `/assets/*` response rule for `public, max-age=31536000, immutable`. Regression coverage parses the built deployment config and verifies that the rule covers the emitted JS, CSS, and hero asset classes. Deployment `2d3e8a00-02b6-4654-882f-2477778a97b4` completed successfully. The three reported live URLs now return the required one-year immutable policy.
 
 ## What shipped
 
@@ -39,23 +41,41 @@ npm audit --audit-level=high
 /tmp/actionlint .github/workflows/release.yml
 ```
 
-`npm test` covers six Rust unit tests and fourteen Chromium tests. Every entry in `.factory/claims.json` has one tagged test.
+`npm test` covers six Rust unit tests and fifteen Chromium tests. Every entry in `.factory/claims.json` has one tagged test. The fifteenth test is the immutable-cache regression.
+
+Repair verification commands:
+
+```sh
+npm ci
+npm test
+cargo fmt --all -- --check
+cargo clippy --all-targets --locked -- -D warnings
+cargo build --release --locked
+cargo package --locked --no-verify
+npm audit --audit-level=high
+actionlint .github/workflows/release.yml
+npm ci && npm run build:site
+```
+
+All passed. `npm audit` found zero vulnerabilities. A clean consumer download of `rescue-linux-x86_64.tar.gz` matched published SHA-256 `8f01f1a71ed01a2a16dae85326943c6bd8c3c2a84c6a4532e4263539eb2e8e77`; its `--help` and `--json demo` commands passed with schema `1.0`.
 
 ## Measured results
 
-Lighthouse mobile preset against the production build:
+Lighthouse mobile preset against the repaired live deployment:
 
-- Performance: **99**
+- Performance: **98**
 - Accessibility: **100**
 - Best practices: **100**
 - SEO: **100**
-- LCP: **2.3 s**
+- LCP: **2.482 s**
 - CLS: **0**
-- Total blocking time: **20 ms**
+- Total blocking time: **10 ms**
 
-The desktop pre-release run measured 100 performance, 100 accessibility, and 100 SEO. The page has 7.2 KB gzip JavaScript, 3.9 KB gzip CSS, 35 KB of fonts, and a 108 KB hero WebP.
+The page has 7.22 KB gzip JavaScript, 3.89 KB gzip CSS, 35 KB of fonts, and a 108 KB hero WebP.
 
-The axe pass reports no serious or critical violations on `/`, `/demo`, `/privacy`, or `/terms`. The 390 px test reports no horizontal overflow and verifies the skip-link path.
+Live desktop checks of `/`, `/demo`, `/privacy`, and `/terms` returned 200 with one `h1`, one `main`, `lang="en"`, no horizontal overflow, no console errors, and no serious or critical axe violations. At 390 px, the demo had no horizontal overflow, the skip link moved focus to `main`, and every request stayed on the product origin. Reduced motion rendered the complete terminal output with a Replay control. The static product registers no service worker or Cache Storage, while the offline CLI demo remains covered by the no-network privacy claim.
+
+The deployed `index.html`, app JS, CSS, and hero WebP match `dist/site/` byte-for-byte. Live CSP, HSTS, `nosniff`, referrer, and permissions policies are present. Evidence screenshots, the URL smoke report, and Lighthouse JSON are in `/work/.evidence/legacy-app-rescue-repair-1/` in the repair worker.
 
 ## Design and asset provenance
 
