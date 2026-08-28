@@ -1,0 +1,58 @@
+[
+  {
+    "id": "manifest-record",
+    "claim": "Records APK hashes, package details, signers, SDK needs, and native CPUs in JSON.",
+    "where": "landing preview, README",
+    "test": "npm test -- --grep @claim:manifest-record",
+    "sandbox": "rescue demo in a temporary directory; parse the emitted JSON"
+  },
+  {
+    "id": "compatibility-verdict",
+    "claim": "Checks SDK and CPU requirements against an Android device.",
+    "where": "landing first screen and preview, README",
+    "test": "npm test -- --grep @claim:compatibility-verdict",
+    "sandbox": "bundled APK and fictional Android 13 arm64 device"
+  },
+  {
+    "id": "demo-sandbox",
+    "claim": "The demo uses sample data and does not save to normal records.",
+    "where": "demo banner, terminal recording, README",
+    "test": "npm test -- --grep @claim:demo-sandbox",
+    "sandbox": "fresh browser context at /demo with localStorage inspection"
+  },
+  {
+    "id": "local-private",
+    "claim": "APK scans stay on your computer.",
+    "where": "landing first screen, privacy page, README",
+    "test": "npm test -- --grep @claim:local-private",
+    "sandbox": "fresh browser context plus rescue demo with unreachable HTTP proxies"
+  },
+  {
+    "id": "field-kit",
+    "claim": "Field Kit adds batch scans and app-data export when Android permits run-as.",
+    "where": "paid section, README",
+    "test": "npm test -- --grep @claim:field-kit",
+    "sandbox": "two bundled APK fixtures and a fake authorized ADB device"
+  },
+  {
+    "id": "platform-builds",
+    "claim": "Runs on macOS, Windows, and Linux.",
+    "where": "landing first screen, install section, README",
+    "test": "npm test -- --grep @claim:platform-builds",
+    "sandbox": "inspect release workflow matrix and checksum outputs"
+  },
+  {
+    "id": "paid-license",
+    "claim": "Field Kit costs $19 once and uses the Sociobot license service.",
+    "where": "landing first screen, paid section, terms, README",
+    "test": "npm test -- --grep @claim:paid-license",
+    "sandbox": "fresh browser context with mocked Sociobot verification response"
+  },
+  {
+    "id": "binary-manifest",
+    "claim": "Reads plain and Android binary XML manifests.",
+    "where": "README limits and safety",
+    "test": "npm test -- --grep @claim:binary-manifest",
+    "sandbox": "constructed Android binary XML fixture parsed by the Rust test"
+  }
+]

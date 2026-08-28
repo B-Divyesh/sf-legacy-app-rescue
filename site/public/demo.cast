@@ -1,0 +1,9 @@
+{"version":2,"width":92,"height":18,"timestamp":1787932800,"env":{"SHELL":"/bin/sh","TERM":"xterm-256color"}}
+[0.35,"o","LEGACY APP RESCUE · DEMO SPECIMEN\n"]
+[0.69,"o","✓ APK hash recorded\n"]
+[1.03,"o","✓ Package: in.sociobot.orchardnotes\n"]
+[1.37,"o","✓ SDK range: 21 → 28\n"]
+[1.71,"o","✓ Signer evidence: 1 record\n"]
+[2.05,"o","✓ Device match: Compatible\n"]
+[2.39,"o","Manifest: …/preservation-manifest.json\n"]
+[2.73,"o","Demo used bundled sample data. Nothing was saved to your normal records.\n"]

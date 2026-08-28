@@ -408,6 +408,72 @@ fn u32_at(bytes: &[u8], offset: usize) -> Result<u32> {
 mod tests {
     use super::*;
 
+    fn append_u16(out: &mut Vec<u8>, value: u16) {
+        out.extend(value.to_le_bytes());
+    }
+
+    fn append_u32(out: &mut Vec<u8>, value: u32) {
+        out.extend(value.to_le_bytes());
+    }
+
+    fn string_pool(strings: &[&str]) -> Vec<u8> {
+        let mut data = Vec::new();
+        let mut offsets = Vec::new();
+        for value in strings {
+            offsets.push(data.len() as u32);
+            data.push(value.len() as u8);
+            data.push(value.len() as u8);
+            data.extend(value.as_bytes());
+            data.push(0);
+        }
+        while data.len() % 4 != 0 {
+            data.push(0);
+        }
+        let start = 28 + offsets.len() * 4;
+        let mut out = Vec::new();
+        append_u16(&mut out, 0x0001);
+        append_u16(&mut out, 28);
+        append_u32(&mut out, (start + data.len()) as u32);
+        append_u32(&mut out, strings.len() as u32);
+        append_u32(&mut out, 0);
+        append_u32(&mut out, 0x100);
+        append_u32(&mut out, start as u32);
+        append_u32(&mut out, 0);
+        for offset in offsets {
+            append_u32(&mut out, offset);
+        }
+        out.extend(data);
+        out
+    }
+
+    fn start_element(name: u32, attributes: &[(u32, u32, u8, u32)]) -> Vec<u8> {
+        let size = 36 + attributes.len() * 20;
+        let mut out = Vec::new();
+        append_u16(&mut out, 0x0102);
+        append_u16(&mut out, 16);
+        append_u32(&mut out, size as u32);
+        append_u32(&mut out, 1);
+        append_u32(&mut out, u32::MAX);
+        append_u32(&mut out, u32::MAX);
+        append_u32(&mut out, name);
+        append_u16(&mut out, 20);
+        append_u16(&mut out, 20);
+        append_u16(&mut out, attributes.len() as u16);
+        append_u16(&mut out, 0);
+        append_u16(&mut out, 0);
+        append_u16(&mut out, 0);
+        for (attribute_name, raw, kind, data) in attributes {
+            append_u32(&mut out, u32::MAX);
+            append_u32(&mut out, *attribute_name);
+            append_u32(&mut out, *raw);
+            append_u16(&mut out, 8);
+            out.push(0);
+            out.push(*kind);
+            append_u32(&mut out, *data);
+        }
+        out
+    }
+
     #[test]
     fn parses_plain_manifest() {
         let xml = br#"<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="in.sociobot.orchard" android:versionCode="17" android:versionName="1.7"><uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28"/><application android:debuggable="false"/></manifest>"#;
@@ -416,6 +482,66 @@ mod tests {
         assert_eq!(parsed.min_sdk, Some(21));
         assert_eq!(parsed.version_code, Some(17));
         assert_eq!(parsed.debuggable, Some(false));
+    }
+
+    #[test]
+    fn parses_binary_manifest() {
+        let strings = [
+            "manifest",
+            "package",
+            "in.sociobot.binary",
+            "versionCode",
+            "uses-sdk",
+            "minSdkVersion",
+            "targetSdkVersion",
+            "application",
+            "debuggable",
+        ];
+        let pool = string_pool(&strings);
+        let manifest = start_element(0, &[(1, 2, 0x03, 2), (3, u32::MAX, 0x10, 42)]);
+        let sdk = start_element(4, &[(5, u32::MAX, 0x10, 23), (6, u32::MAX, 0x10, 33)]);
+        let application = start_element(7, &[(8, u32::MAX, 0x12, 0)]);
+        let total = 8 + pool.len() + manifest.len() + sdk.len() + application.len();
+        let mut xml = Vec::new();
+        append_u16(&mut xml, 0x0003);
+        append_u16(&mut xml, 8);
+        append_u32(&mut xml, total as u32);
+        xml.extend(pool);
+        xml.extend(manifest);
+        xml.extend(sdk);
+        xml.extend(application);
+
+        let parsed = parse_manifest(&xml).unwrap();
+        assert_eq!(parsed.package.as_deref(), Some("in.sociobot.binary"));
+        assert_eq!(parsed.version_code, Some(42));
+        assert_eq!(parsed.min_sdk, Some(23));
+        assert_eq!(parsed.target_sdk, Some(33));
+        assert_eq!(parsed.debuggable, Some(false));
+    }
+
+    #[test]
+    fn extracts_signing_certificate() {
+        fn field(value: &[u8]) -> Vec<u8> {
+            let mut out = (value.len() as u32).to_le_bytes().to_vec();
+            out.extend(value);
+            out
+        }
+        let certificate = b"fictional-der-certificate";
+        let certificate_sequence = field(certificate);
+        let signed_data = [
+            field(b"digests"),
+            field(&certificate_sequence),
+            field(b"attrs"),
+        ]
+        .concat();
+        let signer = [
+            field(&signed_data),
+            field(b"signatures"),
+            field(b"public-key"),
+        ]
+        .concat();
+        let value = field(&field(&signer));
+        assert_eq!(signing_certificates(&value), vec![certificate.as_slice()]);
     }
 
     #[test]
