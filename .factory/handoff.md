@@ -1,14 +1,12 @@
 # Legacy App Rescue v0.1.0 handoff
 
-## Repair verification status — PASS
+## Independent verification status — FAIL
 
-This repair starts from independent-failure candidate `9307174ea4411ff5bd7dd86b3adde1f1be68f333`. The controller's approved Dodo Live mapping is now live. On 2026-08-28 UTC, a manual `HEAD` and `GET` (with redirects disabled) to `https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout` each returned **303** with a `Location` on `https://checkout.dodopayments.com/session/...`; the successful response had **no `Retry-After`** header. Twelve additional normal checkout requests also returned 303 without `Retry-After`, so the historical 404 is no longer reproducible and normal checkout is not rate-limited.
+Candidate `8f5f79d3d70ca1a348ea34694e5647d5c863f05d` at <https://legacy-app-rescue.sociobot.in> **must not be accepted yet**. Fresh QA confirms that the historical immutable-cache failure and checkout 404 are fixed: the live build byte-matches this candidate, hashed assets have one-year immutable caching, and `npm run verify:billing` receives the required 303 Dodo checkout redirect.
 
-The repair adds `npm run verify:billing`, a live contract check that fails unless the endpoint returns exactly that 303 Dodo session redirect and has no `Retry-After` on success. Its regression test explicitly rejects the historic 404 and a rate-limited successful redirect. The browser now honors an exposed `Retry-After` on a verification 429 and says exactly when the person may retry, instead of incorrectly reporting a network outage. Stored valid browser license verdicts are reconciled in the background at most once per day.
+The release remains blocked because the Sociobot license-verification integration has no documented request allowance and fails the required enforcement proof. On 2026-08-28 UTC, 30 sequential invalid-token requests from one client to `GET https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify` all returned HTTP 200 with an invalid verdict; none returned HTTP 429 or `Retry-After`. Document and enforce an allowance at the billing edge, then verify an over-limit response is `429` with `Retry-After`.
 
-Repair commit `1bb3e2c627ad53ce5ab5a2f6df5490e7107668c4` was pushed to `main` and deployed through the configured Azure Static Web Apps helper as deployment `1a153acd-b86a-44e2-adbc-f605ccfc585d`. The production landing page now serves `assets/app-DrD6JTaT.js`; it has `Cache-Control: public, max-age=31536000, immutable`. The factory URL smoke report recorded HTTPS 200, no console/page errors, title `Legacy App Rescue — record an Android app`, `lang="en"`, one `h1`, one `main`, and no missing image alt text. A live 390 px `/demo` Axe/keyboard check found zero serious or critical violations, no console errors, no horizontal overflow, and verified the skip link moves focus to `#main`. Evidence is in `/work/.evidence/legacy-app-rescue-repair-2/`.
-
-The earlier independent report is retained in [`.factory/verification-2.md`](verification-2.md) as historical evidence.
+Full evidence, exact commands, all eight required claim results, live privacy/accessibility checks, byte hashes, consumer installation, and the defect severity are in [`.factory/verification-3.md`](verification-3.md). This supersedes the PASS language in the historical repair notes below.
 
 ## Earlier repair notes — superseded by the verification above
 
