@@ -137,6 +137,40 @@ test('@claim:paid-license sends the license only to Sociobot', async ({ page }) 
   await expect(page.getByRole('link', { name: 'Buy Field Kit for $19' })).toHaveAttribute('href', /api\.sociobot\.in\/api\/v1\/products\/legacy-app-rescue\/checkout/);
 });
 
+test('regression: checkout rejects the reported 404 and accepts only a Dodo 303 without Retry-After', async () => {
+  const { assertCheckoutResponse } = await import('../scripts/verify-billing.mjs');
+  expect(() => assertCheckoutResponse(new Response(null, { status: 404 }))).toThrow('Expected Sociobot checkout to return 303, received 404.');
+  expect(() => assertCheckoutResponse(new Response(null, {
+    status: 303,
+    headers: { location: 'https://checkout.dodopayments.com/session/verified-session' }
+  }))).not.toThrow();
+  expect(() => assertCheckoutResponse(new Response(null, {
+    status: 303,
+    headers: {
+      location: 'https://checkout.dodopayments.com/session/verified-session',
+      'Retry-After': '90'
+    }
+  }))).toThrow('A successful 303 checkout redirect must not be rate-limited');
+});
+
+test('regression: license rate limits show the Retry-After wait time', async ({ page }) => {
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.route('https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify**', route => route.fulfill({
+    status: 429,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Expose-Headers': 'Retry-After',
+      'Retry-After': '90'
+    },
+    contentType: 'application/json',
+    body: '{"detail":"slow down"}'
+  }));
+  await page.goto('/');
+  await page.getByLabel('Paste a license from your receipt').fill('rate-limited-token');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect(page.getByText('License checks are busy. Try again in 90 seconds.')).toBeVisible();
+});
+
 for (const path of ['/', '/demo', '/privacy', '/terms']) {
   test(`accessibility smoke ${path}`, async ({ page }) => {
     if (path === '/') await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));

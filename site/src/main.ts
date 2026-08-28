@@ -5,6 +5,7 @@ const REPO = 'B-Divyesh/sf-legacy-app-rescue';
 const RELEASES = `https://github.com/${REPO}/releases`;
 const API = 'https://api.sociobot.in/api/v1';
 const DEMO_PREFIX = `demo:${PRODUCT}:`;
+const LICENSE_CACHE_MS = 86_400_000;
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const announcer = document.querySelector<HTMLDivElement>('.route-announcer')!;
 
@@ -278,20 +279,52 @@ async function bindDownloads() {
   }
 }
 
+type CachedLicenseStatus = { valid: boolean; checkedAt: number };
+
+function readCachedLicenseStatus() {
+  try {
+    const value = JSON.parse(localStorage.getItem(`sb_license_status:${PRODUCT}`) || 'null') as CachedLicenseStatus | null;
+    return value && typeof value.valid === 'boolean' && typeof value.checkedAt === 'number' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function retryAfterMessage(value: string | null) {
+  if (!value) return 'License checks are busy. Try again shortly.';
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds > 0) {
+    return `License checks are busy. Try again in ${Math.ceil(seconds)} seconds.`;
+  }
+  const date = Date.parse(value);
+  if (Number.isFinite(date)) {
+    const secondsUntilRetry = Math.max(1, Math.ceil((date - Date.now()) / 1000));
+    return `License checks are busy. Try again in ${secondsUntilRetry} seconds.`;
+  }
+  return 'License checks are busy. Try again shortly.';
+}
+
 function bindLicense() {
   const params = new URLSearchParams(location.search);
   const returned = params.get('license');
+  const form = document.querySelector<HTMLFormElement>('.license-form');
+  if (!form) return;
+  const status = form.querySelector<HTMLElement>('[data-license-status]')!;
   if (returned) {
     localStorage.setItem(`sb_license:${PRODUCT}`, returned);
     params.delete('license');
     history.replaceState({}, '', `${location.pathname}${params.size ? `?${params}` : ''}${location.hash}`);
-    void verifyLicense(returned);
+    status.textContent = 'Checking the license from your receipt with Sociobot…';
+    void verifyLicense(returned).then(message => { status.textContent = message; });
+  } else {
+    const saved = localStorage.getItem(`sb_license:${PRODUCT}`);
+    const cached = readCachedLicenseStatus();
+    if (saved && cached?.valid) status.textContent = 'A license is active in this browser. Sociobot checks it again at most once a day.';
+    else if (saved) status.textContent = 'A license is stored in this browser. Verify it again if needed.';
+    if (saved && (!cached || Date.now() - cached.checkedAt >= LICENSE_CACHE_MS)) {
+      void verifyLicense(saved).then(message => { status.textContent = message; });
+    }
   }
-  const form = document.querySelector<HTMLFormElement>('.license-form');
-  if (!form) return;
-  const saved = localStorage.getItem(`sb_license:${PRODUCT}`);
-  const status = form.querySelector<HTMLElement>('[data-license-status]')!;
-  if (saved) status.textContent = 'A license is stored in this browser. Verify it again if needed.';
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const token = new FormData(form).get('license')?.toString().trim() || '';
@@ -305,6 +338,7 @@ function bindLicense() {
 async function verifyLicense(token: string) {
   try {
     const response = await fetch(`${API}/products/${PRODUCT}/verify?license=${encodeURIComponent(token)}`);
+    if (response.status === 429) return retryAfterMessage(response.headers.get('Retry-After'));
     if (!response.ok) throw new Error('service error');
     const verdict = await response.json() as { valid: boolean; reason: string };
     localStorage.setItem(`sb_license_status:${PRODUCT}`, JSON.stringify({ valid: verdict.valid, checkedAt: Date.now() }));

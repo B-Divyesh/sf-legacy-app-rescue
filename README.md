@@ -146,9 +146,12 @@ cargo build --release --locked
 npm ci
 npm test
 npm run build:site
+npm run verify:billing
 ```
 
 The site output is exactly `dist/site/`. The release workflow builds platform binaries on GitHub Actions.
+
+`npm run verify:billing` is a live release check. It confirms the Sociobot checkout returns a `303` to a hosted Dodo session and that a successful redirect has no `Retry-After` header.
 
 ## Test individual promises
 

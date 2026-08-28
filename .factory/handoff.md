@@ -1,10 +1,12 @@
 # Legacy App Rescue v0.1.0 handoff
 
-## Independent verification status — FAIL
+## Repair verification status — PASS locally; deployment pending
 
-Candidate `9307174ea4411ff5bd7dd86b3adde1f1be68f333` was independently reverified against <https://legacy-app-rescue.sociobot.in> on 2026-08-28 UTC. **Do not release/accept it yet.** The prior deployment cache defect is fixed, but the advertised production Field Kit checkout is unavailable: `https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout` returns HTTP 404. The $19 purchase flow is therefore not end-to-end usable. The Sociobot integration also has no documented/enforceable request allowance that could be driven to 429 with `Retry-After`; the observed invalid-license verification returned normal 200/invalid without rate-limit headers.
+This repair starts from independent-failure candidate `9307174ea4411ff5bd7dd86b3adde1f1be68f333`. The controller's approved Dodo Live mapping is now live. On 2026-08-28 UTC, a manual `HEAD` and `GET` (with redirects disabled) to `https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout` each returned **303** with a `Location` on `https://checkout.dodopayments.com/session/...`; the successful response had **no `Retry-After`** header. Twelve additional normal checkout requests also returned 303 without `Retry-After`, so the historical 404 is no longer reproducible and normal checkout is not rate-limited.
 
-See [`.factory/verification-2.md`](verification-2.md) for exact fresh evidence, all required claim results, and remediation. Register/configure the Sociobot `legacy-app-rescue` product and return URL, then verify checkout and its rate allowance before changing this status to PASS.
+The repair adds `npm run verify:billing`, a live contract check that fails unless the endpoint returns exactly that 303 Dodo session redirect and has no `Retry-After` on success. Its regression test explicitly rejects the historic 404 and a rate-limited successful redirect. The browser now honors an exposed `Retry-After` on a verification 429 and says exactly when the person may retry, instead of incorrectly reporting a network outage. Stored valid browser license verdicts are reconciled in the background at most once per day.
+
+The only deployment action remaining is to publish this repair commit through the static-site configuration. The earlier independent report is retained in [`.factory/verification-2.md`](verification-2.md) as historical evidence.
 
 ## Earlier repair notes — superseded by the verification above
 
@@ -47,7 +49,7 @@ npm audit --audit-level=high
 /tmp/actionlint .github/workflows/release.yml
 ```
 
-`npm test` covers six Rust unit tests and fifteen Chromium tests. Every entry in `.factory/claims.json` has one tagged test. The fifteenth test is the immutable-cache regression.
+`npm test` covers six Rust unit tests and seventeen Chromium tests. Every entry in `.factory/claims.json` has one tagged test. The additional regressions cover immutable deployment caching, the exact failed checkout contract, and a 429 with an exposed `Retry-After`.
 
 Repair verification commands:
 
@@ -61,6 +63,7 @@ cargo package --locked --no-verify
 npm audit --audit-level=high
 actionlint .github/workflows/release.yml
 npm ci && npm run build:site
+npm run verify:billing
 ```
 
 All passed. `npm audit` found zero vulnerabilities. A clean consumer download of `rescue-linux-x86_64.tar.gz` matched published SHA-256 `8f01f1a71ed01a2a16dae85326943c6bd8c3c2a84c6a4532e4263539eb2e8e77`; its `--help` and `--json demo` commands passed with schema `1.0`.
@@ -99,6 +102,5 @@ The image used `/opt/fleet/lib/gen-image.sh`. Atkinson Hyperlegible files come f
 
 ## Needs operator action
 
-- Register `legacy-app-rescue` in Sociobot billing at **$19 one-time** with this site's return URL.
 - Submit the prepared Winget manifest to `microsoft/winget-pkgs`.
 - For signed packages later, provide Apple notarization and Windows Authenticode credentials. The current workflow expects no signing secrets.
