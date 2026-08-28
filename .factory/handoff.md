@@ -55,6 +55,12 @@ Live route checks returned 200 for `/`, `/demo`, `/privacy`, `/terms`, `/robots.
 
 The standalone `@axe-core/cli` could not find a system Chrome binary in the worker. The equivalent installed Playwright axe integration was run directly against live `/`, `/demo`, `/privacy`, and `/terms` at 390 px with reduced motion: all had zero serious/critical findings, zero console/page errors, no horizontal overflow, and no targets below 44×44 px.
 
+## Release evidence
+
+Tag `v0.1.1` completed GitHub Actions run `33219733341` successfully on Linux, Windows, Intel macOS, and Apple-silicon macOS. The published release includes Linux tar/deb/rpm, Windows ZIP, both macOS tarballs/packages, `SHA256SUMS`, and valid `latest.json`. Downloaded `rescue-linux-x86_64.tar.gz` SHA-256 is `502e045a0984b6cd055427e3758919d9f16314f5fc91b7fd4148f25069ad1206`, matching `SHA256SUMS` and `latest.json`.
+
+The downloaded public v0.1.1 Linux binary was exercised against two bundled APK fixtures with `LEGACY_RESCUE_LICENSE=bogus`; it exited 1 with Field Kit activation guidance and wrote no manifest. This confirms the release artifact, not only the local build, rejects the former bypass.
+
 ## Known constraints
 
 This is a local CLI plus static site. It has no product-owned backend, service worker, or sign-in flow. The only network call needed by a paid CLI action is Sociobot license verification; APK scans, the CLI demo, and web demo remain local/no-upload.
