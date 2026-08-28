@@ -1,5 +1,21 @@
 # Legacy App Rescue v0.1.0 handoff
 
+## Independent verification 4 status — FAIL
+
+Candidate `e0a83a294248fa2f85ebb618d151ef1988a91a2c` was independently tested against <https://legacy-app-rescue.sociobot.in> on 2026-08-28 UTC. **Do not accept or promote it.** Full evidence is in [`.factory/verification-4.md`](verification-4.md).
+
+Release blockers:
+
+1. Any non-empty `LEGACY_RESCUE_LICENSE` value unlocks paid batch scans and app-data export without Sociobot verification. This reproduces in both the candidate build and published v0.1.0 binary; the current Field Kit claim test uses this bypass.
+2. App-data export archives are created mode `0644` in a normal `0755` output directory, exposing private app data to other local users. Manifests are correctly `0600`.
+3. Public promises including installer checksum behavior, all-command non-interactivity, once-daily license verification, exact browser retry behavior, and refusal cleanup have no corresponding entries in `.factory/claims.json`, which fails the supplied claims contract.
+
+Additional defects: multiple controls/links miss the 44×44 target baseline; terminal copy renders at 11.7 px; Android visitors receive a Linux x86_64 download and normal Apple-silicon browser identity receives the Intel package; unknown routes are soft 200s; `--json` is ignored by successful license status/remove commands; and production `Retry-After` is not CORS-exposed to the browser UI.
+
+Passing evidence remains substantial: all eight declared claims pass after `npm ci`; the full suite passes 6 Rust and 18 Playwright tests; typecheck, build, format, strict Clippy, release build/package, and audit pass; the one-line Linux installer and clean crate consumer work; the live web files byte-match the candidate; headers/caching/privacy logs are sound; axe has zero serious/critical findings; Lighthouse is 92/100/96/100 with LCP 2457 ms; and the repaired live allowance is 30 requests, with request 31 returning 429 plus `Retry-After` at the network layer.
+
+## Builder handoff — superseded by independent verification 4
+
 ## Repair status — ready to deploy
 
 This repair starts from rejected candidate `8f5f79d3d70ca1a348ea34694e5647d5c863f05d`. The only fresh blocker in [`.factory/verification-3.md`](verification-3.md) was an incomplete rate-limit probe: it sent the 30 requests that Sociobot permits, then incorrectly treated the absence of a 429 among those allowed requests as no limiter.
