@@ -1,0 +1,19 @@
+PackageIdentifier: B-Divyesh.LegacyAppRescue
+PackageVersion: 0.1.0
+PackageLocale: en-US
+Publisher: Param Factory
+PackageName: Legacy App Rescue
+License: MIT
+ShortDescription: Preserve Android APK evidence and check device compatibility locally.
+PackageUrl: https://legacy-app-rescue.sociobot.in
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: rescue.exe
+        PortableCommandAlias: rescue
+    InstallerUrl: https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.0/rescue-windows-x86_64.zip
+    InstallerSha256: RELEASE_WORKFLOW_REPLACES_THIS
+ManifestType: singleton
+ManifestVersion: 1.9.0

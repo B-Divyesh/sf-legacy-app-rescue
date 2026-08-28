@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "description": "Preserve Android APK evidence and check device compatibility locally.",
+  "homepage": "https://legacy-app-rescue.sociobot.in",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.0/rescue-windows-x86_64.zip",
+      "hash": "RELEASE_WORKFLOW_REPLACES_THIS"
+    }
+  },
+  "bin": "rescue.exe"
+}
