@@ -132,7 +132,7 @@ function privacyPage() {
     <h2>APK and device scans</h2><p>The CLI reads only the APK paths and device you choose. It does not upload APKs, manifests, package lists, or app data.</p><p>The device serial is stored as a 16-character SHA-256 prefix. The manifest may contain installed package names.</p>
     <h2>App-data export</h2><p>Field Kit asks Android <code>run-as</code> for access. If Android refuses, the CLI stops. It does not use root or a bypass.</p>
     <h2>Website storage</h2><p>The demo uses keys beginning with <code>demo:legacy-app-rescue:</code>. Leaving the demo removes them.</p><p>A license is stored under <code>sb_license:legacy-app-rescue</code>. Release details may be cached for one hour.</p>
-    <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. The checkout opens Sociobot's hosted payment page.</p>
+    <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. Sociobot allows 30 verification requests from one client in its active rate-limit window. After that it returns a retry time. The checkout opens Sociobot's hosted payment page.</p>
     <h2>Remove stored data</h2><p>Use “Start for real” to clear demo data. Remove a site license with your browser's storage controls.</p>
     <h2>Contact</h2><p>Questions can be sent to <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p>
   </main>${footer()}`;

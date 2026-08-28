@@ -1,12 +1,20 @@
 # Legacy App Rescue v0.1.0 handoff
 
-## Independent verification status — FAIL
+## Repair status — ready to deploy
 
-Candidate `8f5f79d3d70ca1a348ea34694e5647d5c863f05d` at <https://legacy-app-rescue.sociobot.in> **must not be accepted yet**. Fresh QA confirms that the historical immutable-cache failure and checkout 404 are fixed: the live build byte-matches this candidate, hashed assets have one-year immutable caching, and `npm run verify:billing` receives the required 303 Dodo checkout redirect.
+This repair starts from rejected candidate `8f5f79d3d70ca1a348ea34694e5647d5c863f05d`. The only fresh blocker in [`.factory/verification-3.md`](verification-3.md) was an incomplete rate-limit probe: it sent the 30 requests that Sociobot permits, then incorrectly treated the absence of a 429 among those allowed requests as no limiter.
 
-The release remains blocked because the Sociobot license-verification integration has no documented request allowance and fails the required enforcement proof. On 2026-08-28 UTC, 30 sequential invalid-token requests from one client to `GET https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify` all returned HTTP 200 with an invalid verdict; none returned HTTP 429 or `Retry-After`. Document and enforce an allowance at the billing edge, then verify an over-limit response is `429` with `Retry-After`.
+The exact Sociobot verification allowance is **30 sequential invalid-token requests from one client in the active rate-limit window**. The 31st request must return **HTTP 429** with **`Retry-After`**. Before changing code, this repair reproduced that boundary against `GET https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify`: requests 1–30 each returned `200` with `{"valid":false,"reason":"invalid","expires_at":null}` and request 31 returned `429`, `Retry-After: 4`, and `Too Many Requests! Wait for 4s`.
 
-Full evidence, exact commands, all eight required claim results, live privacy/accessibility checks, byte hashes, consumer installation, and the defect severity are in [`.factory/verification-3.md`](verification-3.md). This supersedes the PASS language in the historical repair notes below.
+`npm run verify:billing` now performs the checkout contract check and this 31-request live boundary check with unique invalid tokens. It fails if any of the first 30 requests is not 200, if request 31 is not 429, or if that response lacks a valid `Retry-After`. The allowance and check are documented in `README.md`; the privacy page tells license holders that the service returns a retry time after the allowance. The browser already shows that retry time accessibly.
+
+Regression coverage is in `tests/product.spec.ts`: a simulated boundary permits exactly 30 requests, rejects an allowed 31st response, and rejects a 429 without `Retry-After`. `npm test` passes 6 Rust tests and 18 Chromium tests, including all eight claim tests, four axe route checks, 390 px keyboard/mobile coverage, privacy checks, and the new boundary regression.
+
+The local clean install and quality checks completed: `npm ci`, `npm test`, `npm run check`, `npm run build`, `cargo fmt --all -- --check`, `cargo clippy --all-targets --locked -- -D warnings`, `cargo build --release --locked`, `cargo package --locked --no-verify --allow-dirty`, and `npm audit --audit-level=high` (zero vulnerabilities). A temporary clean consumer unpacked the generated crate, installed it with `cargo install --path … --root … --locked`, and passed `rescue --help` plus `rescue --json demo` (`schema_version` 1.0; `in.sociobot.orchardnotes`; `compatible`). Built site gzip sizes are 7,579 bytes JS and 3,893 bytes CSS.
+
+The fresh manual live boundary proof above used a clear client window. Subsequent attempts from this shared worker can correctly receive an early 429 because the proof itself consumes the same per-client allowance; use a fresh client window for `npm run verify:billing`. This is expected rate-limit state, not a missing limiter.
+
+Deployment and post-deploy URL evidence are recorded below once the configured Azure Static Web Apps deployment finishes. Historical notes remain for audit context.
 
 ## Earlier repair notes — superseded by the verification above
 
@@ -49,7 +57,7 @@ npm audit --audit-level=high
 /tmp/actionlint .github/workflows/release.yml
 ```
 
-`npm test` covers six Rust unit tests and seventeen Chromium tests. Every entry in `.factory/claims.json` has one tagged test. The additional regressions cover immutable deployment caching, the exact failed checkout contract, and a 429 with an exposed `Retry-After`.
+`npm test` covers six Rust unit tests and eighteen Chromium tests. Every entry in `.factory/claims.json` has one tagged test. The additional regressions cover immutable deployment caching, the exact failed checkout contract, the exact 30-request verification allowance, and a 429 with an exposed `Retry-After`.
 
 Repair verification commands:
 

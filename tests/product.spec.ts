@@ -153,6 +153,29 @@ test('regression: checkout rejects the reported 404 and accepts only a Dodo 303 
   }))).toThrow('A successful 303 checkout redirect must not be rate-limited');
 });
 
+test('regression: verification allows exactly 30 requests, then requires 429 and Retry-After', async () => {
+  const { VERIFY_REQUEST_ALLOWANCE, verifyVerificationAllowance } = await import('../scripts/verify-billing.mjs');
+  const requests: string[] = [];
+  const rateLimitedFetch = async (url: string) => {
+    requests.push(url);
+    return new Response(requests.length <= VERIFY_REQUEST_ALLOWANCE ? '{"valid":false,"reason":"invalid"}' : 'Too Many Requests!', {
+      status: requests.length <= VERIFY_REQUEST_ALLOWANCE ? 200 : 429,
+      headers: requests.length <= VERIFY_REQUEST_ALLOWANCE ? {} : { 'Retry-After': '5' }
+    });
+  };
+  await expect(verifyVerificationAllowance(rateLimitedFetch)).resolves.toBe('5');
+  expect(requests).toHaveLength(31);
+  expect(requests[29]).toContain('qa-rate-limit-');
+
+  await expect(verifyVerificationAllowance(async () => new Response(null, { status: 200 }))).rejects.toThrow('beyond the 30-request allowance');
+  let missingHeaderRequest = 0;
+  await expect(verifyVerificationAllowance(async () => {
+    missingHeaderRequest += 1;
+    return new Response(null, { status: missingHeaderRequest <= VERIFY_REQUEST_ALLOWANCE ? 200 : 429 });
+  })).rejects.toThrow('must include Retry-After');
+
+});
+
 test('regression: license rate limits show the Retry-After wait time', async ({ page }) => {
   await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
   await page.route('https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify**', route => route.fulfill({

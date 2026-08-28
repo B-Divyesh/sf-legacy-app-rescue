@@ -151,7 +151,7 @@ npm run verify:billing
 
 The site output is exactly `dist/site/`. The release workflow builds platform binaries on GitHub Actions.
 
-`npm run verify:billing` is a live release check. It confirms the Sociobot checkout returns a `303` to a hosted Dodo session and that a successful redirect has no `Retry-After` header.
+`npm run verify:billing` is a live release check. It confirms the Sociobot checkout returns a `303` to a hosted Dodo session and that a successful redirect has no `Retry-After` header. From a client with a clear verification window, it sends 31 sequential invalid-token requests to the Sociobot verification endpoint: the exact allowance is 30 requests from one client in the active rate-limit window, and request 31 must return `429` with `Retry-After`.
 
 ## Test individual promises
 
@@ -164,6 +164,6 @@ npm test -- --grep @claim:local-private
 
 ## Privacy and license
 
-The CLI has no telemetry. APK scanning and the bundled demo need no network. License activation contacts only `api.sociobot.in`.
+The CLI has no telemetry. APK scanning and the bundled demo need no network. License activation contacts only `api.sociobot.in`. The website verifies a stored license at most once a day; Sociobot permits 30 verification requests from one client in the active rate-limit window, then returns `429` and tells the browser when to retry.
 
 The source is available under the [MIT License](LICENSE). See the site [privacy page](https://legacy-app-rescue.sociobot.in/privacy) and [terms](https://legacy-app-rescue.sociobot.in/terms).
