@@ -12,6 +12,7 @@
 - A $19 one-time Field Kit through the Sociobot checkout and verification endpoints. No provider product ID is embedded.
 - Linux, Windows, Intel macOS, and Apple silicon release jobs. Outputs include archives, `.deb`, `.rpm`, `.pkg`, checksums, and package manifests.
 - SHA-verifying shell and PowerShell installers served from the static site.
+- GitHub release `v0.1.0` with all platform assets and a live Homebrew tap.
 
 ## Build and verify
 
@@ -42,7 +43,7 @@ Lighthouse mobile preset against the production build:
 
 - Performance: **99**
 - Accessibility: **100**
-- Best practices: **96** before the first release; the only deduction was the expected GitHub `releases/latest` 404
+- Best practices: **96** before the first release; the only deduction was the then-expected GitHub `releases/latest` 404
 - SEO: **100**
 - LCP: **2.0 s**
 - CLS: **0**
@@ -64,10 +65,10 @@ The image used `/opt/fleet/lib/gen-image.sh`. Atkinson Hyperlegible files come f
 - Android blocks `run-as` for most non-debuggable apps. The tool reports refusal and does not try root.
 - Compatibility covers SDK and CPU declarations. It cannot predict licensing servers, missing services, or old graphics behavior.
 - macOS and Windows artifacts are unsigned. The site gives first-run instructions.
-- The Winget manifest needs its published checksum and an owner submission.
+- The Winget manifest includes its published checksum but still needs an owner submission.
 
 ## Needs operator action
 
 - Register `legacy-app-rescue` in Sociobot billing at **$19 one-time** with this site's return URL.
-- Submit the Winget manifest after inserting the published Windows SHA-256.
+- Submit the prepared Winget manifest to `microsoft/winget-pkgs`.
 - For signed packages later, provide Apple notarization and Windows Authenticode credentials. The current workflow expects no signing secrets.

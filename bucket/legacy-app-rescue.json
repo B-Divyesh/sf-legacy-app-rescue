@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.0/rescue-windows-x86_64.zip",
-      "hash": "RELEASE_WORKFLOW_REPLACES_THIS"
+      "hash": "8e1e5677ef42b4c5d599a6e4350bc95504a5bd699bcefc00b04c7347565255a5"
     }
   },
   "bin": "rescue.exe"
