@@ -1,0 +1,44 @@
+[package]
+name = "legacy-app-rescue"
+version = "0.1.0"
+edition = "2021"
+description = "Preservation-first inventory and compatibility checks for Android APKs"
+license = "MIT"
+repository = "https://github.com/B-Divyesh/sf-legacy-app-rescue"
+keywords = ["android", "apk", "preservation", "backup", "cli"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "rescue"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+dirs = "6.0"
+quick-xml = "0.37"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+tempfile = "3.20"
+ureq = { version = "3.0", features = ["json"] }
+zip = { version = "4.0", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
+[package.metadata.deb]
+maintainer = "Param Factory <hello@sociobot.in>"
+copyright = "2026 Param Factory"
+license-file = ["LICENSE", "0"]
+extended-description = "Inventory Android APKs, attached devices, and permitted app data without uploading files."
+section = "utils"
+priority = "optional"
+assets = [["target/release/rescue", "usr/bin/", "755"]]
+
