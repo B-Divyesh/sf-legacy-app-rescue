@@ -45,7 +45,15 @@ npm run build
 cargo run -- demo
 ```
 
-The static deployment input remains `dist/site`; release binaries are built only by `.github/workflows/release.yml` from the `v0.1.1` tag. The post-deploy URL, headers, identity, 404 status, and release asset evidence are recorded below after deployment.
+The static deployment input remains `dist/site`; release binaries are built only by `.github/workflows/release.yml` from the `v0.1.1` tag.
+
+## Post-deploy evidence
+
+`/opt/fleet/lib/deploy-static.sh legacy-app-rescue dist/site` completed successfully on 2026-08-28 UTC. The canonical URL returns HTTPS 200. The factory URL verifier wrote evidence to `/tmp/legacy-rescue-live-evidence-wE9uAD` and reported title `Legacy App Rescue — record an Android app`, `lang="en"`, one `h1`, a `main` landmark, no missing image alt text or unnamed buttons, and no browser errors.
+
+Live route checks returned 200 for `/`, `/demo`, `/privacy`, `/terms`, `/robots.txt`, `/sitemap.xml`, `/install.sh`, and `/favicon.svg`; an unknown route returned the designed page with HTTP **404**. The live JavaScript SHA-256 equals the local built asset (`72d085954b1e5c172bf2776e5057340955d4e855734ed491537b57188327a7c5`). It has `Cache-Control: public, max-age=31536000, immutable`; HTML has the 30-second revalidation policy. The live CSP permits only self, GitHub's release API, and Sociobot's API, and HSTS, `nosniff`, referrer, and permissions headers are present.
+
+The standalone `@axe-core/cli` could not find a system Chrome binary in the worker. The equivalent installed Playwright axe integration was run directly against live `/`, `/demo`, `/privacy`, and `/terms` at 390 px with reduced motion: all had zero serious/critical findings, zero console/page errors, no horizontal overflow, and no targets below 44×44 px.
 
 ## Known constraints
 

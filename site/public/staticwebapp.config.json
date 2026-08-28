@@ -7,6 +7,38 @@
       }
     },
     {
+      "route": "/robots.txt",
+      "headers": {}
+    },
+    {
+      "route": "/sitemap.xml",
+      "headers": {}
+    },
+    {
+      "route": "/favicon.svg",
+      "headers": {}
+    },
+    {
+      "route": "/apple-touch-icon.png",
+      "headers": {}
+    },
+    {
+      "route": "/404.css",
+      "headers": {}
+    },
+    {
+      "route": "/install.sh",
+      "headers": {}
+    },
+    {
+      "route": "/install.ps1",
+      "headers": {}
+    },
+    {
+      "route": "/demo.cast",
+      "headers": {}
+    },
+    {
       "route": "/demo",
       "rewrite": "/index.html"
     },
