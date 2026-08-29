@@ -109,3 +109,9 @@ cargo package --locked --no-verify --allow-dirty
 - No release-blocking gaps remain.
 - GitHub Actions does not currently expose `FACTORY_GITHUB_TOKEN` to the release job, so its optional Homebrew-tap step was skipped. The v0.1.2 tap was updated through the GitHub API at commit `77201e2`; configure that secret to automate future tap updates.
 - macOS and Windows packages remain unsigned as documented; signing requires owner certificates.
+
+## Adversarial first-read review 1 — 2026-08-29
+
+Reviewer-only work order `legacy-app-rescue-review-1` completed without changing product code. The live site was inspected cold at 390 px and desktop, all twelve declared claim commands were run after `npm ci`, and `npm test`, `npm run verify:billing`, and `npm run build` passed. The demo was verified at `/demo`: it showed Orchard Notes sample data, used the `demo:` storage namespace, reset correctly, cleared on Start for real, and made only same-origin demo requests.
+
+The review result is **FAIL**. `.factory/review-1.md` records 18 blocking unlisted-claim findings and 6 minor copy findings, with exact quotes and concrete fixes. No product implementation was modified. Resolve those findings, then repeat the independent claims and live review.
