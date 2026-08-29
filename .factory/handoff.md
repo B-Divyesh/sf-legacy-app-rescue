@@ -1,23 +1,38 @@
-# Legacy App Rescue — review 4 handoff
+# Legacy App Rescue — polish 4 handoff
 
-## Status: FAIL
+## Status: PASS
 
-This reviewer made no product-code changes. The committed artifacts are `.factory/review-4.md` and this handoff.
+Repair commit: `f5f23ea4791b85d527534d9b22878fd42ccae2e1` (pushed to `main`).
 
-## Verification completed
+Production deployment: Static Web Apps production app `sf-legacy-app-rescue`, confirmed at <https://legacy-app-rescue.sociobot.in>. The deployment command returned <https://blue-plant-09d076810.7.azurestaticapps.net>.
 
-- Used fresh 390 px Android and desktop browser contexts against <https://legacy-app-rescue.sociobot.in>.
-- Verified the one-click demo, mobile end-of-record banner, reset/exit isolation, request log, and CLI demo in a temporary working directory.
-- Made a clean clone at `/tmp/legacy-app-rescue-review4.ciPHHi`; ran `npm ci`, every one of the 27 exact claim commands, and `npm test`.
-- All 27 claim commands passed. `npm test` passed: 8 Rust tests and 43 Playwright tests. The build created `dist/site/`.
-- Checked route titles, descriptions, canonical/OG surface, focus/history, 404 behavior, security headers, and crawled links.
+## What changed
 
-## Remaining work
+- Added eight tested public claims for the free-tier limit, selected-device record fields, custom output, device selection, JSON output, APK byte size, exported archive hash, and release asset set.
+- Added real fake-ADB and temporary-directory integration coverage for the new CLI behavior; the export test verifies the actual archive SHA-256.
+- Rewrote the first-screen free-tier wording and removed the four remaining duplicate eyebrow labels while preserving the botanical field-guide layout, palette, typography, and motion.
+- Completed the separately served HTTP 404 with canonical, Open Graph, Twitter, and Apple-touch metadata. Its home action now hands focus to the landing h1 after a real navigation.
+- Added `scripts/verify-url.sh` / `npm run verify:url`, extending the live verifier with language, alt-text, 404 metadata, and static-404 focus checks.
+- Updated the copy audit and verb-first 54-character catalog description.
 
-The acceptance blockers are documented in `.factory/review-4.md`:
+## Verification
 
-- F-4-1 through F-4-7: visitor-facing free-tier, device-record, CLI, preservation-field, and release-asset statements have no exact `claims.json` entry and observable tagged sandbox test.
-- F-4-8: returning home from the separately served 404 lands with focus on `body`, not the landing `h1`.
-- F-4-9 and F-4-10: duplicate eyebrow labels and incomplete static-404 metadata.
+- Fresh clone: `/tmp/legacy-app-rescue-polish4.RwpGOn` at the repair source; `npm ci`, all 35 exact claim commands, `npm test`, and `npm run build` passed. Evidence: `/work/.evidence/polish-4-clean-clone.log`.
+- Full browser suite: 8 Rust tests and 52 Playwright tests passed, covering routes, keyboard paths, mobile layout, demo isolation, privacy request boundaries, and Axe serious/critical findings.
+- Quality gates passed: formatting, Clippy with warnings denied, release build, Cargo package, npm audit, Lighthouse mobile performance (100 across four runs; median LCP 1658.5 ms), billing verification, and package-manager verification.
+- Cold production check passed after deployment: `npm run verify:url -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-4`.
+  Screenshots and route report: `/work/.evidence/polish-4/live-landing-mobile.png`, `live-demo-mobile.png`, `live-demo-scrolled-mobile.png`, `live-privacy-mobile.png`, `live-404-desktop.png`, and `live-browser.json`.
 
-Run the clean verification again after repair with `npm ci && npm test`, then execute every command listed in `.factory/claims.json` independently from a clean clone.
+## Run and deploy
+
+```sh
+npm ci
+npm test
+npm run build
+```
+
+Deploy the generated `dist/site/` through the Static Web Apps work-order configuration. The artifact remains a Rust CLI with a static landing/docs site; no infrastructure, DNS, billing, or secrets are stored in this repository.
+
+## Known gaps
+
+None. All findings in `.factory/review-1.md` through `.factory/review-4.md` are mapped and resolved in `.factory/polish-4.md`.
