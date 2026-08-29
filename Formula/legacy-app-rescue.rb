@@ -7,16 +7,16 @@ class LegacyAppRescue < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-macos-arm64.tar.gz"
-      sha256 "93eb74c218a743729e339f1fb6a3a85b992711e7d101f8a84efabe064acf3407"
+      sha256 "2d09579614be7637a4e5b51d7477a0acfb219ec566872e3bd328024326f4edcb"
     else
       url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-macos-x86_64.tar.gz"
-      sha256 "e37f700b7e6c268d273d2245f86ed028c2d7b47faf4c353170a14915f805ac31"
+      sha256 "587c122e02709b2350b20de53481dd9fc44151c6e8bf342a0c2ba8034a1cd287"
     end
   end
 
   on_linux do
     url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-linux-x86_64.tar.gz"
-    sha256 "38fcb105c7c123af4db29f214dc4e92730b5a6547fa10209797251db2c5dd4a1"
+    sha256 "840e1f62e2d37f1d06b1eb6bd59ac88fb94c680985c87d5bd8fdd26aab3806b5"
   end
 
   def install

@@ -14,6 +14,6 @@ Installers:
       - RelativeFilePath: rescue.exe
         PortableCommandAlias: rescue
     InstallerUrl: https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-windows-x86_64.zip
-    InstallerSha256: E55409B2DF2D40291E27F1A661D8B8D8F947DE645709909EDD092C806936A4FF
+    InstallerSha256: 3CA2044A61F388DABD2FC9CA1F0E3A76C67E25EAE66A59CBF18F54DB6DD68D89
 ManifestType: singleton
 ManifestVersion: 1.9.0
