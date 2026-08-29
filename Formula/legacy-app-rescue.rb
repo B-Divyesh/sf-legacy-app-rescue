@@ -1,22 +1,22 @@
 class LegacyAppRescue < Formula
   desc "Preserve Android APK evidence and check device compatibility locally"
   homepage "https://legacy-app-rescue.sociobot.in"
-  version "0.1.1"
+  version "0.1.2"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.1/rescue-macos-arm64.tar.gz"
-      sha256 "913c59882f0443edb9676cd67097a2f3fcfffe12e6432c86e5a5c0e04b52202a"
+      url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-macos-arm64.tar.gz"
+      sha256 "93eb74c218a743729e339f1fb6a3a85b992711e7d101f8a84efabe064acf3407"
     else
-      url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.1/rescue-macos-x86_64.tar.gz"
-      sha256 "e18086e3ac9684d7217c0742903a835d0d66d6fb2ef7fb2bdbdd368eec162b93"
+      url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-macos-x86_64.tar.gz"
+      sha256 "e37f700b7e6c268d273d2245f86ed028c2d7b47faf4c353170a14915f805ac31"
     end
   end
 
   on_linux do
-    url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.1/rescue-linux-x86_64.tar.gz"
-    sha256 "502e045a0984b6cd055427e3758919d9f16314f5fc91b7fd4148f25069ad1206"
+    url "https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.2/rescue-linux-x86_64.tar.gz"
+    sha256 "38fcb105c7c123af4db29f214dc4e92730b5a6547fa10209797251db2c5dd4a1"
   end
 
   def install
