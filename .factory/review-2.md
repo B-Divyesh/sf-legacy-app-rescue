@@ -147,16 +147,16 @@ The tables inventory visible natural-language landing and README copy. Code bloc
 | 4 | It never downloads or uploads an APK. | 7 | F-2-2; claim: apk-transfer-boundary |
 | 5 | The demo creates a fictional APK in a temporary folder. | 9 | F-2-2; claim: demo-sandbox |
 | 6 | It scans the APK, matches a sample Android 13 device, and prints the manifest path. | 13 | F-2-2, F-2-3; claim: demo-sandbox |
-| 7 | Open the website sandbox at the linked demo URL. | 9 | Pass |
+| 7 | Open the website sandbox at <https://legacy-app-rescue.sociobot.in/?demo=1>. | 7 | Pass |
 | 8 | Its browser storage uses the `demo:legacy-app-rescue:` prefix. | 5 | Claim: demo-sandbox |
-| 9 | The sample source is in `examples/sample-apk`. | 6 | Pass |
+| 9 | The sample source is in [`examples/sample-apk`](examples/sample-apk). | 9 | Pass |
 | 10 | It has a manifest, but no DEX executable. | 7 | F-2-3; claim: sample-is-noninstallable |
 | 11 | The script downloads the matching archive, verifies SHA-256, and places `rescue` in `~/.local/bin`. | 14 | Claim: installer-verified |
 | 12 | The macOS package is unsigned. | 5 | Claim: unsigned-builds |
 | 13 | Right-click the downloaded package, then choose Open. | 7 | Pass |
 | 14 | The Windows build is unsigned. | 5 | Claim: unsigned-builds |
 | 15 | Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a Windows portable ZIP, `SHA256SUMS`, and `latest.json`. | 18 | Pass |
-| 16 | The checked v0.1.3 manifest is the linked winget manifest. | 9 | F-2-3; claim: winget-submission-manifest |
+| 16 | The checked v0.1.3 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/B-Divyesh.LegacyAppRescue.yaml). | 9 | F-2-3; claim: winget-submission-manifest |
 | 17 | Submit it to `microsoft/winget-pkgs` after checking the release. | 8 | Claim: winget-submission-manifest |
 | 18 | It is not a public winget source until Microsoft accepts it. | 11 | Claim: winget-submission-manifest |
 | 19 | `--ci` removes decorative output. | 5 | Claim: ci-output |
@@ -187,6 +187,18 @@ The tables inventory visible natural-language landing and README copy. Code bloc
 | 44 | If the license service is busy, it asks you to try again shortly. | 13 | Claim: license-busy-recovery |
 | 45 | The source is available under the MIT License. | 9 | Pass |
 | 46 | See the site privacy page and terms. | 7 | Pass |
+
+### README heading and action audit
+
+| Copy | Result |
+| --- | --- |
+| Legacy App Rescue | Product name; Pass |
+| Try the complete demo | Names the section; Pass |
+| Install / Linux and macOS / Windows PowerShell / Homebrew / Scoop / winget manifest | Names install choices; Pass |
+| Use the CLI | F-2-4: expand the term on first use as “Use the desktop command-line tool (CLI)”. |
+| What the manifest records | F-2-3: “What the preservation record contains”. |
+| Field Kit — $19 once | Names the paid section and price; Pass |
+| Limits and safety / Build from source / Test individual promises / Privacy and license | Names the sections; Pass |
 
 ## Earlier-review verification
 
