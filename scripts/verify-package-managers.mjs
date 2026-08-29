@@ -74,7 +74,7 @@ async function textFrom(fetchImplementation, url) {
 }
 
 async function githubFile(fetchImplementation, ownerRepository, path) {
-  const response = await fetchImplementation(`${githubApi}/${ownerRepository}/contents/${path}?ref=main`, {
+  const response = await fetchImplementation(`${githubApi}/${ownerRepository}/contents/${path}?ref=main&cachebust=${Date.now()}`, {
     headers: { Accept: 'application/vnd.github+json' }
   });
   if (!response.ok) fail(`${ownerRepository}/${path} returned ${response.status}.`);

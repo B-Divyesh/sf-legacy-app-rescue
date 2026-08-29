@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { inflateSync } from 'node:zlib';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -107,7 +108,7 @@ test('@claim:platform-builds defines releases for three operating systems and cu
     'rescue-macos-x86_64.tar.gz',
     'rescue-windows-x86_64.zip'
   ]) writeFileSync(join(releaseRoot, filename), filename);
-  execFileSync('node', ['scripts/release-manifest.mjs', releaseRoot, 'v0.1.2', 'B-Divyesh/sf-legacy-app-rescue'], { cwd: repo });
+  execFileSync('node', ['scripts/release-manifest.mjs', releaseRoot, 'v0.1.3', 'B-Divyesh/sf-legacy-app-rescue'], { cwd: repo });
   mkdirSync(join(packageRoot, 'Formula'));
   mkdirSync(join(packageRoot, 'bucket'));
   mkdirSync(join(packageRoot, 'scoop-bucket'));
@@ -118,7 +119,7 @@ test('@claim:platform-builds defines releases for three operating systems and cu
   writeFileSync(join(packageRoot, 'winget/B-Divyesh.LegacyAppRescue.yaml'), readFileSync(join(releaseRoot, 'B-Divyesh.LegacyAppRescue.yaml')));
   const { verifyRepositoryPackageManifests } = await import('../scripts/verify-package-managers.mjs');
   expect(verifyRepositoryPackageManifests({
-    version: '0.1.2',
+    version: '0.1.3',
     hashes: Object.fromEntries([
       'rescue-linux-x86_64.tar.gz',
       'rescue-macos-arm64.tar.gz',
@@ -126,7 +127,7 @@ test('@claim:platform-builds defines releases for three operating systems and cu
       'rescue-windows-x86_64.zip'
     ].map(filename => [filename, createHash('sha256').update(filename).digest('hex')])),
     directory: packageRoot
-  })).toBe('0.1.2');
+  })).toBe('0.1.3');
 });
 
 test('regression: release versions come from Cargo and RPM upgrades are enforced', async () => {
@@ -412,8 +413,8 @@ test('@claim:release-metadata-privacy contacts GitHub only and reuses release de
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        tag_name: 'v0.1.2',
-        html_url: 'https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/tag/v0.1.2',
+        tag_name: 'v0.1.3',
+        html_url: 'https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/tag/v0.1.3',
         assets: [{ name: 'rescue-linux-x86_64.tar.gz', browser_download_url: 'https://github.com/example/download' }]
       })
     });
@@ -462,6 +463,29 @@ test('@claim:unsigned-builds packages unsigned macOS and Windows release artifac
   expect(windowsSection).not.toMatch(/signtool|certificate|pfx/i);
   expect(workflow).not.toContain('WINDOWS_CERT_PFX');
   expect(workflow).not.toContain('APPLE_CERTIFICATE');
+
+  const root = mkdtempSync(join(tmpdir(), 'rescue-unsigned-release-'));
+  const release = 'https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/download/v0.1.3';
+  const windowsZip = join(root, 'windows.zip');
+  const macPackage = join(root, 'macos.pkg');
+  execFileSync('curl', ['-fsSL', `${release}/rescue-windows-x86_64.zip`, '-o', windowsZip]);
+  execFileSync('curl', ['-fsSL', `${release}/rescue-macos-arm64.pkg`, '-o', macPackage]);
+  execFileSync('unzip', ['-q', windowsZip, '-d', root]);
+  const pe = readFileSync(join(root, 'rescue.exe'));
+  const peOffset = pe.readUInt32LE(0x3c);
+  expect(pe.subarray(peOffset, peOffset + 4).toString('binary')).toBe('PE\0\0');
+  const optionalHeader = peOffset + 24;
+  expect(pe.readUInt16LE(optionalHeader)).toBe(0x20b);
+  const certificateDirectory = optionalHeader + 112 + (8 * 4);
+  expect(pe.readUInt32LE(certificateDirectory)).toBe(0);
+  expect(pe.readUInt32LE(certificateDirectory + 4)).toBe(0);
+
+  const xar = readFileSync(macPackage);
+  expect(xar.subarray(0, 4).toString()).toBe('xar!');
+  const headerSize = xar.readUInt16BE(4);
+  const compressedTocSize = Number(xar.readBigUInt64BE(8));
+  const toc = inflateSync(xar.subarray(headerSize, headerSize + compressedTocSize)).toString('utf8');
+  expect(toc).not.toContain('<signature');
 });
 
 test('@claim:no-cli-telemetry runs scan and demo with all network proxies unavailable', async () => {
@@ -490,12 +514,12 @@ test('@claim:license-busy-recovery gives a specific retry step after a 429 respo
 test('@claim:winget-submission-manifest validates current release fields before submission', async () => {
   const manifest = readFileSync(join(repo, 'winget/B-Divyesh.LegacyAppRescue.yaml'), 'utf8');
   expect(manifest).toContain('PackageIdentifier: B-Divyesh.LegacyAppRescue');
-  expect(manifest).toContain('PackageVersion: 0.1.2');
+  expect(manifest).toContain('PackageVersion: 0.1.3');
   expect(manifest).toContain('Architecture: x64');
   expect(manifest).toContain('InstallerType: zip');
   expect(manifest).toContain('NestedInstallerType: portable');
   expect(manifest).toContain('PortableCommandAlias: rescue');
-  expect(manifest).toContain('/releases/download/v0.1.2/rescue-windows-x86_64.zip');
+  expect(manifest).toContain('/releases/download/v0.1.3/rescue-windows-x86_64.zip');
   expect(manifest.match(/InstallerSha256: ([A-F0-9]{64})/)?.[1]).toHaveLength(64);
   expect(manifest).toContain('ManifestVersion: 1.9.0');
 });
@@ -614,6 +638,10 @@ test('unknown routes show a real 404 configuration and a way home', async ({ pag
   await expect(page.getByRole('link', { name: 'Return to the home page' })).toHaveAttribute('href', '/');
   const config = JSON.parse(readFileSync(join(repo, 'dist/site/staticwebapp.config.json'), 'utf8')) as { routes: Array<{ route: string; statusCode?: number }> };
   expect(config.routes).toContainEqual({ route: '/*', statusCode: 404 });
+  const static404 = readFileSync(join(repo, 'dist/site/404.html'), 'utf8');
+  expect(static404).toContain('href="/privacy"');
+  expect(static404).toContain('href="/terms"');
+  expect(static404).toContain('Skip to main content');
 });
 
 test('real routes update title, metadata, focus, and browser history', async ({ page }) => {

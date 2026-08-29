@@ -55,7 +55,7 @@ Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a W
 
 ### winget manifest
 
-The checked v0.1.2 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/B-Divyesh.LegacyAppRescue.yaml). Submit it to `microsoft/winget-pkgs` after checking the release. It is not a public winget source until Microsoft accepts it.
+The checked v0.1.3 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/B-Divyesh.LegacyAppRescue.yaml). Submit it to `microsoft/winget-pkgs` after checking the release. It is not a public winget source until Microsoft accepts it.
 
 ## Use the CLI
 
