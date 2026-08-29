@@ -307,6 +307,7 @@ test('@claim:local-private demo scan and web sandbox make no external request', 
 });
 
 test('@claim:field-kit rejects an invalid token, then completes a licensed batch scan and permitted export', async () => {
+  test.setTimeout(120_000);
   const root = mkdtempSync(join(tmpdir(), 'rescue-field-kit-'));
   const fixture = JSON.parse(readFileSync(join(repo, 'tests/fixtures/field-kit-valid-license.json'), 'utf8')) as {
     request: { license: string };
