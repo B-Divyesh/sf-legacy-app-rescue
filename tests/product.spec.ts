@@ -34,17 +34,30 @@ test('@claim:compatibility-verdict checks SDK and CPU needs', async () => {
   expect(manifest.compatibility[0].reasons[0]).toContain('requirements match');
 });
 
-test('@claim:demo-sandbox opens sample data without real storage', async ({ page }) => {
+test('@claim:demo-sandbox opens isolated sample data and keeps its controls available', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?demo=1');
   await expect(page).toHaveTitle('Demo — Legacy App Rescue');
-  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+  const banner = page.getByText('Demo — sample data, nothing is saved');
+  const reset = page.getByRole('button', { name: 'Reset demo' });
+  const startForReal = page.getByRole('link', { name: 'Start for real' });
+  await expect(banner).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Orchard Notes 1.7.0' })).toBeVisible();
   await expect(page.getByText('in.sociobot.orchardnotes')).toBeVisible();
   const keys = await page.evaluate(() => Object.keys(localStorage));
   expect(keys).toEqual(['demo:legacy-app-rescue:opened']);
-  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(banner).toBeVisible();
+  await expect(reset).toBeVisible();
+  await expect(startForReal).toBeVisible();
+  const controlsRemainInViewport = await Promise.all([banner, reset, startForReal].map(locator => locator.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    return rect.top >= 0 && rect.bottom <= window.innerHeight;
+  })));
+  expect(controlsRemainInViewport).toEqual([true, true, true]);
+  await reset.click();
   await expect(page.getByText('Orchard Notes 1.7.0')).toBeVisible();
-  await page.getByRole('link', { name: 'Start for real' }).click();
+  await startForReal.click();
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key.startsWith('demo:')))).toEqual([]);
   expect(new URL(page.url()).search).toBe('');
 });
@@ -156,6 +169,12 @@ test('regression: the landing job and responsive art render before JavaScript', 
   await expect(hero).toHaveAttribute('srcset', /field-guide-hero-800\.webp 800w/);
   expect(await hero.evaluate((image: HTMLImageElement) => new URL(image.currentSrc).pathname)).toBe('/assets/field-guide-hero-800.webp');
   await context.close();
+});
+
+test('regression: the first screen omits decorative labels that do not explain the product', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('A local preservation tool', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('PLATE / 017', { exact: true })).toHaveCount(0);
 });
 
 test('regression: deployed asset route has a one-year immutable cache policy', async () => {

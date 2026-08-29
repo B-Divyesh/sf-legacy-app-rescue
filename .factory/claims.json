@@ -15,10 +15,10 @@
   },
   {
     "id": "demo-sandbox",
-    "claim": "The demo uses sample data and does not save to normal records.",
+    "claim": "The demo uses sample data in separate storage, and its reset and exit controls stay available while you inspect it.",
     "where": "demo banner, terminal recording, README",
     "test": "npm test -- --grep @claim:demo-sandbox",
-    "sandbox": "fresh browser context at /demo with localStorage inspection"
+    "sandbox": "fresh mobile browser context at /demo; scroll to the record end, operate Reset demo and Start for real, and inspect localStorage"
   },
   {
     "id": "local-private",

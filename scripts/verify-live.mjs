@@ -53,13 +53,26 @@ const demoRequests = [];
 demo.on('request', request => demoRequests.push(request.url()));
 await demo.goto(`${origin}/?demo=1`, { waitUntil: 'networkidle' });
 const demoKeys = await demo.evaluate(() => Object.keys(localStorage));
+await demo.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+const demoControls = await Promise.all([
+  demo.getByText('Demo — sample data, nothing is saved').first(),
+  demo.getByRole('button', { name: 'Reset demo' }),
+  demo.getByRole('link', { name: 'Start for real' })
+].map(async locator => {
+  const box = await locator.boundingBox();
+  return Boolean(box && box.y >= 0 && box.y + box.height <= 844);
+}));
+await demo.screenshot({ path: `${evidence}/live-demo-scrolled-mobile.png` });
+if (!demoControls.every(Boolean)) {
+  throw new Error(`Live demo controls did not remain visible after scrolling: ${JSON.stringify(demoControls)}`);
+}
 await demo.getByRole('button', { name: 'Reset demo' }).click();
 await demo.waitForLoadState('networkidle');
 const requestsBeforeExit = [...demoRequests];
 await demo.getByRole('link', { name: 'Start for real' }).click();
 const keysAfterExit = await demo.evaluate(() => Object.keys(localStorage).filter(key => key.startsWith('demo:')));
 if (demoKeys.join() !== 'demo:legacy-app-rescue:opened' || keysAfterExit.length || requestsBeforeExit.some(url => new URL(url).origin !== origin)) {
-  throw new Error(`Live demo isolation failed: ${JSON.stringify({ demoKeys, keysAfterExit, requestsBeforeExit })}`);
+  throw new Error(`Live demo isolation failed: ${JSON.stringify({ demoKeys, demoControls, keysAfterExit, requestsBeforeExit })}`);
 }
 await demoContext.close();
 

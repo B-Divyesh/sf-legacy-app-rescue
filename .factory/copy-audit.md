@@ -8,13 +8,14 @@ Audited from the built landing page and README on 29 August 2026. Code samples, 
 | --- | ---: | --- |
 | Record your Android app before it disappears | 7 | Pass |
 | For people preserving an old app they own, it records the Android app file (APK) and checks another device. | 19 | Pass |
-| Open a finished record in separate demo storage. | 8 | Pass |
+| Open a finished record in separate demo storage. | 8 | Claim: demo-sandbox |
 | Runs on macOS, Windows, and Linux. | 6 | Claim: platform-builds |
 | APK scans stay on your computer. | 6 | Claim: local-private |
 | One APK is free. Field Kit costs $19 once. | 9 | Claims: field-kit, paid-license |
 | See what the preservation record contains | 6 | Pass |
 | The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match. | 16 | Pass |
 | This recording comes from a bundled sample Android app file (APK). | 12 | Claim: demo-sandbox |
+| Demo — sample data, nothing is saved | 7 | Claim: demo-sandbox |
 | Create a preservation record (manifest) | 5 | Pass |
 | Give the desktop command-line tool (CLI) an Android app file you already own. | 13 | Pass |
 | It reads the file in place. | 6 | Pass |
@@ -64,4 +65,4 @@ No landing sentence exceeds 22 words. No landing sentence contains a banned mark
 
 ## Catalog description
 
-“Record an Android app file and check whether another device matches.” It is 68 characters and starts with a verb.
+"Record Android app evidence and check a target device." It is 50 characters and starts with a verb.

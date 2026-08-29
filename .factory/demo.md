@@ -18,6 +18,6 @@ The sample device is an Android 13 arm64 “Archive Phone.” The compatibility 
 
 The CLI creates a unique folder under the system temporary directory and prints the manifest path. It reads no device or user APK.
 
-The web demo stores only `demo:legacy-app-rescue:opened`. **Reset demo** deletes every `demo:legacy-app-rescue:` key and loads the sample again. **Start for real** deletes the demo namespace before returning home without `demo=1`.
+The web demo stores only `demo:legacy-app-rescue:opened`. Its demo banner stays pinned below the browser edge while the record scrolls. **Reset demo** deletes every `demo:legacy-app-rescue:` key and loads the sample again. **Start for real** deletes the demo namespace before returning home without `demo=1`.
 
 Tests use a fresh browser context and a temporary directory. The paid export test uses a fake ADB executable and the bundled APK fixture.

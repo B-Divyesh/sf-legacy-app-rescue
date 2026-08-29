@@ -43,7 +43,6 @@ export function landing() {
     <section class="hero" aria-labelledby="page-title">
       <img class="hero-plate" src="/assets/field-guide-hero.webp" srcset="/assets/field-guide-hero-800.webp 800w, /assets/field-guide-hero.webp 1200w" sizes="(max-width: 760px) 100vw, 1200px" width="1200" height="800" alt="A field-guide plate shows a fern sheltering an archive box and device cable." fetchpriority="high" />
       <div class="hero-copy">
-        <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
         <p class="lede">For people preserving an old app they own, it records the Android app file (APK) and checks another device.</p>
         <div class="hero-action"><a class="button primary" href="/?demo=1" data-route>Try it with sample data</a><span>Open a finished record in separate demo storage.</span></div>
@@ -53,7 +52,6 @@ export function landing() {
           <li>One APK is free. Field Kit costs $19 once.</li>
         </ul>
       </div>
-      <span class="plate-number" aria-hidden="true">PLATE / 017</span>
     </section>
 
     <section class="preview-band" aria-labelledby="preview-title">

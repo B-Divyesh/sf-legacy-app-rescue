@@ -1,1 +1,1 @@
-Record an Android app file and check whether another device matches.
+Record Android app evidence and check a target device.
