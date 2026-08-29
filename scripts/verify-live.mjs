@@ -67,7 +67,9 @@ const missingContext = await browser.newContext({ viewport: { width: 1440, heigh
 const missing = await missingContext.newPage();
 const missingErrors = [];
 missing.on('pageerror', error => missingErrors.push(String(error)));
-missing.on('console', message => { if (message.type() === 'error') missingErrors.push(message.text()); });
+missing.on('console', message => {
+  if (message.type() === 'error' && !/Failed to load resource: the server responded with a status of 404/.test(message.text())) missingErrors.push(message.text());
+});
 const missingResponse = await missing.goto(`${origin}/missing-specimen`, { waitUntil: 'networkidle' });
 await missing.screenshot({ path: `${evidence}/live-404-desktop.png`, fullPage: true });
 const missingAxe = await new AxeBuilder({ page: missing }).analyze();

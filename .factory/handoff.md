@@ -11,7 +11,7 @@ Perfection-loop round 1 closes every finding in `.factory/review-1.md`. The find
 - Release tag: `v0.1.3` at `e6664faf68f28f172f6d3db4dea57c7fd7941e97`
 - Release-manifest commit: `be21d00`
 - Public Homebrew tap commit: `2073c74`
-- Azure Static Web Apps deployment: `2c005a92-e72f-4d64-910c-94e066c707e0`
+- Azure Static Web Apps deployment: `a2a71fa1-468b-4ebd-998e-fae5429d82a7`
 
 ## What changed
 
@@ -59,7 +59,7 @@ Release verification:
 
 Live verification:
 
-- `verify-url.sh` returned HTTP 200, load 926 ms, title/lang/main/alt checks passed, and no console errors occurred.
+- `verify-url.sh` returned HTTP 200, load 901 ms, title/lang/main/alt checks passed, and no console errors occurred.
 - `npm run verify:live` checked `/`, `/?demo=1`, `/demo`, `/privacy`, `/terms`, and a missing route cold.
 - Each real route returned 200 with its own title, one `h1`, one `main`, no horizontal overflow, no undersized control, no console error, and no serious/critical axe result.
 - The missing route returned HTTP 404 with the product title and home link.
