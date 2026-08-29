@@ -18,7 +18,7 @@ The final Static Web Apps deployment was `dc8ef218-ff41-4666-b4e5-fae94081af3c`.
 
 ### Clean clone
 
-Clean checkout: `/tmp/legacy-app-rescue-clean-round3.AOPzfe`; full log: `/tmp/legacy-app-rescue-clean-round3.log`.
+Final remote clean checkout: `/tmp/legacy-app-rescue-final-clean.2TkVXf` at `f449122bd540d1459b6bc138be659824ccc75a3d`; full log: `/tmp/legacy-app-rescue-final-clean.log`.
 
 - `npm ci`: PASS, 0 vulnerabilities.
 - Every one of the 27 exact commands in `.factory/claims.json`: PASS independently. The log records `ALL_CLAIMS_PASS 27`.
@@ -26,7 +26,7 @@ Clean checkout: `/tmp/legacy-app-rescue-clean-round3.AOPzfe`; full log: `/tmp/le
 - `cargo fmt --all -- --check`: PASS.
 - `cargo clippy --all-targets --locked -- -D warnings`: PASS.
 - `cargo build --release --locked`: PASS.
-- `cargo package --locked --no-verify --allow-dirty`: PASS — 78 files, 3.6 MiB source package.
+- `cargo package --locked --no-verify --allow-dirty`: PASS — 79 files, 3.6 MiB source package.
 - `npm audit --audit-level=high`: PASS, 0 vulnerabilities.
 - `npm run build`: PASS — `dist/site/`; 22.83 kB JavaScript (7.98 kB gzip) and 14.21 kB CSS (3.97 kB gzip).
 

@@ -6,7 +6,7 @@
 
 **Final deployment:** Static Web Apps `dc8ef218-ff41-4666-b4e5-fae94081af3c` to <https://legacy-app-rescue.sociobot.in>.
 
-**Evidence:** clean-clone log `/tmp/legacy-app-rescue-clean-round3.log`; live screenshots and report in `/work/.evidence/polish-3/`.
+**Evidence:** final remote clean-clone log `/tmp/legacy-app-rescue-final-clean.log` at `f449122bd540d1459b6bc138be659824ccc75a3d`; live screenshots and report in `/work/.evidence/polish-3/`.
 
 Every prior finding remains fixed and was re-exercised. F-3-1 is fixed with a genuine scroll assertion rather than an initial-viewport-only check.
 
