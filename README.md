@@ -53,6 +53,10 @@ scoop install legacy-app-rescue
 
 Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a Windows portable ZIP, `SHA256SUMS`, and `latest.json`. The `winget/` manifest is ready for owner submission after release checksums are filled.
 
+### winget manifest
+
+The checked v0.1.1 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/B-Divyesh.LegacyAppRescue.yaml). It is ready to submit to `microsoft/winget-pkgs`; it is not presented as an installed winget source until that upstream submission is accepted.
+
 ## Use the CLI
 
 Scan one APK for free:
@@ -147,11 +151,14 @@ npm ci
 npm test
 npm run build:site
 npm run verify:billing
+npm run verify:package-managers
 ```
 
 The site output is exactly `dist/site/`. The release workflow builds platform binaries on GitHub Actions.
 
 `npm run verify:billing` is a live release check. It confirms the Sociobot checkout returns a `303` to a hosted Dodo session and that a successful redirect has no `Retry-After` header. It also checks that the verification service enforces its documented rate limit.
+
+`npm run verify:package-managers` is a live release check. It compares the public Homebrew formula and documented Scoop manifest with the current GitHub Release's `SHA256SUMS`, then checks the repository Homebrew, Scoop, and winget manifests.
 
 ## Test individual promises
 
