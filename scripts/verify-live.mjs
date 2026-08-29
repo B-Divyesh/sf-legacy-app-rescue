@@ -53,7 +53,15 @@ const demoRequests = [];
 demo.on('request', request => demoRequests.push(request.url()));
 await demo.goto(`${origin}/?demo=1`, { waitUntil: 'networkidle' });
 const demoKeys = await demo.evaluate(() => Object.keys(localStorage));
-await demo.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+const demoScroll = await demo.evaluate(async () => {
+  const maximum = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight;
+  window.scrollTo({ top: maximum, behavior: 'instant' });
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  return { maximum, top: window.scrollY };
+});
+if (demoScroll.maximum <= 0 || demoScroll.top < demoScroll.maximum - 1) {
+  throw new Error(`Live demo did not reach its record end: ${JSON.stringify(demoScroll)}`);
+}
 const demoControls = await Promise.all([
   demo.getByText('Demo — sample data, nothing is saved').first(),
   demo.getByRole('button', { name: 'Reset demo' }),
@@ -72,7 +80,7 @@ const requestsBeforeExit = [...demoRequests];
 await demo.getByRole('link', { name: 'Start for real' }).click();
 const keysAfterExit = await demo.evaluate(() => Object.keys(localStorage).filter(key => key.startsWith('demo:')));
 if (demoKeys.join() !== 'demo:legacy-app-rescue:opened' || keysAfterExit.length || requestsBeforeExit.some(url => new URL(url).origin !== origin)) {
-  throw new Error(`Live demo isolation failed: ${JSON.stringify({ demoKeys, demoControls, keysAfterExit, requestsBeforeExit })}`);
+  throw new Error(`Live demo isolation failed: ${JSON.stringify({ demoKeys, demoScroll, demoControls, keysAfterExit, requestsBeforeExit })}`);
 }
 await demoContext.close();
 

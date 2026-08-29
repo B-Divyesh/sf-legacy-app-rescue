@@ -46,7 +46,14 @@ test('@claim:demo-sandbox opens isolated sample data and keeps its controls avai
   await expect(page.getByText('in.sociobot.orchardnotes')).toBeVisible();
   const keys = await page.evaluate(() => Object.keys(localStorage));
   expect(keys).toEqual(['demo:legacy-app-rescue:opened']);
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  const scroll = await page.evaluate(async () => {
+    const maximum = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight;
+    window.scrollTo({ top: maximum, behavior: 'instant' });
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    return { maximum, top: window.scrollY };
+  });
+  expect(scroll.maximum).toBeGreaterThan(0);
+  expect(scroll.top).toBeGreaterThanOrEqual(scroll.maximum - 1);
   await expect(banner).toBeVisible();
   await expect(reset).toBeVisible();
   await expect(startForReal).toBeVisible();
