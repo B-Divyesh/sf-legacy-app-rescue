@@ -89,6 +89,8 @@ test('@claim:platform-builds defines releases for three operating systems and cu
   expect(workflow).toContain('Publish package manifests in the product repository');
   expect(workflow).toContain("dnf --installroot=\"$RPM_ROOT\"");
   expect(workflow).toContain("upgrade -y \"$PWD/package/rescue-linux-x86_64.rpm\"");
+  expect(workflow).toContain('releases/download/v0.1.1/rescue-linux-x86_64.rpm');
+  expect(workflow).toContain('= "0.1.0-1"');
   expect(workflow).toContain("rpm -qp package/rescue-linux-x86_64.rpm");
   expect(workflow).toContain('dpkg-deb -f package/rescue-linux-x86_64.deb Version');
   expect(workflow).toContain('pkgutil --expand');
