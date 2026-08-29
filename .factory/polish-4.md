@@ -60,7 +60,7 @@ Every finding in reviews 1–4 was rechecked against the repaired source and the
 
 ## Final acceptance evidence
 
-- A fresh local clone at `/tmp/legacy-app-rescue-polish4.RwpGOn` ran `npm ci`, each of the 35 exact `.factory/claims.json` commands independently, `npm test`, and `npm run build`; all passed. The full suite reports 8 Rust and 52 Playwright tests.
+- A final fresh local clone at `/tmp/legacy-app-rescue-polish4-final.vMRn2z` from `1e52d850917c5b15d1acb76549f6e4e0106f13e3` ran `npm ci`, each of the 35 exact `.factory/claims.json` commands independently, `npm test`, and `npm run build`; all passed. The full suite reports 8 Rust and 52 Playwright tests. Evidence: `/work/.evidence/polish-4-final-clean-clone.log`.
 - `cargo fmt --all -- --check`, `cargo clippy --all-targets --locked -- -D warnings`, `cargo build --release --locked`, `cargo package --locked --no-verify --allow-dirty`, and `npm audit --audit-level=high` passed.
 - `npm run test:performance` passed: performance 100 on all four mobile runs; LCP values 1660, 1662, 1657, and 1657 ms; median 1658.5 ms; TBT 0 ms and CLS 0.
 - `npm run verify:billing` passed: hosted Dodo checkout returned 303 with no `Retry-After`; verification allowed 30 requests and request 31 returned 429 with `Retry-After: 4`.

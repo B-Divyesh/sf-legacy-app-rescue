@@ -17,7 +17,7 @@ Production deployment: Static Web Apps production app `sf-legacy-app-rescue`, co
 
 ## Verification
 
-- Fresh clone: `/tmp/legacy-app-rescue-polish4.RwpGOn` at the repair source; `npm ci`, all 35 exact claim commands, `npm test`, and `npm run build` passed. Evidence: `/work/.evidence/polish-4-clean-clone.log`.
+- Final fresh clone: `/tmp/legacy-app-rescue-polish4-final.vMRn2z` at `1e52d850917c5b15d1acb76549f6e4e0106f13e3`; `npm ci`, all 35 exact claim commands, `npm test`, and `npm run build` passed. Evidence: `/work/.evidence/polish-4-final-clean-clone.log`.
 - Full browser suite: 8 Rust tests and 52 Playwright tests passed, covering routes, keyboard paths, mobile layout, demo isolation, privacy request boundaries, and Axe serious/critical findings.
 - Quality gates passed: formatting, Clippy with warnings denied, release build, Cargo package, npm audit, Lighthouse mobile performance (100 across four runs; median LCP 1658.5 ms), billing verification, and package-manager verification.
 - Cold production check passed after deployment: `npm run verify:url -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-4`.
