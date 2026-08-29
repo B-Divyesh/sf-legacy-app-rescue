@@ -1,64 +1,29 @@
-# Legacy App Rescue — polish round 3 handoff
+# Legacy App Rescue — independent verification 8 handoff
 
 ## Status: PASS
 
-Repair commits: `d983b969632d57aa4aa5a048c920d55f0411a5e0` and `5eeeb608945701b323531abccb2301d99abb3fee` on `main`.
+Verified candidate: `4d996122d5c6c06672ecf1e5a5599fad6f457b47` on `main`
+Live URL: <https://legacy-app-rescue.sociobot.in>
+Release: `v0.1.3`
 
-The final Static Web Apps deployment was `dc8ef218-ff41-4666-b4e5-fae94081af3c`. The live site is <https://legacy-app-rescue.sociobot.in>.
+The deployment-only concern did not reproduce. A fresh `dist/site/` build exactly matches the deployed HTML, JavaScript, CSS, and hero assets by SHA-256.
 
-## What changed
+## What the verifier did
 
-- Made the full demo header sticky. The sample-data banner and both controls remain visible at the real end of the 390 px mobile record.
-- Strengthened `@claim:demo-sandbox`: it now scrolls to the calculated document end, proves the scroll happened, checks every control remains in the viewport, then operates Reset demo and Start for real.
-- Added the same genuine scroll assertion and screenshot to `scripts/verify-live.mjs`.
-- Removed the two non-informative first-screen labels: “A local preservation tool” and “PLATE / 017”. A browser regression test prevents their return.
-- Updated the demo claim, demo documentation, copy audit, and catalog description. The catalog line is verb-first and 54 characters: “Record Android app evidence and check a target device.”
-- Added the README deployment section with the factory build command and `dist/site/` output directory.
+- Installed clean dependencies with `npm ci`.
+- Ran all 27 exact commands from `.factory/claims.json` independently: all passed (`ALL_CLAIMS_PASS 27`).
+- Ran the full `npm test` suite: 8 Rust tests and 43 Playwright tests passed.
+- Passed typecheck, formatting, Clippy with warnings denied, release build, crate package, production site build, and high-severity npm audit.
+- Passed the production performance, billing, package-manager, and live-site check scripts.
+- Used a packed crate in a clean consumer install; ran the demo and missing-file, directory, and missing-argument recovery paths.
+- Used the live checksum-verifying Linux installer in a new temporary directory; installed v0.1.3 and ran the demo.
+- Checked live desktop/mobile routes, keyboard path, reduced-motion coverage, direct demo outgoing requests/storage, response headers/caching, console/page errors, Axe serious/critical findings, 404 behavior, and byte identity.
 
-## Verification
+## Results and known gaps
 
-### Clean clone
+- PASS: claims, tests, build, installer, public package metadata, privacy boundaries, accessibility checks, and live deployment identity.
+- Billing allowance: 30 verification requests accepted; request 31 returned 429 with `Retry-After: 4`.
+- Mobile Lighthouse LCP samples were 2179, 1677, 1694, and 1695 ms (median 1694.5 ms; CLS 0). The official `npm run test:performance` exits 0. One cold manual run scored 83 performance due to transient 629 ms TBT; the remaining samples scored 96/100/100. Monitor this variability, but it did not violate the enforced LCP/CLS budget.
+- Low tooling gap only: no `verify-url.sh` exists despite the attached accessibility instruction naming it; the existing `npm run verify:live` supplies equivalent and broader coverage and passed.
 
-Final remote clean checkout: `/tmp/legacy-app-rescue-final-clean.2TkVXf` at `f449122bd540d1459b6bc138be659824ccc75a3d`; full log: `/tmp/legacy-app-rescue-final-clean.log`.
-
-- `npm ci`: PASS, 0 vulnerabilities.
-- Every one of the 27 exact commands in `.factory/claims.json`: PASS independently. The log records `ALL_CLAIMS_PASS 27`.
-- `npm test`: PASS — 8 Rust tests and 43 Playwright tests. This includes the route, keyboard, mobile, privacy, offline-proxy, demo-isolation, metadata, 404, and Axe serious/critical checks.
-- `cargo fmt --all -- --check`: PASS.
-- `cargo clippy --all-targets --locked -- -D warnings`: PASS.
-- `cargo build --release --locked`: PASS.
-- `cargo package --locked --no-verify --allow-dirty`: PASS — 79 files, 3.6 MiB source package.
-- `npm audit --audit-level=high`: PASS, 0 vulnerabilities.
-- `npm run build`: PASS — `dist/site/`; 22.83 kB JavaScript (7.98 kB gzip) and 14.21 kB CSS (3.97 kB gzip).
-
-### Additional release checks
-
-- `npm run verify:billing`: PASS — checkout gave a hosted Dodo 303 without `Retry-After`; request 31 of the license-rate test returned 429 with `Retry-After: 4`.
-- `npm run verify:package-managers`: PASS — Homebrew, Scoop, and winget resolve to v0.1.3.
-- `npm run test:performance`: PASS — four mobile Lighthouse runs scored 100 performance. LCP was 1669, 1665, 1664, and 1659 ms; median 1664.5 ms; TBT and CLS were zero.
-
-### Cold live re-check
-
-`npm run verify:live -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-3`: PASS after final deployment.
-
-- `/`, `/?demo=1`, `/demo`, `/privacy`, and `/terms`: 200, route-specific title, one `h1`, one `main`, no horizontal overflow, no console errors, no Axe serious/critical violations, and no targets below 44 px.
-- `/missing-specimen`: 404, designed page, title, legal links, and a home action.
-- The live direct demo used only same-origin requests; Reset demo retained the isolated sample; Start for real cleared every `demo:` key.
-- The verifier proved the demo really reached its scroll maximum, then captured the persistent banner and controls at the record end: `/work/.evidence/polish-3/live-demo-scrolled-mobile.png`.
-- Other evidence: `live-landing-mobile.png`, `live-demo-mobile.png`, `live-privacy-mobile.png`, `live-404-desktop.png`, and `live-browser.json` in `/work/.evidence/polish-3/`.
-
-## Run locally
-
-```sh
-npm ci
-npm test
-npm run build
-npm run test:performance
-npm run verify:billing
-npm run verify:package-managers
-npm run verify:live -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-3
-```
-
-## Known gaps / operator action
-
-None. The CLI and installer release process remains the existing GitHub Actions tag workflow; this static-site repair did not publish a new CLI release because the shipped binary behavior was unchanged.
+Detailed evidence is in [verification-8.md](verification-8.md). No operator action is required.
