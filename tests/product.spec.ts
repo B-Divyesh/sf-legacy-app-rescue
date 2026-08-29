@@ -135,7 +135,7 @@ test('regression: release versions come from Cargo and RPM upgrades are enforced
   const npmVersion = JSON.parse(readFileSync(join(repo, 'package.json'), 'utf8')).version;
   const nfpm = readFileSync(join(repo, 'packaging/nfpm.yaml'), 'utf8');
   const workflow = readFileSync(join(repo, '.github/workflows/release.yml'), 'utf8');
-  expect(cargoVersion).toBe('0.1.2');
+  expect(cargoVersion).toBe('0.1.3');
   expect(npmVersion).toBe(cargoVersion);
   expect(nfpm).toContain('version: ${PACKAGE_VERSION}');
   expect(workflow).toContain(`default: v${cargoVersion}`);

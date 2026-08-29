@@ -8,7 +8,7 @@ on:
       version:
         description: Version tag to package, such as v0.1.2
         required: false
-        default: v0.1.2
+        default: v0.1.3
 
 permissions:
   contents: write

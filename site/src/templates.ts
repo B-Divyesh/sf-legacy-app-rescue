@@ -23,7 +23,7 @@ export function footer() {
   return `<footer class="site-footer"><div>
     <p><strong>Legacy App Rescue</strong> records Android app evidence on your computer.</p>
     <nav aria-label="Footer navigation"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a><a href="https://sociobot.in">Built by Param Factory <span class="sr-only">(external site)</span></a></nav>
-    <p class="build">Version 0.1.2 · build 2026.08</p>
+    <p class="build">Version 0.1.3 · build 2026.08</p>
   </div></footer>`;
 }
 

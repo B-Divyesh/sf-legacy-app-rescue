@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 — 2026-08-29
+
+- Made `--ci` produce plain, decoration-free demo and device output.
+- Added isolated browser demo entry at `?demo=1` with explicit reset and exit behavior.
+- Added observable tests for every published safety, privacy, packaging, and recovery claim.
+- Rewrote landing and README copy for direct headings and shorter release guidance.
+
 ## 0.1.2 — 2026-08-29
 
 - Give Linux RPMs the Cargo release version and verify a real RPM upgrade from 0.1.1 in CI.
