@@ -3,7 +3,10 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const [directory, inputTag, repository] = process.argv.slice(2);
-const tag = inputTag || 'v0.1.0';
+if (!directory || !inputTag || !repository) {
+  throw new Error('Usage: node scripts/release-manifest.mjs DIRECTORY vVERSION OWNER/REPOSITORY');
+}
+const tag = inputTag;
 const files = readdirSync(directory).filter(name => name.startsWith('rescue-'));
 const digest = name => createHash('sha256').update(readFileSync(join(directory, name))).digest('hex');
 const url = name => `https://github.com/${repository}/releases/download/${tag}/${name}`;

@@ -1,6 +1,6 @@
 {
   "name": "legacy-app-rescue-site",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
     "pretest": "cargo test && npm run check && npm run build:site",
     "test": "playwright test",
     "test:all": "npm test",
+    "test:performance": "sh scripts/verify-mobile-lcp.sh",
     "record:demo": "node scripts/record-demo.mjs",
     "check": "tsc --noEmit",
     "verify:billing": "node scripts/verify-billing.mjs",

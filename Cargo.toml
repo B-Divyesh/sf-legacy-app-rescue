@@ -1,6 +1,6 @@
 [package]
 name = "legacy-app-rescue"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Preservation-first inventory and compatibility checks for Android APKs"
 license = "MIT"

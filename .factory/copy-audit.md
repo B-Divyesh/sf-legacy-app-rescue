@@ -61,7 +61,7 @@ Generated from the built landing page on 28 August 2026. Navigation and code-onl
 | 54 | Remove stored license | 3 | — |
 | 55 | The token stays in this browser. Remove stored license deletes it and its check status. | 15 | — |
 | 56 | Legacy App Rescue records Android app evidence on your computer. | 10 | — |
-| 57 | Version 0.1.1 · build 2026.08 | 5 | — |
+| 57 | Version 0.1.2 · build 2026.08 | 5 | — |
 
 ## First-screen check
 

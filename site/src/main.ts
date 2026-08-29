@@ -33,7 +33,7 @@ function footer() {
   return `<footer class="site-footer"><div>
     <p><strong>Legacy App Rescue</strong> records Android app evidence on your computer.</p>
     <nav aria-label="Footer navigation"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a><a href="https://sociobot.in">Built by Param Factory <span class="sr-only">(external site)</span></a></nav>
-    <p class="build">Version 0.1.1 · build 2026.08</p>
+    <p class="build">Version 0.1.2 · build 2026.08</p>
   </div></footer>`;
 }
 
@@ -51,7 +51,7 @@ function terminal(id = 'terminal') {
 function landing() {
   return `${header()}<main id="main" tabindex="-1">
     <section class="hero" aria-labelledby="page-title">
-      <img class="hero-plate" src="/assets/field-guide-hero.webp" srcset="/assets/field-guide-hero-720.webp 720w, /assets/field-guide-hero.webp 1200w" sizes="(max-width: 760px) 100vw, 1200px" width="1200" height="800" alt="A field-guide plate shows a fern sheltering an archive box and device cable." fetchpriority="high" />
+      <img class="hero-plate" src="/assets/field-guide-hero.webp" srcset="/assets/field-guide-hero-800.webp 800w, /assets/field-guide-hero.webp 1200w" sizes="(max-width: 760px) 100vw, 1200px" width="1200" height="800" alt="A field-guide plate shows a fern sheltering an archive box and device cable." fetchpriority="high" />
       <div class="hero-copy">
         <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
@@ -166,7 +166,8 @@ function renderRoute(focus = false, restoreScroll = 0) {
   document.title = route?.title ?? 'Page not found — Legacy App Rescue';
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = route?.description ?? 'This Legacy App Rescue page was not found.';
   document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `https://legacy-app-rescue.sociobot.in${path}`;
-  app.innerHTML = route ? route.render() : missingPage();
+  if (app.dataset.prerenderedRoute !== path) app.innerHTML = route ? route.render() : missingPage();
+  delete app.dataset.prerenderedRoute;
   if (path === '/demo') localStorage.setItem(`${DEMO_PREFIX}opened`, 'true');
   bindNavigation();
   bindTerminal();

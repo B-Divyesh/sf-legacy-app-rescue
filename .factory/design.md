@@ -62,4 +62,4 @@ Generation prompt (factory `gen-image.sh`, deployment recorded by its JSON sidec
 
 > Botanical field guide plate for a software preservation utility. A pressed fern frond carefully sheltering a small abstract archive box and a coiled device cable, arranged like catalogued specimens on warm antique field-note paper. Precise gouache and ink illustration, restrained moss green, lichen, charcoal, and oxide red, subtle paper fibers, asymmetric composition with generous quiet space on the left, top-down view. No logos, no Android mascot, no screens, no readable text, no watermark, no gradient, no photorealism.
 
-The generated source is retained in `art-source/`. The served WebP derivatives are optimized below 300 KB. Generated imagery is used under the factory's asset-generation terms; repository-authored SVG and layout are MIT licensed with the code.
+The generated source is retained in `art-source/`. The served 800 px and 1200 px WebP derivatives were made locally from that source with ImageMagick and are optimized below 300 KB. Generated imagery is used under the factory's asset-generation terms; repository-authored SVG and layout are MIT licensed with the code.

@@ -1,7 +1,7 @@
 name: legacy-app-rescue
 arch: amd64
 platform: linux
-version: 0.1.0
+version: ${PACKAGE_VERSION}
 section: utils
 priority: optional
 maintainer: Param Factory <hello@sociobot.in>
@@ -14,4 +14,3 @@ contents:
     dst: /usr/bin/rescue
     file_info:
       mode: 0755
-

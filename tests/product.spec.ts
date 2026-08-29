@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -87,16 +87,69 @@ test('@claim:platform-builds defines releases for three operating systems and cu
   expect(workflow).toContain('SHA256SUMS');
   expect(workflow).toContain('latest.json');
   expect(workflow).toContain('Publish package manifests in the product repository');
+  expect(workflow).toContain("dnf --installroot=\"$RPM_ROOT\"");
+  expect(workflow).toContain("upgrade -y \"$PWD/package/rescue-linux-x86_64.rpm\"");
+  expect(workflow).toContain("rpm -qp package/rescue-linux-x86_64.rpm");
+  expect(workflow).toContain('dpkg-deb -f package/rescue-linux-x86_64.deb Version');
+  expect(workflow).toContain('pkgutil --expand');
   expect(readFileSync(join(repo, 'site/public/install.sh'), 'utf8')).toContain('Checksum did not match');
+  const packageRoot = mkdtempSync(join(tmpdir(), 'rescue-package-manifests-'));
+  const releaseRoot = join(packageRoot, 'release');
+  mkdirSync(releaseRoot);
+  for (const filename of [
+    'rescue-linux-x86_64.tar.gz',
+    'rescue-macos-arm64.tar.gz',
+    'rescue-macos-x86_64.tar.gz',
+    'rescue-windows-x86_64.zip'
+  ]) writeFileSync(join(releaseRoot, filename), filename);
+  execFileSync('node', ['scripts/release-manifest.mjs', releaseRoot, 'v0.1.2', 'B-Divyesh/sf-legacy-app-rescue'], { cwd: repo });
+  mkdirSync(join(packageRoot, 'Formula'));
+  mkdirSync(join(packageRoot, 'bucket'));
+  mkdirSync(join(packageRoot, 'scoop-bucket'));
+  mkdirSync(join(packageRoot, 'winget'));
+  writeFileSync(join(packageRoot, 'Formula/legacy-app-rescue.rb'), readFileSync(join(releaseRoot, 'legacy-app-rescue.rb')));
+  writeFileSync(join(packageRoot, 'bucket/legacy-app-rescue.json'), readFileSync(join(releaseRoot, 'legacy-app-rescue-scoop.json')));
+  writeFileSync(join(packageRoot, 'scoop-bucket/legacy-app-rescue.json'), readFileSync(join(releaseRoot, 'legacy-app-rescue-scoop.json')));
+  writeFileSync(join(packageRoot, 'winget/B-Divyesh.LegacyAppRescue.yaml'), readFileSync(join(releaseRoot, 'B-Divyesh.LegacyAppRescue.yaml')));
   const { verifyRepositoryPackageManifests } = await import('../scripts/verify-package-managers.mjs');
   expect(verifyRepositoryPackageManifests({
-    hashes: {
-      'rescue-linux-x86_64.tar.gz': '502e045a0984b6cd055427e3758919d9f16314f5fc91b7fd4148f25069ad1206',
-      'rescue-macos-arm64.tar.gz': '913c59882f0443edb9676cd67097a2f3fcfffe12e6432c86e5a5c0e04b52202a',
-      'rescue-macos-x86_64.tar.gz': 'e18086e3ac9684d7217c0742903a835d0d66d6fb2ef7fb2bdbdd368eec162b93',
-      'rescue-windows-x86_64.zip': 'a43193326779486470bd2cccc3446e7f22d90015ce0635b0f72288d4b5e0c9e7'
-    }
-  })).toBe('0.1.1');
+    version: '0.1.2',
+    hashes: Object.fromEntries([
+      'rescue-linux-x86_64.tar.gz',
+      'rescue-macos-arm64.tar.gz',
+      'rescue-macos-x86_64.tar.gz',
+      'rescue-windows-x86_64.zip'
+    ].map(filename => [filename, createHash('sha256').update(filename).digest('hex')])),
+    directory: packageRoot
+  })).toBe('0.1.2');
+});
+
+test('regression: release versions come from Cargo and RPM upgrades are enforced', async () => {
+  const cargo = readFileSync(join(repo, 'Cargo.toml'), 'utf8');
+  const cargoVersion = cargo.match(/^version = "([^"]+)"$/m)?.[1];
+  const npmVersion = JSON.parse(readFileSync(join(repo, 'package.json'), 'utf8')).version;
+  const nfpm = readFileSync(join(repo, 'packaging/nfpm.yaml'), 'utf8');
+  const workflow = readFileSync(join(repo, '.github/workflows/release.yml'), 'utf8');
+  expect(cargoVersion).toBe('0.1.2');
+  expect(npmVersion).toBe(cargoVersion);
+  expect(nfpm).toContain('version: ${PACKAGE_VERSION}');
+  expect(workflow).toContain(`default: v${cargoVersion}`);
+  expect(workflow).toContain('test "$RELEASE_TAG" = "v$PACKAGE_VERSION"');
+  expect(workflow).toContain('PACKAGE_VERSION="$PACKAGE_VERSION" nfpm package');
+  expect(readFileSync(join(repo, 'CHANGELOG.md'), 'utf8')).toContain(`## ${cargoVersion} —`);
+  expect(readFileSync(join(repo, 'scripts/release-manifest.mjs'), 'utf8')).not.toContain("inputTag || 'v0.1.0'");
+});
+
+test('regression: the landing job and responsive art render before JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 }, deviceScaleFactor: 1.75 });
+  const page = await context.newPage();
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Record your Android app before it disappears' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Try it with sample data' })).toBeVisible();
+  const hero = page.locator('.hero-plate');
+  await expect(hero).toHaveAttribute('srcset', /field-guide-hero-800\.webp 800w/);
+  expect(await hero.evaluate((image: HTMLImageElement) => new URL(image.currentSrc).pathname)).toBe('/assets/field-guide-hero-800.webp');
+  await context.close();
 });
 
 test('regression: deployed asset route has a one-year immutable cache policy', async () => {
@@ -110,6 +163,7 @@ test('regression: deployed asset route has a one-year immutable cache policy', a
   expect(assets.some(name => /^app-[A-Za-z0-9_-]+\.js$/.test(name))).toBe(true);
   expect(assets.some(name => /^index-[A-Za-z0-9_-]+\.css$/.test(name))).toBe(true);
   expect(assets).toContain('field-guide-hero.webp');
+  expect(assets).toContain('field-guide-hero-800.webp');
 });
 
 test('@claim:binary-manifest reads Android binary XML', async () => {
