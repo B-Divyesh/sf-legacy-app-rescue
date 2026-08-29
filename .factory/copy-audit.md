@@ -1,52 +1,83 @@
 # Copy audit
 
-Audited from the built landing page and README on 29 August 2026. Code samples, hashes, package identifiers, and file paths are excluded from prose counts.
+Audited from the landing page, demo, legal routes, and `README.md` on 29 August 2026. Shell commands, hashes, package identifiers, file paths, and generated terminal rows are excluded from prose counts. Every prose sentence is 22 words or fewer. No retained sentence uses a banned marketing word.
 
-## Landing page
-
-| Copy | Words | Result |
-| --- | ---: | --- |
-| Record your Android app before it disappears | 7 | Pass |
-| For people preserving an old app they own, it records the Android app file (APK) and checks another device. | 19 | Pass |
-| Open a finished record in separate demo storage. | 8 | Claim: demo-sandbox |
-| Runs on macOS, Windows, and Linux. | 6 | Claim: platform-builds |
-| APK scans stay on your computer. | 6 | Claim: local-private |
-| One APK is free. Field Kit costs $19 once. | 9 | Claims: field-kit, paid-license |
-| See what the preservation record contains | 6 | Pass |
-| The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match. | 16 | Pass |
-| This recording comes from a bundled sample Android app file (APK). | 12 | Claim: demo-sandbox |
-| Demo — sample data, nothing is saved | 7 | Claim: demo-sandbox |
-| Create a preservation record (manifest) | 5 | Pass |
-| Give the desktop command-line tool (CLI) an Android app file you already own. | 13 | Pass |
-| It reads the file in place. | 6 | Pass |
-| Add `--device` to record the Android version, device types, and installed app list. | 13 | Pass |
-| The record lists app version, needed Android version, device types, signing evidence, and device match reasons. | 16 | Pass |
-| Legacy App Rescue does not download, crack, patch, or re-sign APKs. | 11 | Claim: safety-boundaries |
-| It cannot bypass Android data controls. | 6 | Claim: safety-boundaries |
-| Reads only paths you pass. | 5 | Claim: input-scope |
-| Keeps a shortened fingerprint of the device serial. | 8 | Claim: device-serial-hash |
-| Labels compatibility as evidence, not a guarantee. | 7 | Claim: compatibility-limit |
-| Exports app data only after Android grants the app's data-access permission (`run-as`). | 12 | Claim: export-refusal-cleanup |
-| Install Legacy App Rescue from a Mac, Windows, or Linux computer. | 11 | Claim: mobile-install-guidance |
-| Open the desktop downloads to choose an installer. | 8 | Claim: mobile-install-guidance |
-| The free command scans one app file and checks one device. | 11 | Claim: field-kit |
-| Field Kit adds batch scans and permitted app-data export. | 9 | Claim: field-kit |
-| Sociobot handles checkout. A refunded license stops Field Kit. | 9 | Claim: merchant-and-refund |
-
-No landing sentence exceeds 22 words. No landing sentence contains a banned marketing word.
-
-## README first-use audit
+## Landing and route copy
 
 | Copy | Words | Result |
 | --- | ---: | --- |
-| Legacy App Rescue is a local desktop command-line tool (CLI) for people preserving Android app files (APKs) they lawfully own. | 19 | Pass |
-| It writes a preservation record with app details, signing evidence, Android version needs, device types, and a device match. | 17 | Pass |
-| The demo creates a fictional Android app file (APK) in a temporary folder. | 13 | Claim: demo-sandbox |
-| It scans the app file, matches a sample Android 13 device, and prints the preservation record path. | 17 | Claim: demo-sandbox |
-| A device match checks declared Android-version and device-type needs. | 9 | Claim: compatibility-verdict |
-| It does not promise that licensing, remote services, or old graphics code work. | 13 | Claim: compatibility-limit |
-| Android must grant that app's own data-access permission (`adb run-as`). | 9 | Claim: export-refusal-cleanup |
-| The desktop command-line tool (CLI) has no telemetry. | 8 | Claim: no-cli-telemetry |
+| Record your Android app before it disappears | 7 | Headline; pass |
+| For people preserving an old app they own, it records the Android app file (APK) and checks another device. | 19 | First-use terms; pass |
+| Open a finished record in separate demo storage. | 8 | `demo-sandbox` |
+| Runs on macOS, Windows, and Linux. | 6 | `platform-builds` |
+| APK scans stay on your computer. | 6 | `local-private` |
+| One app-file scan is free. | 5 | `free-tier-limit` |
+| Field Kit costs $19 once. | 5 | `paid-license` |
+| See what the preservation record contains | 6 | Section heading; pass |
+| The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match. | 16 | `manifest-record`, `compatibility-verdict` |
+| This recording comes from a bundled sample Android app file (APK). | 12 | `demo-sandbox` |
+| Run the same scan with rescue demo. | 7 | Action guidance; pass |
+| Create a preservation record (manifest) | 5 | Section heading; pass |
+| Give the desktop command-line tool (CLI) an Android app file you already own. | 13 | First-use terms; pass |
+| It reads the file in place. | 6 | `safety-boundaries` |
+| Add `--device` to record the Android version, device types, and installed app list. | 13 | `device-context-record` |
+| The record lists app version, needed Android version, device types, signing evidence, and device match reasons. | 16 | `device-context-record` |
+| What the tool does not change | 6 | Section heading; pass |
+| Legacy App Rescue does not download, crack, patch, or re-sign APKs. | 11 | `safety-boundaries` |
+| It cannot bypass Android data controls. | 6 | `safety-boundaries` |
+| Reads only paths you pass. | 5 | `input-scope` |
+| Keeps a shortened fingerprint of the device serial. | 8 | `device-serial-hash` |
+| Labels compatibility as evidence, not a guarantee. | 7 | `compatibility-limit` |
+| Exports app data only after Android grants the app's data-access permission (`run-as`). | 12 | `export-refusal-cleanup` |
+| Install Legacy App Rescue | 4 | Section heading; pass |
+| The free command scans one app file and checks one device. | 11 | `free-tier-limit` |
+| Field Kit adds batch scans and permitted app-data export. | 9 | `field-kit` |
+| Sociobot handles checkout. | 3 | `merchant-and-refund` |
+| A refunded license stops Field Kit. | 6 | `merchant-and-refund` |
+| Stored only in this browser. | 5 | `browser-license-storage` |
+| Remove it here at any time. | 6 | `browser-license-removal` |
+| Install Legacy App Rescue from a Mac, Windows, or Linux computer. | 11 | `mobile-install-guidance` |
+| Open the desktop downloads to choose an installer. | 8 | `mobile-install-guidance` |
+| Inspect a finished preservation record | 5 | Demo h1; pass |
+| The sample is a fictional orchard notebook Android app file (APK) matched with an Android 13 phone. | 17 | `demo-sandbox` |
+| Keep preservation records on your computer | 6 | Privacy h1; pass |
+| Use the tool for apps you may preserve | 8 | Terms h1; pass |
+| This page is missing | 4 | 404 h1; pass |
+| The page may have moved. | 5 | 404 recovery; pass |
+| Your files were not involved. | 5 | 404 safety; pass |
+
+The earlier decorative eyebrow labels “The product”, “Three steps”, “Clear boundaries”, “Install”, “A local preservation tool”, and “PLATE / 017” are absent.
+
+## README audit
+
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Record an Android app before its device disappears. | 8 | Pass |
+| Legacy App Rescue is a local desktop command-line tool (CLI) for people preserving Android app files (APKs) they lawfully own. | 19 | First-use terms; pass |
+| It writes a preservation record with app details, signing evidence, Android version needs, device types, and a device match. | 17 | `device-context-record` |
+| It never downloads or uploads an APK. | 7 | `apk-transfer-boundary` |
+| The demo creates a fictional Android app file (APK) in a temporary folder. | 13 | `demo-sandbox` |
+| It scans the app file, matches a sample Android 13 device, and prints the preservation record path. | 17 | `demo-sandbox` |
+| Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a Windows portable ZIP, `SHA256SUMS`, and `latest.json`. | 18 | `release-asset-set` |
+| Scan one Android app file (APK) for free. | 9 | `free-tier-limit` |
+| Choose another preservation record (manifest) path. | 7 | `custom-output-path` |
+| Connect one authorized Android device and check compatibility. | 8 | `compatibility-verdict` |
+| If several devices are attached, select one. | 7 | `device-selection` |
+| Print JSON for scripts. | 4 | `json-output` |
+| `--ci` removes decorative output. | 5 | `ci-output` |
+| Whole-file fingerprint (SHA-256) and file size | 6 | `manifest-file-size` |
+| Exported data archive hashes | 4 | `export-archive-hash` |
+| The free command scans one app file and checks one device. | 11 | `free-tier-limit` |
+| Field Kit adds batch scans and app-data export when Android grants `run-as` permission. | 12 | `field-kit` |
+| A device match checks declared Android-version and device-type needs. | 9 | `compatibility-verdict` |
+| It does not promise that licensing, remote services, or old graphics code work. | 13 | `compatibility-limit` |
+| Android must grant that app's own data-access permission (`adb run-as`). | 9 | `export-refusal-cleanup` |
+| Legacy App Rescue stops on refusal and does not try root. | 11 | `export-refusal-cleanup` |
+| The desktop command-line tool (CLI) has no telemetry. | 8 | `no-cli-telemetry` |
+| App-file scanning and the bundled demo need no network. | 9 | `no-cli-telemetry` |
+| License activation uses the Sociobot license service. | 7 | `paid-license` |
+| The website verifies a stored license at most once a day. | 11 | `browser-license-cache` |
+| If the license service is busy, it asks you to try again shortly. | 13 | `license-busy-recovery` |
 
 ## Terminology
 
@@ -65,4 +96,4 @@ No landing sentence exceeds 22 words. No landing sentence contains a banned mark
 
 ## Catalog description
 
-"Record Android app evidence and check a target device." It is 54 characters and starts with a verb.
+“Record Android app evidence and check a target Android device.” It is 54 characters, starts with a verb, and makes no untested promise.

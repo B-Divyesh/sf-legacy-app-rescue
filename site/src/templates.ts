@@ -49,13 +49,13 @@ export function landing() {
         <ul class="plain-facts" aria-label="Product facts">
           <li>Runs on macOS, Windows, and Linux.</li>
           <li>APK scans stay on your computer.</li>
-          <li>One APK is free. Field Kit costs $19 once.</li>
+          <li>One app-file scan is free. Field Kit costs $19 once.</li>
         </ul>
       </div>
     </section>
 
     <section class="preview-band" aria-labelledby="preview-title">
-      <div class="section-intro"><p class="eyebrow">The product</p><h2 id="preview-title">See what the preservation record contains</h2><p>The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match.</p></div>
+      <div class="section-intro"><h2 id="preview-title">See what the preservation record contains</h2><p>The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match.</p></div>
       ${terminal('landing-terminal')}
       <dl class="specimen-facts">
         <div><dt>Package</dt><dd>in.sociobot.orchardnotes</dd></div>
@@ -66,7 +66,7 @@ export function landing() {
     </section>
 
     <section class="how" aria-labelledby="how-title">
-      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation record (manifest)</h2></div>
+      <div class="section-intro"><h2 id="how-title">Create a preservation record (manifest)</h2></div>
       <ol class="ledger-steps">
         <li><span class="step-number">01</span><div><h3>Point to your Android app file</h3><p>Give the desktop command-line tool (CLI) an Android app file you already own. It reads the file in place.</p><code>rescue scan old-game.apk</code></div></li>
         <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record the Android version, device types, and installed app list.</p><code>rescue scan old-game.apk --device</code></div></li>
@@ -75,12 +75,12 @@ export function landing() {
     </section>
 
     <section class="boundaries" aria-labelledby="boundaries-title">
-      <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">What the tool does not change</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
+      <div><h2 id="boundaries-title">What the tool does not change</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
       <ul class="checked-list"><li>Reads only paths you pass.</li><li>Keeps a shortened fingerprint of the device serial.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports app data only after Android grants the app's data-access permission (<code>run-as</code>).</li></ul>
     </section>
 
     <section class="install" id="install" aria-labelledby="install-title">
-      <div class="section-intro"><p class="eyebrow">Install</p><h2 id="install-title">Install Legacy App Rescue</h2><p data-platform-message>Checking the right download for this computer…</p></div>
+      <div class="section-intro"><h2 id="install-title">Install Legacy App Rescue</h2><p data-platform-message>Checking the right download for this computer…</p></div>
       <div class="download-panel">
         <div data-download-action class="download-state" aria-live="polite"><span class="loader" aria-hidden="true"></span> Checking published files…</div>
         <div class="command-row"><code data-install-command>curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh</code><button type="button" data-copy-command>Copy command</button></div>

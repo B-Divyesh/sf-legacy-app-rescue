@@ -16,6 +16,7 @@
     "check": "tsc --noEmit",
     "verify:billing": "node scripts/verify-billing.mjs",
     "verify:live": "node scripts/verify-live.mjs",
+    "verify:url": "sh scripts/verify-url.sh",
     "verify:package-managers": "node scripts/verify-package-managers.mjs"
   },
   "devDependencies": {

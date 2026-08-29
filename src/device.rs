@@ -194,6 +194,8 @@ exit 1
             fs::metadata(&archive).unwrap().permissions().mode() & 0o777,
             0o600
         );
+        assert_eq!(exported.sha256, hex_hash(b"private fixture data"));
+        assert_eq!(fs::read(&archive).unwrap(), b"private fixture data");
 
         std::env::set_var("LEGACY_RESCUE_TEST_ADB_REFUSE", "1");
         let refused = root.path().join("refused.tar");

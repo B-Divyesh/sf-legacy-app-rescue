@@ -187,5 +187,61 @@
     "where": "README CLI usage",
     "test": "npm test -- --grep @claim:ci-output",
     "sandbox": "compare normal and --ci output from the bundled demo"
+  },
+  {
+    "id": "free-tier-limit",
+    "claim": "A free scan command accepts one Android app file and one selected device; batch scans need Field Kit.",
+    "where": "landing first-screen facts, Field Kit section, README CLI usage",
+    "test": "npm test -- --grep @claim:free-tier-limit",
+    "sandbox": "temporary APK and fake authorized ADB device; compare one-file success with unlicensed two-file refusal"
+  },
+  {
+    "id": "device-context-record",
+    "claim": "A device scan records the selected device version, device types, installed app list, and match reasons.",
+    "where": "landing how-it-works section, README introduction",
+    "test": "npm test -- --grep @claim:device-context-record",
+    "sandbox": "temporary sample APK and a fake selected ADB device; parse the preservation record"
+  },
+  {
+    "id": "custom-output-path",
+    "claim": "The --output option writes a preservation record to the path you choose.",
+    "where": "README CLI usage",
+    "test": "npm test -- --grep @claim:custom-output-path",
+    "sandbox": "temporary directory; assert the requested path exists and the default path does not"
+  },
+  {
+    "id": "device-selection",
+    "claim": "When several Android devices are attached, --serial records only the device you select.",
+    "where": "README CLI usage",
+    "test": "npm test -- --grep @claim:device-selection",
+    "sandbox": "fake ADB lists two devices; assert an unselected scan is refused and only the selected serial is inspected"
+  },
+  {
+    "id": "json-output",
+    "claim": "The --json option prints a machine-readable preservation record for scripts.",
+    "where": "README CLI usage",
+    "test": "npm test -- --grep @claim:json-output",
+    "sandbox": "temporary sample APK; parse stdout and assert preservation-record fields without terminal decoration"
+  },
+  {
+    "id": "manifest-file-size",
+    "claim": "Each preservation record includes the APK file size and whole-file SHA-256 fingerprint.",
+    "where": "README preservation record fields",
+    "test": "npm test -- --grep @claim:manifest-file-size",
+    "sandbox": "temporary sample APK; compare recorded bytes and SHA-256 with direct measurements"
+  },
+  {
+    "id": "export-archive-hash",
+    "claim": "A permitted app-data export records its archive SHA-256 fingerprint.",
+    "where": "README preservation record fields",
+    "test": "npm test -- --grep @claim:export-archive-hash",
+    "sandbox": "fake authorized ADB data export; compare recorded archive hash with fixture bytes"
+  },
+  {
+    "id": "release-asset-set",
+    "claim": "Release assets include Linux .deb and .rpm packages, macOS .pkg files, a Windows ZIP, SHA256SUMS, and latest.json.",
+    "where": "README install section",
+    "test": "npm test -- --grep @claim:release-asset-set",
+    "sandbox": "recorded v0.1.3 GitHub release metadata plus release-workflow packaging assertions"
   }
 ]

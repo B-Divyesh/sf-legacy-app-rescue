@@ -34,6 +34,166 @@ test('@claim:compatibility-verdict checks SDK and CPU needs', async () => {
   expect(manifest.compatibility[0].reasons[0]).toContain('requirements match');
 });
 
+test('@claim:free-tier-limit accepts one app and one chosen device, but refuses a batch without Field Kit', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-free-tier-'));
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'demo', '--output', join(root, 'sample.json')], { cwd: root });
+  const apk = join(root, 'orchard-notes-1.7.apk');
+  const bin = join(root, 'bin');
+  mkdirSync(bin);
+  writeFileSync(join(bin, 'adb'), `#!/bin/sh
+if [ "$1" = "version" ]; then exit 0; fi
+if [ "$1" = "devices" ]; then printf 'List of devices attached\\nFIELD-DEVICE\\tdevice\\n'; exit 0; fi
+if [ "$1" = "-s" ]; then shift 2; fi
+if [ "$1" = "shell" ] && [ "$2" = "getprop" ]; then
+  case "$3" in
+    ro.product.manufacturer) echo Sample ;;
+    ro.product.model) echo ArchivePhone ;;
+    ro.build.version.release) echo 13 ;;
+    ro.build.version.sdk) echo 33 ;;
+    ro.product.cpu.abilist) echo arm64-v8a ;;
+  esac
+  exit 0
+fi
+if [ "$1" = "shell" ] && [ "$2" = "pm" ]; then echo package:in.sociobot.orchardnotes; exit 0; fi
+exit 1
+`);
+  chmodSync(join(bin, 'adb'), 0o755);
+  const env = { ...process.env, PATH: `${bin}:${process.env.PATH}` };
+  const single = spawnSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', '--json', 'scan', apk, '--device', '--serial', 'FIELD-DEVICE', '--output', join(root, 'single.json')], { cwd: root, encoding: 'utf8', env });
+  expect(single.status, single.stderr).toBe(0);
+  expect(JSON.parse(single.stdout).apks).toHaveLength(1);
+  const batch = spawnSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'scan', apk, apk, '--output', join(root, 'batch.json')], { cwd: root, encoding: 'utf8', env });
+  expect(batch.status).toBe(1);
+  expect(batch.stderr).toContain('batch scans and app-data export need the $19 Field Kit');
+  expect(existsSync(join(root, 'batch.json'))).toBe(false);
+});
+
+test('@claim:device-context-record writes selected device facts and match reasons into the preservation record', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-device-context-'));
+  const bin = join(root, 'bin');
+  mkdirSync(bin);
+  const adb = join(bin, 'adb');
+  writeFileSync(adb, `#!/bin/sh
+if [ "$1" = "version" ]; then exit 0; fi
+if [ "$1" = "-s" ]; then serial="$2"; shift 2; fi
+if [ "$1" = "shell" ] && [ "$2" = "getprop" ]; then
+  case "$3" in
+    ro.product.manufacturer) echo Fieldworks ;;
+    ro.product.model) echo Preserve-13 ;;
+    ro.build.version.release) echo 13 ;;
+    ro.build.version.sdk) echo 33 ;;
+    ro.product.cpu.abilist) echo arm64-v8a,armeabi-v7a ;;
+  esac
+  exit 0
+fi
+if [ "$1" = "shell" ] && [ "$2" = "pm" ]; then echo package:in.sociobot.orchardnotes; exit 0; fi
+exit 1
+`);
+  chmodSync(adb, 0o755);
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'demo', '--output', join(root, 'sample.json')], { cwd: root });
+  const output = join(root, 'device-record.json');
+  const raw = execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', '--json', 'scan', join(root, 'orchard-notes-1.7.apk'), '--device', '--serial', 'PRESERVE-13', '--output', output], { cwd: root, encoding: 'utf8', env: { ...process.env, PATH: `${bin}:${process.env.PATH}` } });
+  const record = JSON.parse(raw);
+  expect(readFileSync(output, 'utf8')).not.toContain('PRESERVE-13');
+  expect(record.device).toMatchObject({ manufacturer: 'Fieldworks', model: 'Preserve-13', android_version: '13', sdk: 33, abis: ['arm64-v8a', 'armeabi-v7a'], installed_user_packages: ['in.sociobot.orchardnotes'] });
+  expect(record.compatibility).toHaveLength(1);
+  expect(record.compatibility[0].reasons).toEqual(['SDK level and native CPU requirements match this device.']);
+});
+
+test('@claim:custom-output-path writes the preservation record only to the requested path', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-custom-output-'));
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'demo', '--output', join(root, 'sample.json')], { cwd: root });
+  const requested = join(root, 'field-notes', 'old-game.json');
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', '--json', 'scan', join(root, 'orchard-notes-1.7.apk'), '--output', requested], { cwd: root });
+  expect(existsSync(requested)).toBe(true);
+  expect(JSON.parse(readFileSync(requested, 'utf8')).apks).toHaveLength(1);
+  expect(existsSync(join(root, 'preservation-manifest.json'))).toBe(false);
+});
+
+test('@claim:device-selection inspects only the attached device named by --serial', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-device-selection-'));
+  const bin = join(root, 'bin');
+  const log = join(root, 'adb.log');
+  mkdirSync(bin);
+  writeFileSync(join(bin, 'adb'), `#!/bin/sh
+if [ "$1" = "version" ]; then exit 0; fi
+if [ "$1" = "devices" ]; then printf 'List of devices attached\\nFIRST\\tdevice\\nSECOND\\tdevice\\n'; exit 0; fi
+if [ "$1" = "-s" ]; then serial="$2"; shift 2; fi
+printf '%s %s\\n' "$serial" "$*" >> "$LEGACY_RESCUE_ADB_LOG"
+if [ "$1" = "shell" ] && [ "$2" = "getprop" ]; then
+  case "$3" in
+    ro.product.manufacturer) echo Selected ;;
+    ro.product.model) echo "$serial" ;;
+    ro.build.version.release) echo 13 ;;
+    ro.build.version.sdk) echo 33 ;;
+    ro.product.cpu.abilist) echo arm64-v8a ;;
+  esac
+  exit 0
+fi
+if [ "$1" = "shell" ] && [ "$2" = "pm" ]; then echo package:in.sociobot.orchardnotes; exit 0; fi
+exit 1
+`);
+  chmodSync(join(bin, 'adb'), 0o755);
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'demo', '--output', join(root, 'sample.json')], { cwd: root });
+  const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, LEGACY_RESCUE_ADB_LOG: log };
+  const noSelection = spawnSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'scan', join(root, 'orchard-notes-1.7.apk'), '--device'], { cwd: root, encoding: 'utf8', env });
+  expect(noSelection.status).toBe(1);
+  expect(noSelection.stderr).toContain('more than one Android device is attached; pass --serial DEVICE');
+  const raw = execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', '--json', 'scan', join(root, 'orchard-notes-1.7.apk'), '--device', '--serial', 'SECOND', '--output', join(root, 'selected.json')], { cwd: root, encoding: 'utf8', env });
+  const record = JSON.parse(raw);
+  expect(record.device.model).toBe('SECOND');
+  expect(record.device.serial_hash).toBe(createHash('sha256').update('SECOND').digest('hex').slice(0, 16));
+  const calls = readFileSync(log, 'utf8');
+  expect(calls).toContain('SECOND shell getprop ro.build.version.sdk');
+  expect(calls).not.toContain('FIRST');
+});
+
+test('@claim:json-output prints a parseable preservation record without terminal decoration', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-json-output-'));
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'demo', '--output', join(root, 'sample.json')], { cwd: root });
+  const raw = execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', '--json', 'scan', join(root, 'orchard-notes-1.7.apk'), '--output', join(root, 'record.json')], { cwd: root, encoding: 'utf8' });
+  const record = JSON.parse(raw);
+  expect(raw.trim()).toMatch(/^\{/);
+  expect(raw).not.toContain('Recorded 1 APK');
+  expect(record).toMatchObject({ schema_version: '1.0', apks: [{ package: 'in.sociobot.orchardnotes', sha256: expect.stringMatching(/^[a-f0-9]{64}$/), size_bytes: expect.any(Number) }] });
+});
+
+test('@claim:manifest-file-size records the byte size beside the whole-file fingerprint', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-file-size-'));
+  execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', 'demo', '--output', join(root, 'sample.json')], { cwd: root });
+  const apk = join(root, 'orchard-notes-1.7.apk');
+  const raw = execFileSync('cargo', ['run', '--quiet', '--manifest-path', join(repo, 'Cargo.toml'), '--', '--json', 'scan', apk, '--output', join(root, 'record.json')], { cwd: root, encoding: 'utf8' });
+  const record = JSON.parse(raw);
+  expect(record.apks[0].size_bytes).toBe(statSync(apk).size);
+  expect(record.apks[0].sha256).toBe(createHash('sha256').update(readFileSync(apk)).digest('hex'));
+});
+
+test('@claim:export-archive-hash records the hash of a permitted app-data archive', async () => {
+  const result = spawnSync('cargo', ['test', 'app_data_export_is_private_and_cleans_up_on_refusal'], { cwd: repo, encoding: 'utf8' });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stdout).toContain('1 passed');
+});
+
+test('@claim:release-asset-set records the complete published installer set', async () => {
+  const release = JSON.parse(readFileSync(join(repo, 'tests/fixtures/release-v0.1.3.json'), 'utf8')) as { tag_name: string; assets: Array<{ name: string }> };
+  expect(release.tag_name).toBe('v0.1.3');
+  const assets = release.assets.map(asset => asset.name);
+  expect(assets).toEqual(expect.arrayContaining([
+    'rescue-linux-x86_64.deb',
+    'rescue-linux-x86_64.rpm',
+    'rescue-macos-arm64.pkg',
+    'rescue-macos-x86_64.pkg',
+    'rescue-windows-x86_64.zip',
+    'SHA256SUMS',
+    'latest.json'
+  ]));
+  const workflow = readFileSync(join(repo, '.github/workflows/release.yml'), 'utf8');
+  expect(workflow).toContain('rescue-linux-x86_64.deb');
+  expect(workflow).toContain('rescue-linux-x86_64.rpm');
+  expect(workflow).toContain('pkgbuild');
+  expect(workflow).toContain('rescue-windows-x86_64.zip');
+});
+
 test('@claim:demo-sandbox opens isolated sample data and keeps its controls available', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?demo=1');
@@ -670,6 +830,21 @@ test('unknown routes show a real 404 configuration and a way home', async ({ pag
   expect(static404).toContain('href="/privacy"');
   expect(static404).toContain('href="/terms"');
   expect(static404).toContain('Skip to main content');
+  expect(static404).toContain('rel="canonical"');
+  expect(static404).toContain('property="og:title"');
+  expect(static404).toContain('name="twitter:card"');
+  expect(static404).toContain('rel="apple-touch-icon"');
+});
+
+test('a separately served HTTP 404 sends its home action back to the landing heading', async ({ page }) => {
+  const static404 = readFileSync(join(repo, 'site/public/404.html'), 'utf8');
+  await page.route('**/static-404-focus-check', route => route.fulfill({ status: 404, contentType: 'text/html', body: static404 }));
+  const response = await page.goto('/static-404-focus-check');
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole('heading', { name: 'This page is missing' })).toBeVisible();
+  await page.getByRole('link', { name: 'Return to the home page' }).click();
+  await expect(page).toHaveURL('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Record your Android app before it disappears' })).toBeFocused();
 });
 
 test('real routes update title, metadata, focus, and browser history', async ({ page }) => {

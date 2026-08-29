@@ -27,8 +27,10 @@ for (const [path, expectedTitle] of routes) {
   const axe = await new AxeBuilder({ page }).analyze();
   const facts = await page.evaluate(() => ({
     title: document.title,
+    lang: document.documentElement.lang,
     h1: document.querySelectorAll('h1').length,
     main: document.querySelectorAll('main').length,
+    imagesWithoutAlt: [...document.querySelectorAll('img')].filter(image => !image.hasAttribute('alt')).map(image => image.getAttribute('src')),
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     smallTargets: [...document.querySelectorAll('a,button,input,summary')].filter(element => {
       const box = element.getBoundingClientRect();
@@ -38,7 +40,7 @@ for (const [path, expectedTitle] of routes) {
   const serious = axe.violations.filter(item => item.impact === 'serious' || item.impact === 'critical').map(item => item.id);
   const result = { path, status: response?.status(), ...facts, errors, serious };
   results.push(result);
-  if (result.status !== 200 || result.title !== expectedTitle || result.h1 !== 1 || result.main !== 1 || result.overflow !== 0 || errors.length || serious.length || facts.smallTargets.length) {
+  if (result.status !== 200 || result.title !== expectedTitle || result.lang !== 'en' || result.h1 !== 1 || result.main !== 1 || result.imagesWithoutAlt.length || result.overflow !== 0 || errors.length || serious.length || facts.smallTargets.length) {
     throw new Error(`Live route failed: ${JSON.stringify(result)}`);
   }
   if (path === '/') await page.screenshot({ path: `${evidence}/live-landing-mobile.png`, fullPage: true });
@@ -99,11 +101,21 @@ const missingResult = {
   status: missingResponse?.status(),
   title: await missing.title(),
   home: await missing.getByRole('link', { name: 'Return to the home page' }).getAttribute('href'),
+  canonical: await missing.locator('link[rel="canonical"]').getAttribute('href'),
+  ogTitle: await missing.locator('meta[property="og:title"]').getAttribute('content'),
+  twitterCard: await missing.locator('meta[name="twitter:card"]').getAttribute('content'),
+  appleTouchIcon: await missing.locator('link[rel="apple-touch-icon"]').getAttribute('href'),
   errors: missingErrors,
   serious: missingAxe.violations.filter(item => item.impact === 'serious' || item.impact === 'critical').map(item => item.id)
 };
-if (missingResult.status !== 404 || missingResult.title !== 'Page not found — Legacy App Rescue' || missingResult.home !== '/' || missingResult.errors.length || missingResult.serious.length) {
+if (missingResult.status !== 404 || missingResult.title !== 'Page not found — Legacy App Rescue' || missingResult.home !== '/' || missingResult.canonical !== 'https://legacy-app-rescue.sociobot.in/404' || missingResult.ogTitle !== 'Page not found — Legacy App Rescue' || missingResult.twitterCard !== 'summary_large_image' || missingResult.appleTouchIcon !== '/apple-touch-icon.png' || missingResult.errors.length || missingResult.serious.length) {
   throw new Error(`Live 404 failed: ${JSON.stringify(missingResult)}`);
+}
+await missing.getByRole('link', { name: 'Return to the home page' }).click();
+await missing.waitForURL(`${origin}/`);
+const homeHeading = missing.getByRole('heading', { level: 1, name: 'Record your Android app before it disappears' });
+if (!(await homeHeading.evaluate(element => document.activeElement === element))) {
+  throw new Error('The static 404 home action did not move focus to the landing heading.');
 }
 results.push(missingResult);
 await missingContext.close();
