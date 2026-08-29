@@ -367,7 +367,7 @@ test('@claim:compatibility-limit records reasons and says the verdict is not an 
   expect(manifest.compatibility[0].reasons).toEqual(['SDK level and native CPU requirements match this device.']);
   expect(manifest.notes).toContain('This manifest records preservation evidence. It does not guarantee that an APK will install or run.');
   await page.goto('/terms');
-  await expect(page.getByText('A compatible result does not promise installation, activation, or correct behavior.')).toBeVisible();
+  await expect(page.getByText('A compatible result does not promise installation or correct behavior.')).toBeVisible();
 });
 
 test('@claim:merchant-and-refund routes checkout through Sociobot and rejects a revoked license', async ({ page }) => {
@@ -579,7 +579,7 @@ case "$out" in *SHA256SUMS) cp "$TEST_SUMS" "$out" ;; *) cp "$TEST_ARCHIVE" "$ou
   expect(statSync(installed).mode & 0o111).not.toBe(0);
 });
 
-test('download selection gives mobile visitors desktop guidance and macOS visitors both architectures', async ({ page }) => {
+test('@claim:mobile-install-guidance gives mobile visitors desktop guidance and macOS visitors both architectures', async ({ page }) => {
   const assets = [
     { name: 'rescue-macos-arm64.pkg', browser_download_url: 'https://downloads.example/arm.pkg' },
     { name: 'rescue-macos-x86_64.pkg', browser_download_url: 'https://downloads.example/intel.pkg' },
@@ -591,7 +591,9 @@ test('download selection gives mobile visitors desktop guidance and macOS visito
     Object.defineProperty(navigator, 'platform', { configurable: true, value: 'Linux armv8l' });
   });
   await page.goto('/');
-  await expect(page.locator('[data-platform-message]')).toHaveText('Legacy App Rescue is a desktop CLI. Use macOS, Windows, or Linux to install it.');
+  await expect(page.locator('[data-platform-message]')).toHaveText('Install Legacy App Rescue from a Mac, Windows, or Linux computer.');
+  await expect(page.locator('[data-signing-note]')).toHaveText('Open the desktop downloads to choose an installer.');
+  await expect(page.locator('.command-row')).toBeHidden();
   await expect(page.getByRole('link', { name: 'Open desktop downloads' })).toBeVisible();
 
   await page.addInitScript(() => {

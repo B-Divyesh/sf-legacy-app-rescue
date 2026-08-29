@@ -44,7 +44,7 @@ function terminal(id = 'terminal') {
       <div class="terminal-bar"><span class="terminal-dots" aria-hidden="true">● ● ●</span><code>rescue demo</code><button type="button" data-terminal-toggle>Pause</button></div>
       <pre aria-live="polite"><code data-terminal-output><span class="cursor">▋</span></code></pre>
     </div>
-    <p class="terminal-caption">This recording comes from the bundled sample APK. Run the same scan with <code>rescue demo</code>.</p>
+    <p class="terminal-caption">This recording comes from a bundled sample Android app file (APK). Run the same scan with <code>rescue demo</code>.</p>
   </section>`;
 }
 
@@ -55,7 +55,7 @@ function landing() {
       <div class="hero-copy">
         <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
-        <p class="lede">For people preserving an old app they own, it records the APK and checks whether another Android device matches.</p>
+        <p class="lede">For people preserving an old app they own, it records the Android app file (APK) and checks another device.</p>
         <div class="hero-action"><a class="button primary" href="/?demo=1" data-route>Try it with sample data</a><span>Open a finished record in separate demo storage.</span></div>
         <ul class="plain-facts" aria-label="Product facts">
           <li>Runs on macOS, Windows, and Linux.</li>
@@ -67,7 +67,7 @@ function landing() {
     </section>
 
     <section class="preview-band" aria-labelledby="preview-title">
-      <div class="section-intro"><p class="eyebrow">The product</p><h2 id="preview-title">See what the manifest records</h2><p>Package names are only the start. The record ties each fact to the exact APK hash.</p></div>
+      <div class="section-intro"><p class="eyebrow">The product</p><h2 id="preview-title">See what the preservation record contains</h2><p>The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match.</p></div>
       ${terminal('landing-terminal')}
       <dl class="specimen-facts">
         <div><dt>Package</dt><dd>in.sociobot.orchardnotes</dd></div>
@@ -78,17 +78,17 @@ function landing() {
     </section>
 
     <section class="how" aria-labelledby="how-title">
-      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation manifest</h2></div>
+      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation record (manifest)</h2></div>
       <ol class="ledger-steps">
-        <li><span class="step-number">01</span><div><h3>Point to your APK</h3><p>Give the CLI a file you already own. It reads the archive in place.</p><code>rescue scan old-game.apk</code></div></li>
-        <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record Android, CPU, and installed user packages.</p><code>rescue scan old-game.apk --device</code></div></li>
-        <li><span class="step-number">03</span><div><h3>Keep the manifest beside the APK</h3><p>The JSON file records hashes, signers, SDK needs, native CPUs, and compatibility reasons.</p><code>preservation-manifest.json</code></div></li>
+        <li><span class="step-number">01</span><div><h3>Point to your Android app file</h3><p>Give the desktop command-line tool (CLI) an Android app file you already own. It reads the file in place.</p><code>rescue scan old-game.apk</code></div></li>
+        <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record the Android version, device types, and installed app list.</p><code>rescue scan old-game.apk --device</code></div></li>
+        <li><span class="step-number">03</span><div><h3>Keep the record beside the app file</h3><p>The record lists app version, needed Android version, device types, signing evidence, and device match reasons.</p><code>preservation-manifest.json</code></div></li>
       </ol>
     </section>
 
     <section class="boundaries" aria-labelledby="boundaries-title">
       <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">What the tool does not change</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
-      <ul class="checked-list"><li>Reads only paths you pass.</li><li>Stores the device serial as a short hash.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports data only when Android permits <code>run-as</code>.</li></ul>
+      <ul class="checked-list"><li>Reads only paths you pass.</li><li>Keeps a shortened fingerprint of the device serial.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports app data only after Android grants the app's data-access permission (<code>run-as</code>).</li></ul>
     </section>
 
     <section class="install" id="install" aria-labelledby="install-title">
@@ -103,7 +103,7 @@ function landing() {
 
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
-      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
+      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more app files at once</h2><p>The free command scans one app file and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
       <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required aria-describedby="license-status" /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p id="license-status" data-license-status aria-live="polite">Stored only in this browser. Remove it here at any time.</p></div></form>
     </section>
   </main>${footer()}`;
@@ -111,10 +111,10 @@ function landing() {
 
 function demoPage() {
   return `${header(true)}<main id="main" class="demo-page" tabindex="-1">
-    <section class="demo-heading"><p class="eyebrow">Sample data</p><h1 id="page-title">Inspect a finished preservation record</h1><p>The sample is a fictional orchard notebook APK matched with an Android 13 phone.</p></section>
+    <section class="demo-heading"><p class="eyebrow">Sample data</p><h1 id="page-title">Inspect a finished preservation record</h1><p>The sample is a fictional orchard notebook Android app file (APK) matched with an Android 13 phone.</p></section>
     ${terminal('demo-terminal')}
     <section class="manifest-sheet" aria-labelledby="manifest-title">
-      <div class="sheet-heading"><div><p class="eyebrow">Preservation manifest</p><h2 id="manifest-title">Orchard Notes 1.7.0</h2></div><span class="stamp compatible">✓ Compatible</span></div>
+      <div class="sheet-heading"><div><p class="eyebrow">Preservation record (manifest)</p><h2 id="manifest-title">Orchard Notes 1.7.0</h2></div><span class="stamp compatible">✓ Compatible</span></div>
       <dl class="manifest-grid">
         <div><dt>Package</dt><dd>in.sociobot.orchardnotes</dd></div><div><dt>APK size</dt><dd>690 bytes · fixture</dd></div>
         <div><dt>Minimum Android</dt><dd>API 21</dd></div><div><dt>Target Android</dt><dd>API 28</dd></div>
@@ -129,8 +129,8 @@ function demoPage() {
 
 function privacyPage() {
   return `${header()}<main id="main" class="prose-page" tabindex="-1"><p class="eyebrow">Privacy policy · 29 August 2026</p><h1 id="page-title">Keep preservation records on your computer</h1>
-    <h2>APK and device scans</h2><p>The CLI reads only the APK paths and device you choose. It does not upload APKs, manifests, package lists, or app data.</p><p>The device serial is stored as a 16-character SHA-256 prefix. The manifest may contain installed package names.</p>
-    <h2>App-data export</h2><p>Field Kit asks Android <code>run-as</code> for access. If Android refuses, the CLI stops. It does not use root or a bypass.</p>
+    <h2>Android app-file and device scans</h2><p>The desktop command-line tool (CLI) reads only Android app-file (APK) paths and the device you choose. It does not upload files or records.</p><p>The device serial becomes a 16-character SHA-256 fingerprint. The preservation record may contain installed app names.</p>
+    <h2>App-data export</h2><p>Field Kit asks Android for the app's own data-access permission (<code>run-as</code>). If Android refuses, the tool stops. It does not use root or a bypass.</p>
     <h2>Website storage</h2><p>The demo uses keys beginning with <code>demo:legacy-app-rescue:</code>. Leaving the demo removes them.</p><p>A license is stored under <code>sb_license:legacy-app-rescue</code>. Release details may be cached for one hour.</p>
     <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. If the service is busy, the site asks you to try again shortly. The checkout opens Sociobot's hosted payment page.</p>
     <h2>Remove stored data</h2><p>Use “Start for real” to clear demo data. Use <a href="/#restore" data-route>Remove stored license</a> to clear the license and its check status.</p>
@@ -141,8 +141,8 @@ function privacyPage() {
 function termsPage() {
   return `${header()}<main id="main" class="prose-page" tabindex="-1"><p class="eyebrow">Terms · 28 August 2026</p><h1 id="page-title">Use the tool for apps you may preserve</h1>
     <h2>Your responsibility</h2><p>Use Legacy App Rescue only with software and data you may lawfully access. Follow copyright, license, and device rules.</p>
-    <h2>What the tool does</h2><p>The CLI records metadata and a compatibility opinion. A compatible result does not promise installation, activation, or correct behavior.</p>
-    <h2>What the tool does not do</h2><p>The tool does not provide APKs, remove DRM, crack software, or re-sign third-party apps.</p>
+    <h2>What the tool does</h2><p>The desktop command-line tool (CLI) records app details and a device match opinion. A compatible result does not promise installation or correct behavior.</p>
+    <h2>What the tool does not do</h2><p>The tool does not provide Android app files (APKs), remove DRM, crack software, or re-sign third-party apps.</p>
     <h2>Field Kit purchase</h2><p>Field Kit costs $19 once. It adds batch scans and permitted app-data export for version 0.x.</p><p>Sociobot is the merchant of record. Refunds are handled there and revoke the license.</p>
     <h2>No warranty</h2><p>The software is provided under the MIT License without warranty. Keep more than one copy of important files.</p>
     <h2>Contact</h2><p>Questions can be sent to <a href="mailto:hello@sociobot.in">hello@sociobot.in</a>.</p>
@@ -154,9 +154,9 @@ function missingPage() {
 }
 
 const routes: Record<string, { title: string; description: string; render: () => string }> = {
-  '/': { title: 'Legacy App Rescue — record an Android app', description: 'Inventory an Android APK, its signer and SDK needs. Check a device and save a local preservation manifest.', render: landing },
-  '/demo': { title: 'Demo — Legacy App Rescue', description: 'Inspect a complete sample Android preservation manifest without reading your files.', render: demoPage },
-  '/privacy': { title: 'Privacy — Legacy App Rescue', description: 'How Legacy App Rescue keeps APKs, device details, and app data on your computer.', render: privacyPage },
+  '/': { title: 'Legacy App Rescue — record an Android app', description: 'Record an Android app file, check another device, and save a local preservation record.', render: landing },
+  '/demo': { title: 'Demo — Legacy App Rescue', description: 'Inspect a complete sample Android preservation record without reading your files.', render: demoPage },
+  '/privacy': { title: 'Privacy — Legacy App Rescue', description: 'How Legacy App Rescue keeps Android app files, device details, and app data on your computer.', render: privacyPage },
   '/terms': { title: 'Terms — Legacy App Rescue', description: 'Terms for lawful software preservation with Legacy App Rescue.', render: termsPage }
 };
 
@@ -259,7 +259,7 @@ type Platform =
 
 function detectedPlatform(): Platform {
   const value = `${navigator.userAgent} ${navigator.platform}`.toLowerCase();
-  if (/(android|iphone|ipad|ipod)/.test(value)) return { kind: 'unsupported', label: 'mobile', note: 'Legacy App Rescue is a desktop CLI. Use macOS, Windows, or Linux to install it.' };
+  if (/(android|iphone|ipad|ipod)/.test(value)) return { kind: 'unsupported', label: 'mobile', note: 'Install Legacy App Rescue from a Mac, Windows, or Linux computer.' };
   if (value.includes('win')) return { kind: 'single', label: 'Windows', fragment: 'windows-x86_64.zip', command: 'irm https://legacy-app-rescue.sociobot.in/install.ps1 | iex', note: 'The portable Windows ZIP is unsigned.' };
   if (value.includes('mac')) return { kind: 'macos', label: 'macOS', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'Choose the package for your Mac. The packages are unsigned; right-click, then choose Open.' };
   return { kind: 'single', label: 'Linux', fragment: 'linux-x86_64.tar.gz', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'The installer verifies SHA-256 before placing rescue on your PATH.' };
@@ -273,7 +273,7 @@ async function bindDownloads() {
   const installCommand = platform.kind === 'unsupported' ? '' : platform.command;
   command.textContent = installCommand;
   commandRow.hidden = platform.kind === 'unsupported';
-  document.querySelector<HTMLElement>('[data-signing-note]')!.textContent = platform.kind === 'unsupported' ? 'No mobile build is available.' : platform.note;
+  document.querySelector<HTMLElement>('[data-signing-note]')!.textContent = platform.kind === 'unsupported' ? 'Open the desktop downloads to choose an installer.' : platform.note;
   document.querySelector('[data-copy-command]')?.addEventListener('click', async event => {
     const button = event.currentTarget as HTMLButtonElement;
     try { await navigator.clipboard.writeText(installCommand); button.textContent = 'Copied'; }

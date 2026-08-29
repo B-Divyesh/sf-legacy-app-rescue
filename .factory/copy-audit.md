@@ -1,77 +1,67 @@
 # Copy audit
 
-Audited from the built landing page on 29 August 2026. Code samples, package identifiers, and hashes are interface labels, not prose.
+Audited from the built landing page and README on 29 August 2026. Code samples, hashes, package identifiers, and file paths are excluded from prose counts.
 
-| # | Visible copy | Words | Result |
-| ---: | --- | ---: | --- |
-| 1 | A local preservation tool | 4 | Pass |
-| 2 | Record your Android app before it disappears | 7 | Pass |
-| 3 | For people preserving an old app they own, it records the APK and checks whether another Android device matches. | 19 | Pass |
-| 4 | Try it with sample data | 5 | Pass |
-| 5 | Open a finished record in separate demo storage. | 8 | Pass |
-| 6 | Runs on macOS, Windows, and Linux. | 6 | Pass |
-| 7 | APK scans stay on your computer. | 6 | Pass |
-| 8 | One APK is free. | 5 | Pass |
-| 9 | Field Kit costs $19 once. | 5 | Pass |
-| 10 | See what the manifest records | 5 | Pass |
-| 11 | Package names are only the start. | 6 | Pass |
-| 12 | The record ties each fact to the exact APK hash. | 10 | Pass |
-| 13 | Sample preservation record | 3 | Pass |
-| 14 | This recording comes from the bundled sample APK. | 8 | Pass |
-| 15 | Run the same scan with rescue demo. | 7 | Pass |
-| 16 | Create a preservation manifest | 4 | Pass |
-| 17 | Point to your APK | 4 | Pass |
-| 18 | Give the CLI a file you already own. | 9 | Pass |
-| 19 | It reads the archive in place. | 6 | Pass |
-| 20 | Connect the target device | 4 | Pass |
-| 21 | Add --device to record Android, CPU, and installed user packages. | 10 | Pass |
-| 22 | Keep the manifest beside the APK | 6 | Pass |
-| 23 | The JSON file records hashes, signers, SDK needs, native CPUs, and compatibility reasons. | 13 | Pass |
-| 24 | What the tool does not change | 6 | Pass |
-| 25 | Legacy App Rescue does not download, crack, patch, or re-sign APKs. | 11 | Pass |
-| 26 | It cannot bypass Android data controls. | 6 | Pass |
-| 27 | Reads only paths you pass. | 5 | Pass |
-| 28 | Stores the device serial as a short hash. | 8 | Pass |
-| 29 | Labels compatibility as evidence, not a guarantee. | 7 | Pass |
-| 30 | Exports data only when Android permits run-as. | 7 | Pass |
-| 31 | Install Legacy App Rescue | 4 | Pass |
-| 32 | Download the Linux build, or use a package manager. | 9 | Pass |
-| 33 | The installer verifies SHA-256 before placing rescue on your PATH. | 10 | Pass |
-| 34 | Other install choices | 3 | Pass |
-| 35 | Scan more APKs at once | 5 | Pass |
-| 36 | The free command scans one APK and checks one device. | 10 | Pass |
-| 37 | Field Kit adds batch scans and permitted app-data export. | 9 | Pass |
-| 38 | Buy Field Kit for $19 | 5 | Pass |
-| 39 | Restore a license | 3 | Pass |
-| 40 | Sociobot handles checkout. | 3 | Pass |
-| 41 | A refunded license stops Field Kit. | 6 | Pass |
-| 42 | Paste a license from your receipt | 6 | Pass |
-| 43 | Verify license | 2 | Pass |
-| 44 | Remove stored license | 3 | Pass |
-| 45 | Stored only in this browser. | 5 | Pass |
-| 46 | Remove it here at any time. | 6 | Pass |
-| 47 | Legacy App Rescue records Android app evidence on your computer. | 10 | Pass |
+## Landing page
 
-No sentence exceeds 22 words. No sentence contains a banned marketing word.
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Record your Android app before it disappears | 7 | Pass |
+| For people preserving an old app they own, it records the Android app file (APK) and checks another device. | 19 | Pass |
+| Open a finished record in separate demo storage. | 8 | Pass |
+| Runs on macOS, Windows, and Linux. | 6 | Claim: platform-builds |
+| APK scans stay on your computer. | 6 | Claim: local-private |
+| One APK is free. Field Kit costs $19 once. | 9 | Claims: field-kit, paid-license |
+| See what the preservation record contains | 6 | Pass |
+| The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match. | 16 | Pass |
+| This recording comes from a bundled sample Android app file (APK). | 12 | Claim: demo-sandbox |
+| Create a preservation record (manifest) | 5 | Pass |
+| Give the desktop command-line tool (CLI) an Android app file you already own. | 13 | Pass |
+| It reads the file in place. | 6 | Pass |
+| Add `--device` to record the Android version, device types, and installed app list. | 13 | Pass |
+| The record lists app version, needed Android version, device types, signing evidence, and device match reasons. | 16 | Pass |
+| Legacy App Rescue does not download, crack, patch, or re-sign APKs. | 11 | Claim: safety-boundaries |
+| It cannot bypass Android data controls. | 6 | Claim: safety-boundaries |
+| Reads only paths you pass. | 5 | Claim: input-scope |
+| Keeps a shortened fingerprint of the device serial. | 8 | Claim: device-serial-hash |
+| Labels compatibility as evidence, not a guarantee. | 7 | Claim: compatibility-limit |
+| Exports app data only after Android grants the app's data-access permission (`run-as`). | 12 | Claim: export-refusal-cleanup |
+| Install Legacy App Rescue from a Mac, Windows, or Linux computer. | 11 | Claim: mobile-install-guidance |
+| Open the desktop downloads to choose an installer. | 8 | Claim: mobile-install-guidance |
+| The free command scans one app file and checks one device. | 11 | Claim: field-kit |
+| Field Kit adds batch scans and permitted app-data export. | 9 | Claim: field-kit |
+| Sociobot handles checkout. A refunded license stops Field Kit. | 9 | Claim: merchant-and-refund |
 
-## First-screen read-aloud
+No landing sentence exceeds 22 words. No landing sentence contains a banned marketing word.
 
-“Record your Android app before it disappears. For people preserving an old app they own, it records the APK and checks whether another Android device matches. Try it with sample data.”
+## README first-use audit
 
-The first screen names the job, owner, result, and next action in 31 words.
+| Copy | Words | Result |
+| --- | ---: | --- |
+| Legacy App Rescue is a local desktop command-line tool (CLI) for people preserving Android app files (APKs) they lawfully own. | 19 | Pass |
+| It writes a preservation record with app details, signing evidence, Android version needs, device types, and a device match. | 17 | Pass |
+| The demo creates a fictional Android app file (APK) in a temporary folder. | 13 | Claim: demo-sandbox |
+| It scans the app file, matches a sample Android 13 device, and prints the preservation record path. | 17 | Claim: demo-sandbox |
+| A device match checks declared Android-version and device-type needs. | 9 | Claim: compatibility-verdict |
+| It does not promise that licensing, remote services, or old graphics code work. | 13 | Claim: compatibility-limit |
+| Android must grant that app's own data-access permission (`adb run-as`). | 9 | Claim: export-refusal-cleanup |
+| The desktop command-line tool (CLI) has no telemetry. | 8 | Claim: no-cli-telemetry |
 
 ## Terminology
 
-| Concept | Term |
-| --- | --- |
-| Android install file | APK |
-| Preservation output | manifest |
-| Connected hardware | device |
-| Compatibility result | device match |
-| Paid tier | Field Kit |
-| Sample experience | demo |
-| Android-permitted private data copy | app-data export |
+| Concept | First-use wording | Short form afterwards |
+| --- | --- | --- |
+| Android install file | Android app file (APK) | APK |
+| Desktop command | desktop command-line tool (CLI) | CLI |
+| Preservation output | preservation record (manifest) | record / manifest |
+| File identity | unique file fingerprint | fingerprint |
+| Android export permission | app's own data-access permission (`run-as`) | run-as |
+| Compatibility result | device match | device match |
+
+## First-screen read-aloud
+
+“Record your Android app before it disappears. For people preserving an old app they own, it records the Android app file (APK) and checks another device. Try it with sample data.”
 
 ## Catalog description
 
-“Record an Android app's APK evidence and check whether another device matches.” It is 78 characters and starts with a verb.
+“Record an Android app file and check whether another device matches.” It is 68 characters and starts with a verb.

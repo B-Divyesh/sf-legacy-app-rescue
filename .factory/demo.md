@@ -10,7 +10,7 @@
 
 ## Sample data
 
-The fictional **Orchard Notes 1.7.0** APK is assembled from `examples/sample-apk/AndroidManifest.xml`. It includes a fake arm64 library and signature block. It has no executable DEX file or third-party code.
+The fictional **Orchard Notes 1.7.0** Android app file (APK) is assembled from `examples/sample-apk/AndroidManifest.xml`. It includes a fake arm64 library and signature block. It has no executable Android code (DEX) or third-party code.
 
 The sample device is an Android 13 arm64 “Archive Phone.” The compatibility verdict is `compatible`.
 

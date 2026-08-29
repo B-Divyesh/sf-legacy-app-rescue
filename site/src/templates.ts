@@ -34,7 +34,7 @@ export function terminal(id = 'terminal') {
       <div class="terminal-bar"><span class="terminal-dots" aria-hidden="true">● ● ●</span><code>rescue demo</code><button type="button" data-terminal-toggle>Pause</button></div>
       <pre aria-live="polite"><code data-terminal-output><span class="cursor">▋</span></code></pre>
     </div>
-    <p class="terminal-caption">This recording comes from the bundled sample APK. Run the same scan with <code>rescue demo</code>.</p>
+    <p class="terminal-caption">This recording comes from a bundled sample Android app file (APK). Run the same scan with <code>rescue demo</code>.</p>
   </section>`;
 }
 
@@ -45,7 +45,7 @@ export function landing() {
       <div class="hero-copy">
         <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
-        <p class="lede">For people preserving an old app they own, it records the APK and checks whether another Android device matches.</p>
+        <p class="lede">For people preserving an old app they own, it records the Android app file (APK) and checks another device.</p>
         <div class="hero-action"><a class="button primary" href="/?demo=1" data-route>Try it with sample data</a><span>Open a finished record in separate demo storage.</span></div>
         <ul class="plain-facts" aria-label="Product facts">
           <li>Runs on macOS, Windows, and Linux.</li>
@@ -57,7 +57,7 @@ export function landing() {
     </section>
 
     <section class="preview-band" aria-labelledby="preview-title">
-      <div class="section-intro"><p class="eyebrow">The product</p><h2 id="preview-title">See what the manifest records</h2><p>Package names are only the start. The record ties each fact to the exact APK hash.</p></div>
+      <div class="section-intro"><p class="eyebrow">The product</p><h2 id="preview-title">See what the preservation record contains</h2><p>The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match.</p></div>
       ${terminal('landing-terminal')}
       <dl class="specimen-facts">
         <div><dt>Package</dt><dd>in.sociobot.orchardnotes</dd></div>
@@ -68,17 +68,17 @@ export function landing() {
     </section>
 
     <section class="how" aria-labelledby="how-title">
-      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation manifest</h2></div>
+      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation record (manifest)</h2></div>
       <ol class="ledger-steps">
-        <li><span class="step-number">01</span><div><h3>Point to your APK</h3><p>Give the CLI a file you already own. It reads the archive in place.</p><code>rescue scan old-game.apk</code></div></li>
-        <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record Android, CPU, and installed user packages.</p><code>rescue scan old-game.apk --device</code></div></li>
-        <li><span class="step-number">03</span><div><h3>Keep the manifest beside the APK</h3><p>The JSON file records hashes, signers, SDK needs, native CPUs, and compatibility reasons.</p><code>preservation-manifest.json</code></div></li>
+        <li><span class="step-number">01</span><div><h3>Point to your Android app file</h3><p>Give the desktop command-line tool (CLI) an Android app file you already own. It reads the file in place.</p><code>rescue scan old-game.apk</code></div></li>
+        <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record the Android version, device types, and installed app list.</p><code>rescue scan old-game.apk --device</code></div></li>
+        <li><span class="step-number">03</span><div><h3>Keep the record beside the app file</h3><p>The record lists app version, needed Android version, device types, signing evidence, and device match reasons.</p><code>preservation-manifest.json</code></div></li>
       </ol>
     </section>
 
     <section class="boundaries" aria-labelledby="boundaries-title">
       <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">What the tool does not change</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
-      <ul class="checked-list"><li>Reads only paths you pass.</li><li>Stores the device serial as a short hash.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports data only when Android permits <code>run-as</code>.</li></ul>
+      <ul class="checked-list"><li>Reads only paths you pass.</li><li>Keeps a shortened fingerprint of the device serial.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports app data only after Android grants the app's data-access permission (<code>run-as</code>).</li></ul>
     </section>
 
     <section class="install" id="install" aria-labelledby="install-title">
@@ -93,7 +93,7 @@ export function landing() {
 
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
-      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
+      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more app files at once</h2><p>The free command scans one app file and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
       <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required aria-describedby="license-status" /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p id="license-status" data-license-status aria-live="polite">Stored only in this browser. Remove it here at any time.</p></div></form>
     </section>
   </main>${footer()}`;

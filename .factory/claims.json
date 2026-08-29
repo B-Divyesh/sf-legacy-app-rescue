@@ -42,6 +42,13 @@
     "sandbox": "inspect release workflow matrix and checksum outputs"
   },
   {
+    "id": "mobile-install-guidance",
+    "claim": "Mobile visitors are directed to the desktop downloads for installation.",
+    "where": "mobile install section",
+    "test": "npm test -- --grep @claim:mobile-install-guidance",
+    "sandbox": "Android mobile browser with a recorded GitHub release response; assert desktop guidance, no copyable installer command, and the desktop-download link"
+  },
+  {
     "id": "paid-license",
     "claim": "Field Kit costs $19 once and uses the Sociobot license service.",
     "where": "landing first screen, paid section, terms, README",
