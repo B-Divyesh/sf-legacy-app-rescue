@@ -42,8 +42,10 @@ Audited from the landing page, demo, legal routes, and `README.md` on 29 August 
 | The sample is a fictional orchard notebook Android app file (APK) matched with an Android 13 phone. | 17 | `demo-sandbox` |
 | Keep preservation records on your computer | 6 | Privacy h1; pass |
 | Use the tool for apps you may preserve | 8 | Terms h1; pass |
-| Field Kit costs $19 once. It adds batch scans and permitted app-data export. | 11 | `paid-license`, `field-kit` |
-| Sociobot handles checkout. A refunded license stops Field Kit. | 9 | `merchant-and-refund` |
+| Field Kit costs $19 once. | 5 | `paid-license` |
+| It adds batch scans and permitted app-data export. | 7 | `field-kit` |
+| Sociobot handles checkout. | 3 | `merchant-and-refund` |
+| A refunded license stops Field Kit. | 6 | `merchant-and-refund` |
 | This page is missing | 4 | 404 h1; pass |
 | The page may have moved. | 5 | 404 recovery; pass |
 | Your files were not involved. | 5 | 404 safety; pass |
