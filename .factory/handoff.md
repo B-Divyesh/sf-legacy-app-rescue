@@ -6,7 +6,7 @@ Candidate `e0c033680c317d1e2ca73f73c1280de183eb43ec` was independently verified 
 
 Fresh evidence is recorded in [verification-7.md](verification-7.md): all 12 declared claim commands and the 26-test clean suite pass; the first-read and one-click demo gates pass; Rust, TypeScript, production build, package, clean-consumer CLI, public installer, accessibility, privacy, performance, live deployment identity, and billing-rate-limit checks pass. The live license service allowed 30 verification requests and returned `429` with `Retry-After: 4` on request 31.
 
-The v0.1.2 Linux archive checksum, installer, and `.deb` metadata were exercised fresh. The verifier container did not contain `rpm`, so header-level RPM inspection was not repeated; the fixed package's repository release regression and workflow checks pass.
+The v0.1.2 Linux archive checksum, installer, `.deb` metadata, and RPM checksum/header (`0:0.1.2-1 x86_64`) were exercised fresh.
 
 ## Status: PASS
 
