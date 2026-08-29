@@ -45,7 +45,7 @@ function terminal(id = 'terminal') {
       <div class="terminal-bar"><span class="terminal-dots" aria-hidden="true">● ● ●</span><code>rescue demo</code><button type="button" data-terminal-toggle>Pause</button></div>
       <pre aria-live="polite"><code data-terminal-output><span class="cursor">▋</span></code></pre>
     </div>
-    <p class="terminal-caption">This recording comes from a bundled sample Android app file (APK). Run the same scan with <code>rescue demo</code>.</p>
+    <p class="terminal-caption">This recording comes from a bundled sample APK. Run the same scan with <code>rescue demo</code>.</p>
   </section>`;
 }
 
@@ -60,7 +60,7 @@ function landing() {
         <ul class="plain-facts" aria-label="Product facts">
           <li>Runs on macOS, Windows, and Linux.</li>
           <li>APK scans stay on your computer.</li>
-          <li>One app-file scan is free. Field Kit costs $19 once.</li>
+          <li>One APK scan is free. Field Kit costs $19 once.</li>
         </ul>
       </div>
     </section>
@@ -79,9 +79,9 @@ function landing() {
     <section class="how" aria-labelledby="how-title">
       <div class="section-intro"><h2 id="how-title">Create a preservation record (manifest)</h2></div>
       <ol class="ledger-steps">
-        <li><span class="step-number">01</span><div><h3>Point to your Android app file</h3><p>Give the desktop command-line tool (CLI) an Android app file you already own. It reads the file in place.</p><code>rescue scan old-game.apk</code></div></li>
+        <li><span class="step-number">01</span><div><h3>Point to your APK</h3><p>Give the desktop command-line tool (CLI) an APK you already own. It reads the file in place.</p><code>rescue scan old-game.apk</code></div></li>
         <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record the Android version, device types, and installed app list.</p><code>rescue scan old-game.apk --device</code></div></li>
-        <li><span class="step-number">03</span><div><h3>Keep the record beside the app file</h3><p>The record lists app version, needed Android version, device types, signing evidence, and device match reasons.</p><code>preservation-manifest.json</code></div></li>
+        <li><span class="step-number">03</span><div><h3>Keep the record beside the APK</h3><p>The record lists app version, needed Android version, device types, signing evidence, and device match reasons.</p><code>preservation-manifest.json</code></div></li>
       </ol>
     </section>
 
@@ -102,7 +102,7 @@ function landing() {
 
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
-      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more app files at once</h2><p>The free command scans one app file and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
+      <div><p class="eyebrow">For more than one APK</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
       <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required aria-describedby="license-status" /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p id="license-status" data-license-status aria-live="polite">Stored only in this browser. Remove it here at any time.</p></div></form>
     </section>
   </main>${footer()}`;
@@ -128,7 +128,7 @@ function demoPage() {
 
 function privacyPage() {
   return `${header()}<main id="main" class="prose-page" tabindex="-1"><p class="eyebrow">Privacy policy · 29 August 2026</p><h1 id="page-title">Keep preservation records on your computer</h1>
-    <h2>Android app-file and device scans</h2><p>The desktop command-line tool (CLI) reads only Android app-file (APK) paths and the device you choose. It does not upload files or records.</p><p>The device serial becomes a 16-character SHA-256 fingerprint. The preservation record may contain installed app names.</p>
+    <h2>Android app file (APK) and device scans</h2><p>The desktop command-line tool (CLI) reads only APK paths and the device you choose. It does not upload files or records.</p><p>The device serial becomes a 16-character SHA-256 fingerprint. The preservation record may contain installed app names.</p>
     <h2>App-data export</h2><p>Field Kit asks Android for the app's own data-access permission (<code>run-as</code>). If Android refuses, the tool stops. It does not use root or a bypass.</p>
     <h2>Website storage</h2><p>The demo uses keys beginning with <code>demo:legacy-app-rescue:</code>. Leaving the demo removes them.</p><p>A license is stored under <code>sb_license:legacy-app-rescue</code>. Release details may be cached for one hour.</p>
     <h2>Network requests</h2><p>The demo loads only this site's files. The download section asks the GitHub API for published releases.</p><p>License verification sends the pasted token to Sociobot. If the service is busy, the site asks you to try again shortly. The checkout opens Sociobot's hosted payment page.</p>
@@ -142,7 +142,7 @@ function termsPage() {
     <h2>Your responsibility</h2><p>Use Legacy App Rescue only with software and data you may lawfully access. Follow copyright, license, and device rules.</p>
     <h2>What the tool does</h2><p>The desktop command-line tool (CLI) records app details and a device match opinion. A compatible result does not promise installation or correct behavior.</p>
     <h2>What the tool does not do</h2><p>The tool does not provide Android app files (APKs), remove DRM, crack software, or re-sign third-party apps.</p>
-    <h2>Field Kit purchase</h2><p>Field Kit costs $19 once. It adds batch scans and permitted app-data export for version 0.x.</p><p>Sociobot is the merchant of record. Refunds are handled there and revoke the license.</p>
+    <h2>Field Kit purchase</h2><p>Field Kit costs $19 once. It adds batch scans and permitted app-data export.</p><p>Sociobot handles checkout. A refunded license stops Field Kit.</p>
     <h2>No warranty</h2><p>The software is provided under the MIT License without warranty. Keep more than one copy of important files.</p>
     <h2>Contact</h2><p>Questions can be sent to <a href="mailto:hello@sociobot.in">hello@sociobot.in</a>.</p>
   </main>${footer()}`;
@@ -298,7 +298,7 @@ async function bindDownloads() {
       const arm = release.assets.find(item => item.name.includes('macos-arm64.pkg'));
       const intel = release.assets.find(item => item.name.includes('macos-x86_64.pkg'));
       if (!arm || !intel) throw new Error('macOS files unavailable');
-      mount.innerHTML = `<span>${release.tag_name} · choose your Mac chip · checksums listed in the release</span><span class="download-options"><a class="button primary" href="${arm.browser_download_url}">Apple silicon</a><a class="button primary" href="${intel.browser_download_url}">Intel Mac</a></span>`;
+      mount.innerHTML = `<span>${release.tag_name} · choose your Mac chip · checksums listed in the release</span><span class="download-options"><a class="button primary" href="${arm.browser_download_url}">Download for Apple silicon</a><a class="button primary" href="${intel.browser_download_url}">Download for Intel Mac</a></span>`;
       return;
     }
     const asset = release.assets.find(item => item.name.includes(platform.fragment));

@@ -32,7 +32,7 @@
     "claim": "Field Kit adds batch scans and app-data export when Android permits run-as.",
     "where": "paid section, README",
     "test": "npm test -- --grep @claim:field-kit",
-    "sandbox": "two bundled APK fixtures and a fake authorized ADB device"
+    "sandbox": "recorded valid Sociobot verification response, two bundled APK copies, and a fake Android device that permits run-as"
   },
   {
     "id": "platform-builds",
@@ -53,7 +53,7 @@
     "claim": "Field Kit costs $19 once and uses the Sociobot license service.",
     "where": "landing first screen, paid section, terms, README",
     "test": "npm test -- --grep @claim:paid-license",
-    "sandbox": "fresh browser context with mocked Sociobot verification response"
+    "sandbox": "recorded hosted-checkout fixture asserting 1900 USD one-time billing plus a fresh browser context with mocked Sociobot verification"
   },
   {
     "id": "binary-manifest",
@@ -229,6 +229,13 @@
     "where": "README preservation record fields",
     "test": "npm test -- --grep @claim:manifest-file-size",
     "sandbox": "temporary sample APK; compare recorded bytes and SHA-256 with direct measurements"
+  },
+  {
+    "id": "signer-fallback",
+    "claim": "The tool records a whole-file SHA-256 fingerprint when APK signer parsing is unavailable.",
+    "where": "README limits and safety",
+    "test": "npm test -- --grep @claim:signer-fallback",
+    "sandbox": "valid ZIP/APK fixture with a deliberately malformed APK Signing Block; assert scan succeeds, signers are unavailable, and SHA-256 matches the complete file"
   },
   {
     "id": "export-archive-hash",

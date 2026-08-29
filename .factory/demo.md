@@ -20,4 +20,4 @@ The CLI creates a unique folder under the system temporary directory and prints 
 
 The web demo stores only `demo:legacy-app-rescue:opened`. Its demo banner stays pinned below the browser edge while the record scrolls. **Reset demo** deletes every `demo:legacy-app-rescue:` key and loads the sample again. **Start for real** deletes the demo namespace before returning home without `demo=1`.
 
-Tests use a fresh browser context and a temporary directory. The paid export test uses a fake ADB executable and the bundled APK fixture.
+Tests use a fresh browser context and a temporary directory. The paid-flow test uses a recorded valid license response, fake ADB, and two bundled APK copies.

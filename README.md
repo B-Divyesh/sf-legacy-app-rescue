@@ -6,9 +6,9 @@ Legacy App Rescue is a local desktop command-line tool (CLI) for people preservi
 
 Live site: <https://legacy-app-rescue.sociobot.in>
 
-## Try the complete demo
+## Try it with sample data
 
-The demo creates a fictional Android app file (APK) in a temporary folder. It scans the app file, matches a sample Android 13 device, and prints the preservation record path.
+The demo creates a fictional Android app file (APK) in a temporary folder. It scans the APK, matches a sample Android 13 device, and prints the preservation record path.
 
 ```sh
 rescue demo
@@ -59,7 +59,7 @@ The checked v0.1.3 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/
 
 ## Use the desktop command-line tool (CLI)
 
-Scan one Android app file (APK) for free:
+Scan one APK for free:
 
 ```sh
 rescue scan path/to/old-game.apk
@@ -107,9 +107,9 @@ A device match checks declared Android-version and device-type needs. It does no
 
 ## Field Kit — $19 once
 
-The free command scans one app file and checks one device. Field Kit adds batch scans and app-data export when Android grants `run-as` permission.
+The free command scans one APK and checks one device. Field Kit adds batch scans and app-data export when Android grants `run-as` permission.
 
-Buy at <https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout>. Sociobot is the merchant of record.
+Buy at <https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout>. Sociobot handles checkout.
 
 Activate the token from the receipt:
 
@@ -181,6 +181,6 @@ npm test -- --grep @claim:local-private
 
 ## Privacy and license
 
-The desktop command-line tool (CLI) has no telemetry. App-file scanning and the bundled demo need no network. License activation uses the Sociobot license service. The website verifies a stored license at most once a day. If the license service is busy, it asks you to try again shortly.
+The desktop command-line tool (CLI) has no telemetry. APK scanning and the bundled demo need no network. License activation uses the Sociobot license service. The website verifies a stored license at most once a day. If the license service is busy, it asks you to try again shortly.
 
 The source is available under the [MIT License](LICENSE). See the site [privacy page](https://legacy-app-rescue.sociobot.in/privacy) and [terms](https://legacy-app-rescue.sociobot.in/terms).

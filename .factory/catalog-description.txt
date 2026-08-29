@@ -1,1 +1,1 @@
-Record Android app evidence and check a target device.
+Record APK evidence before an old Android device disappears.

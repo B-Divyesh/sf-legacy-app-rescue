@@ -1,0 +1,11 @@
+{
+  "source": "Recorded Sociobot license-verification response for sandbox testing",
+  "request": {
+    "license": "recorded-valid-field-kit-license"
+  },
+  "response": {
+    "valid": true,
+    "reason": "ok",
+    "expires_at": null
+  }
+}

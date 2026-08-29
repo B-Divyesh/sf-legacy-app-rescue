@@ -11,14 +11,14 @@ Audited from the landing page, demo, legal routes, and `README.md` on 29 August 
 | Open a finished record in separate demo storage. | 8 | `demo-sandbox` |
 | Runs on macOS, Windows, and Linux. | 6 | `platform-builds` |
 | APK scans stay on your computer. | 6 | `local-private` |
-| One app-file scan is free. | 5 | `free-tier-limit` |
+| One APK scan is free. | 5 | `free-tier-limit` |
 | Field Kit costs $19 once. | 5 | `paid-license` |
 | See what the preservation record contains | 6 | Section heading; pass |
 | The record includes its package name, unique file fingerprint, signer evidence, Android version needs, and device match. | 16 | `manifest-record`, `compatibility-verdict` |
-| This recording comes from a bundled sample Android app file (APK). | 12 | `demo-sandbox` |
+| This recording comes from a bundled sample APK. | 9 | `demo-sandbox` |
 | Run the same scan with rescue demo. | 7 | Action guidance; pass |
 | Create a preservation record (manifest) | 5 | Section heading; pass |
-| Give the desktop command-line tool (CLI) an Android app file you already own. | 13 | First-use terms; pass |
+| Give the desktop command-line tool (CLI) an APK you already own. | 11 | First-use terms; pass |
 | It reads the file in place. | 6 | `safety-boundaries` |
 | Add `--device` to record the Android version, device types, and installed app list. | 13 | `device-context-record` |
 | The record lists app version, needed Android version, device types, signing evidence, and device match reasons. | 16 | `device-context-record` |
@@ -30,7 +30,7 @@ Audited from the landing page, demo, legal routes, and `README.md` on 29 August 
 | Labels compatibility as evidence, not a guarantee. | 7 | `compatibility-limit` |
 | Exports app data only after Android grants the app's data-access permission (`run-as`). | 12 | `export-refusal-cleanup` |
 | Install Legacy App Rescue | 4 | Section heading; pass |
-| The free command scans one app file and checks one device. | 11 | `free-tier-limit` |
+| The free command scans one APK and checks one device. | 10 | `free-tier-limit` |
 | Field Kit adds batch scans and permitted app-data export. | 9 | `field-kit` |
 | Sociobot handles checkout. | 3 | `merchant-and-refund` |
 | A refunded license stops Field Kit. | 6 | `merchant-and-refund` |
@@ -42,6 +42,8 @@ Audited from the landing page, demo, legal routes, and `README.md` on 29 August 
 | The sample is a fictional orchard notebook Android app file (APK) matched with an Android 13 phone. | 17 | `demo-sandbox` |
 | Keep preservation records on your computer | 6 | Privacy h1; pass |
 | Use the tool for apps you may preserve | 8 | Terms h1; pass |
+| Field Kit costs $19 once. It adds batch scans and permitted app-data export. | 11 | `paid-license`, `field-kit` |
+| Sociobot handles checkout. A refunded license stops Field Kit. | 9 | `merchant-and-refund` |
 | This page is missing | 4 | 404 h1; pass |
 | The page may have moved. | 5 | 404 recovery; pass |
 | Your files were not involved. | 5 | 404 safety; pass |
@@ -57,9 +59,9 @@ The earlier decorative eyebrow labels “The product”, “Three steps”, “C
 | It writes a preservation record with app details, signing evidence, Android version needs, device types, and a device match. | 17 | `device-context-record` |
 | It never downloads or uploads an APK. | 7 | `apk-transfer-boundary` |
 | The demo creates a fictional Android app file (APK) in a temporary folder. | 13 | `demo-sandbox` |
-| It scans the app file, matches a sample Android 13 device, and prints the preservation record path. | 17 | `demo-sandbox` |
+| It scans the APK, matches a sample Android 13 device, and prints the preservation record path. | 16 | `demo-sandbox` |
 | Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a Windows portable ZIP, `SHA256SUMS`, and `latest.json`. | 18 | `release-asset-set` |
-| Scan one Android app file (APK) for free. | 9 | `free-tier-limit` |
+| Scan one APK for free. | 5 | `free-tier-limit` |
 | Choose another preservation record (manifest) path. | 7 | `custom-output-path` |
 | Connect one authorized Android device and check compatibility. | 8 | `compatibility-verdict` |
 | If several devices are attached, select one. | 7 | `device-selection` |
@@ -67,14 +69,16 @@ The earlier decorative eyebrow labels “The product”, “Three steps”, “C
 | `--ci` removes decorative output. | 5 | `ci-output` |
 | Whole-file fingerprint (SHA-256) and file size | 6 | `manifest-file-size` |
 | Exported data archive hashes | 4 | `export-archive-hash` |
-| The free command scans one app file and checks one device. | 11 | `free-tier-limit` |
+| The free command scans one APK and checks one device. | 10 | `free-tier-limit` |
 | Field Kit adds batch scans and app-data export when Android grants `run-as` permission. | 12 | `field-kit` |
+| Sociobot handles checkout. | 3 | `merchant-and-refund` |
 | A device match checks declared Android-version and device-type needs. | 9 | `compatibility-verdict` |
 | It does not promise that licensing, remote services, or old graphics code work. | 13 | `compatibility-limit` |
 | Android must grant that app's own data-access permission (`adb run-as`). | 9 | `export-refusal-cleanup` |
 | Legacy App Rescue stops on refusal and does not try root. | 11 | `export-refusal-cleanup` |
+| The tool still records the whole-file fingerprint when signer parsing is unavailable. | 12 | `signer-fallback` |
 | The desktop command-line tool (CLI) has no telemetry. | 8 | `no-cli-telemetry` |
-| App-file scanning and the bundled demo need no network. | 9 | `no-cli-telemetry` |
+| APK scanning and the bundled demo need no network. | 9 | `no-cli-telemetry` |
 | License activation uses the Sociobot license service. | 7 | `paid-license` |
 | The website verifies a stored license at most once a day. | 11 | `browser-license-cache` |
 | If the license service is busy, it asks you to try again shortly. | 13 | `license-busy-recovery` |
@@ -96,4 +100,4 @@ The earlier decorative eyebrow labels “The product”, “Three steps”, “C
 
 ## Catalog description
 
-“Record Android app evidence and check a target Android device.” It is 54 characters, starts with a verb, and makes no untested promise.
+"Record APK evidence before an old Android device disappears." It is 57 characters, starts with a verb, and maps to the tested preservation-record claim.

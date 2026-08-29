@@ -1,13 +1,61 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { execFileSync, spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { createServer } from 'node:http';
 import { inflateSync } from 'node:zlib';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const repo = process.cwd();
+
+function runProcess(command: string, args: string[], options: { cwd: string; env: Record<string, string | undefined> }) {
+  return new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+    const child = spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', chunk => { stdout += chunk.toString(); });
+    child.stderr.on('data', chunk => { stderr += chunk.toString(); });
+    child.once('error', reject);
+    child.once('close', status => resolve({ status, stdout, stderr }));
+  });
+}
+
+async function startRecordedLicenseServer(fixture: { request: { license: string }; response: { valid: boolean; reason: string; expires_at: null } }) {
+  const requests: string[] = [];
+  const server = createServer((request, response) => {
+    const url = new URL(request.url || '/', 'http://127.0.0.1');
+    requests.push(url.toString());
+    const valid = url.pathname === '/verify' && url.searchParams.get('license') === fixture.request.license;
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify(valid ? fixture.response : { valid: false, reason: 'invalid', expires_at: null }));
+  });
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('recorded license server did not bind a TCP port');
+  return {
+    requests,
+    verifyUrl: `http://127.0.0.1:${address.port}/verify`,
+    close: () => new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()))
+  };
+}
+
+function addMalformedSigningFooter(apk: string) {
+  const bytes = readFileSync(apk);
+  const eocd = bytes.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
+  if (eocd < 0) throw new Error('fixture ZIP has no end-of-central-directory record');
+  const centralOffset = bytes.readUInt32LE(eocd + 16);
+  const footer = Buffer.alloc(24);
+  footer.writeBigUInt64LE(16n, 0); // Deliberately unsafe signing-block size.
+  Buffer.from('APK Sig Block 42').copy(footer, 8);
+  const malformed = Buffer.concat([bytes.subarray(0, centralOffset), footer, bytes.subarray(centralOffset)]);
+  malformed.writeUInt32LE(centralOffset + footer.length, eocd + footer.length + 16);
+  writeFileSync(apk, malformed);
+}
 
 function demoManifest() {
   const output = execFileSync('cargo', ['run', '--quiet', '--', '--json', 'demo'], { cwd: repo, encoding: 'utf8' });
@@ -168,6 +216,20 @@ test('@claim:manifest-file-size records the byte size beside the whole-file fing
   expect(record.apks[0].sha256).toBe(createHash('sha256').update(readFileSync(apk)).digest('hex'));
 });
 
+test('@claim:signer-fallback keeps the whole-file fingerprint when an APK signing block is malformed', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-signer-fallback-'));
+  const apk = join(root, 'malformed-signer.apk');
+  writeFileSync(join(root, 'AndroidManifest.xml'), '<manifest package="in.sociobot.malformed"><uses-sdk minSdkVersion="21" targetSdkVersion="28"/></manifest>');
+  execFileSync('zip', ['-q', '-0', apk, 'AndroidManifest.xml'], { cwd: root });
+  addMalformedSigningFooter(apk);
+  const expectedHash = createHash('sha256').update(readFileSync(apk)).digest('hex');
+  const scan = spawnSync('cargo', ['run', '--quiet', '--', '--json', 'scan', apk, '--output', join(root, 'record.json')], { cwd: repo, encoding: 'utf8' });
+  expect(scan.status, scan.stderr).toBe(0);
+  const record = JSON.parse(scan.stdout);
+  expect(record.apks).toHaveLength(1);
+  expect(record.apks[0]).toMatchObject({ package: 'in.sociobot.malformed', sha256: expectedHash, signers: [] });
+});
+
 test('@claim:export-archive-hash records the hash of a permitted app-data archive', async () => {
   const result = spawnSync('cargo', ['test', 'app_data_export_is_private_and_cleans_up_on_refusal'], { cwd: repo, encoding: 'utf8' });
   expect(result.status, result.stderr).toBe(0);
@@ -244,23 +306,79 @@ test('@claim:local-private demo scan and web sandbox make no external request', 
   expect(JSON.parse(result.stdout).apks).toHaveLength(1);
 });
 
-test('@claim:field-kit rejects arbitrary tokens and keeps permitted exports private', async () => {
+test('@claim:field-kit rejects an invalid token, then completes a licensed batch scan and permitted export', async () => {
   const root = mkdtempSync(join(tmpdir(), 'rescue-field-kit-'));
+  const fixture = JSON.parse(readFileSync(join(repo, 'tests/fixtures/field-kit-valid-license.json'), 'utf8')) as {
+    request: { license: string };
+    response: { valid: boolean; reason: string; expires_at: null };
+  };
   const manifestPath = join(root, 'demo-manifest.json');
   execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', manifestPath], { cwd: repo });
   const apk = join(root, 'orchard-notes-1.7.apk');
+  const secondApk = join(root, 'orchard-notes-copy.apk');
+  copyFileSync(apk, secondApk);
   const output = join(root, 'preservation-manifest.json');
+  const archive = join(root, 'in.sociobot.orchardnotes-data.tar');
+  const bin = join(root, 'bin');
+  mkdirSync(bin);
+  writeFileSync(join(bin, 'adb'), `#!/bin/sh
+if [ "$1" = "version" ]; then exit 0; fi
+if [ "$1" = "-s" ]; then serial="$2"; shift 2; fi
+if [ "$1" = "shell" ] && [ "$2" = "getprop" ]; then
+  case "$3" in
+    ro.product.manufacturer) echo Fieldworks ;;
+    ro.product.model) echo Preserve-13 ;;
+    ro.build.version.release) echo 13 ;;
+    ro.build.version.sdk) echo 33 ;;
+    ro.product.cpu.abilist) echo arm64-v8a ;;
+  esac
+  exit 0
+fi
+if [ "$1" = "shell" ] && [ "$2" = "pm" ]; then echo package:in.sociobot.orchardnotes; exit 0; fi
+if [ "$1" = "exec-out" ] && [ "$2" = "run-as" ]; then printf 'authorized app data fixture'; exit 0; fi
+exit 1
+`);
+  chmodSync(join(bin, 'adb'), 0o755);
   execFileSync('cargo', ['build', '--release', '--locked'], { cwd: repo });
-  const bypass = spawnSync(join(repo, 'target/release/rescue'), ['scan', apk, apk, '--output', output], {
-    cwd: repo,
-    encoding: 'utf8',
-    env: { ...process.env, LEGACY_RESCUE_LICENSE: 'not-a-real-license' }
-  });
-  expect(bypass.status).toBe(1);
-  expect(bypass.stderr).toContain('batch scans and app-data export need the $19 Field Kit');
-  expect(existsSync(output)).toBe(false);
-  const privateExport = spawnSync('cargo', ['test', 'app_data_export_is_private_and_cleans_up_on_refusal'], { cwd: repo, encoding: 'utf8' });
-  expect(privateExport.status, privateExport.stderr).toBe(0);
+  expect(fixture.response).toEqual({ valid: true, reason: 'ok', expires_at: null });
+  const licenseService = await startRecordedLicenseServer(fixture);
+  const env = {
+    ...process.env,
+    PATH: `${bin}:${process.env.PATH}`,
+    XDG_CONFIG_HOME: join(root, 'config'),
+    LEGACY_RESCUE_TEST_MODE: '1',
+    LEGACY_RESCUE_LICENSE_VERIFY_URL: licenseService.verifyUrl
+  };
+  const rescue = join(repo, 'target/release/rescue');
+  try {
+    const invalid = await runProcess(rescue, ['license', 'activate', 'recorded-invalid-license'], { cwd: root, env });
+    expect(invalid.status).toBe(1);
+    expect(invalid.stderr).toContain('license is not active (invalid)');
+
+    const activate = await runProcess(rescue, ['license', 'activate', fixture.request.license], { cwd: root, env });
+    expect(activate.status, activate.stderr).toBe(0);
+    expect(activate.stdout).toContain('Field Kit license saved and active.');
+
+    const scan = await runProcess(rescue, [
+      '--json', 'scan', apk, secondApk, '--device', '--serial', 'FIELD-DEVICE',
+      '--export-data', 'in.sociobot.orchardnotes', '--output', output
+    ], { cwd: root, env });
+    expect(scan.status, scan.stderr).toBe(0);
+    const record = JSON.parse(scan.stdout);
+    expect(record.apks).toHaveLength(2);
+    expect(record.compatibility).toHaveLength(2);
+    expect(record.data_exports).toHaveLength(1);
+    expect(existsSync(archive)).toBe(true);
+    expect(record.data_exports[0]).toMatchObject({
+      package: 'in.sociobot.orchardnotes',
+      path: archive,
+      sha256: createHash('sha256').update(readFileSync(archive)).digest('hex')
+    });
+    expect(licenseService.requests).toHaveLength(3);
+    expect(licenseService.requests.every(request => new URL(request).pathname === '/verify')).toBe(true);
+  } finally {
+    await licenseService.close();
+  }
 });
 
 test('@claim:platform-builds defines releases for three operating systems and current package-manager paths', async () => {
@@ -373,7 +491,19 @@ test('regression: JSON mode covers successful license status and removal', async
   expect(JSON.parse(remove)).toEqual({ license: 'removed' });
 });
 
-test('@claim:paid-license sends the license only to Sociobot', async ({ page }) => {
+test('@claim:paid-license matches the recorded $19 one-time checkout and sends a license only to Sociobot', async ({ page }) => {
+  const checkout = JSON.parse(readFileSync(join(repo, 'tests/fixtures/field-kit-checkout.json'), 'utf8')) as {
+    product: string;
+    amount_minor: number;
+    currency: string;
+    billing_type: string;
+  };
+  expect(checkout).toMatchObject({
+    product: 'legacy-app-rescue',
+    amount_minor: 1900,
+    currency: 'USD',
+    billing_type: 'one_time'
+  });
   let verifyUrl = '';
   await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
   await page.route('https://api.sociobot.in/**', route => {
@@ -384,6 +514,7 @@ test('@claim:paid-license sends the license only to Sociobot', async ({ page }) 
   await expect.poll(() => verifyUrl).toContain('/products/legacy-app-rescue/verify?license=sample-token');
   expect(await page.evaluate(() => localStorage.getItem('sb_license:legacy-app-rescue'))).toBe('sample-token');
   expect(page.url()).not.toContain('license=');
+  await expect(page.getByText('Field Kit costs $19 once.')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Buy Field Kit for $19' })).toHaveAttribute('href', /api\.sociobot\.in\/api\/v1\/products\/legacy-app-rescue\/checkout/);
 });
 
@@ -787,8 +918,8 @@ test('@claim:mobile-install-guidance gives mobile visitors desktop guidance and 
     Object.defineProperty(navigator, 'platform', { configurable: true, value: 'MacIntel' });
   });
   await page.goto('/?mac');
-  await expect(page.getByRole('link', { name: 'Apple silicon' })).toHaveAttribute('href', 'https://downloads.example/arm.pkg');
-  await expect(page.getByRole('link', { name: 'Intel Mac' })).toHaveAttribute('href', 'https://downloads.example/intel.pkg');
+  await expect(page.getByRole('link', { name: 'Download for Apple silicon' })).toHaveAttribute('href', 'https://downloads.example/arm.pkg');
+  await expect(page.getByRole('link', { name: 'Download for Intel Mac' })).toHaveAttribute('href', 'https://downloads.example/intel.pkg');
 });
 
 for (const path of ['/', '/demo', '/privacy', '/terms']) {

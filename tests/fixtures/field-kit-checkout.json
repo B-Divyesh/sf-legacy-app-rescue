@@ -1,0 +1,11 @@
+{
+  "source": {
+    "checkout_endpoint": "https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout",
+    "captured_at": "2026-08-29T08:42:54Z",
+    "observed_in": "Hosted Dodo checkout order summary"
+  },
+  "product": "legacy-app-rescue",
+  "amount_minor": 1900,
+  "currency": "USD",
+  "billing_type": "one_time"
+}

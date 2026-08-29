@@ -71,7 +71,12 @@ pub fn remove() -> Result<()> {
 }
 
 fn verify(token: &str) -> Result<Verdict> {
-    let mut response = ureq::get(VERIFY_URL)
+    let verify_url = if std::env::var("LEGACY_RESCUE_TEST_MODE").as_deref() == Ok("1") {
+        std::env::var("LEGACY_RESCUE_LICENSE_VERIFY_URL").unwrap_or_else(|_| VERIFY_URL.to_owned())
+    } else {
+        VERIFY_URL.to_owned()
+    };
+    let mut response = ureq::get(&verify_url)
         .query("license", token)
         .call()
         .context("license check could not reach Sociobot; check the connection and try again")?;

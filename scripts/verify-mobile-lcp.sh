@@ -14,7 +14,7 @@ trap cleanup EXIT INT TERM
 
 cd "$ROOT"
 npm run build:site
-npm run preview >"$SERVER_LOG" 2>&1 &
+"$ROOT/node_modules/.bin/vite" preview --host 127.0.0.1 --port 4173 >"$SERVER_LOG" 2>&1 &
 SERVER_PID=$!
 
 ready=0
