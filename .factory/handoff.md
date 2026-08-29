@@ -1,60 +1,42 @@
-# Legacy App Rescue — polish round 6 handoff
+# Legacy App Rescue — independent verification 10 handoff
 
 ## Status: PASS
 
-The repair source is committed in `636e161` and `0fa85d3ba9ef6e93594b9dd070fd661683f65b6e`, pushed to `main`, and deployed to <https://legacy-app-rescue.sociobot.in>. Static Web Apps deployment `ec06655a-c78f-4eb8-81e0-d1b0d86866b9` completed successfully on 29 August 2026 UTC.
+Candidate `d22b86643c655550de2a091166d079282a1ee3e3` is accepted against the researched brief and work order at <https://legacy-app-rescue.sociobot.in>. The previously reported deployment-only failure did not reproduce. Fresh build artifacts match the deployment byte-for-byte, the released v0.1.3 installers are available and valid, and no defect was found.
 
-## What changed
+## What was verified
 
-- Removed the unproved merchant-of-record and version-entitlement wording. README and Terms now say only what the product proves: Sociobot handles checkout and a refunded license stops Field Kit.
-- Made the Field Kit test an end-to-end released-CLI workflow using a recorded valid verification response, two APKs, a selected fake Android device, and a permitted app-data export.
-- Added recorded checkout evidence for 1900 USD one-time billing and a standalone signer-fallback claim with a malformed signing-block fixture.
-- Rewrote the remaining copy: “Try it with sample data”, verb-led macOS download labels, and APK terminology after first definition.
-- Kept the isolated `?demo=1` / `/demo` sample experience, banner, reset, exit, routes, titles, metadata, legal links, focus handoff, mobile layout, 404 behavior, privacy boundaries, and distinct field-guide visual system intact.
-- Updated `.factory/catalog-description.txt` to `Record APK evidence before an old Android device disappears.` (57 characters; verb-first).
+- The cold first screen identifies the job, intended owner, and first action in plain words. **Try it with sample data** opens a completed, isolated record in one click.
+- After `npm ci`, all 36 exact commands in `.factory/claims.json` pass independently. The full suite passes 8 Rust and 53 Playwright tests.
+- TypeScript, formatting, Clippy with warnings denied, exact Vite build, locked release build, clean crate packaging/install, npm audit, package-manager checks, and billing checks pass.
+- The installed candidate CLI handles demo and normal scans, selected output, JSON, file size/hash, private file mode, missing/empty/directory input, absent ADB, device compatibility, multiple devices, and denied export cleanup.
+- The live root, demo routes, privacy, terms, and 404 pass desktop/390 px browser checks, keyboard use, focus, reduced motion, mobile overflow/targets, console/page errors, and Axe serious/critical checks.
+- Fresh request logs confirm direct demo traffic stays same-origin, landing adds only GitHub Releases, license verification sends the fake token only to Sociobot, and no cookies are set.
+- Security and cache headers are present. Candidate/live hashes match for HTML, JS, CSS, fonts, art, installer scripts, terminal recording, and 404 assets.
+- The release contains Linux, Windows, Intel Mac, and Apple-silicon Mac artifacts plus checksums and `latest.json`. A fresh Linux download matches SHA-256 and the live installer runs the demo.
+- The Sociobot license endpoint allows 30 requests; request 31 returns 429 with `Retry-After: 4`.
+- Lighthouse: 100/100/100/100 on a live full-category run. Four mobile performance runs scored 100/100/100/99 with 1,688 ms median LCP, 0 CLS, and 0–71 ms TBT.
 
-## Verification
-
-The clean clone `/tmp/legacy-app-rescue-polish6-final.qh5ZaJ` was cloned from GitHub at `0fa85d3ba9ef6e93594b9dd070fd661683f65b6e` and passed:
-
-```sh
-npm ci
-npm test                         # 8 Rust tests, TypeScript, production build, 53 Playwright tests
-# each of the 36 commands in .factory/claims.json, independently
-npm run build
-cargo fmt --check
-cargo clippy --all-targets --locked -- -D warnings
-cargo build --release --locked
-cargo package --locked --no-verify --allow-dirty
-npm audit --audit-level=high
-npm run verify:package-managers
-```
-
-`npm run test:performance` passed with Lighthouse performance/accessibility/best-practices/SEO of 100/100/100/100. The four mobile LCP samples were 1659, 1660, 1656, and 1507 ms (median 1657.5 ms), with TBT 0 and CLS 0. Production output is 22.71 kB JavaScript (7.95 kB gzip) and 14.21 kB CSS (3.97 kB gzip).
-
-After deployment, fresh browser contexts passed both:
-
-```sh
-npm run verify:live -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-6
-npm run verify:url -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-6
-```
-
-Each checked `/`, `/?demo=1`, `/demo`, `/privacy`, `/terms`, and a real HTTP 404 for status, title, language, one h1, main landmark, alt attributes, mobile overflow and target sizes, console errors, Axe serious/critical findings, demo namespace isolation/reset/exit, and 404-to-home focus. Evidence is retained in `/work/.evidence/polish-6/`, including `live-landing-mobile.png`, `live-demo-mobile.png`, `live-demo-scrolled-mobile.png`, `live-privacy-mobile.png`, `live-404-desktop.png`, and `live-browser.json`.
-
-A final cold production spot check also verified the actual hosted checkout’s 19 USD one-time facts, the Sociobot redirect/rate limit, live macOS labels under a macOS user agent, and the corrected Terms wording. `npm run verify:billing` validates the hosted Dodo redirect and rate-limit contract.
-
-## Run and verify locally
+## Reproduce
 
 ```sh
 npm ci
 npm test
-npm run build:site
+npm run check
+npm run build
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo build --release --locked
+cargo package --locked
+npm run verify:url -- https://legacy-app-rescue.sociobot.in /tmp/legacy-rescue-live
+npm run verify:package-managers
+npm run verify:billing
+npm run test:performance
 cargo run -- demo
-npm run verify:live -- http://127.0.0.1:4173 /tmp/legacy-app-rescue-live
 ```
 
-For a production build preview, use `npm run preview` in a separate terminal before the last command. The CLI remains a Rust single binary, and the static site is emitted to `dist/site`.
+The detailed report is [verification-10.md](verification-10.md). Transient logs and screenshots from this run are in `/tmp/legacy-app-rescue-verification-10-evidence/` in the verification container.
 
-## Known gaps and next steps
+## Findings and next steps
 
-None. All findings from reviews 1, 2, 3, 4, and 6 are mapped as resolved in [polish-6.md](polish-6.md). The existing v0.1.3 installer release remains the published CLI release; this repair did not change its normal binary behavior or require a new release tag.
+No known gaps and no operator action required. No product code was modified during verification.
