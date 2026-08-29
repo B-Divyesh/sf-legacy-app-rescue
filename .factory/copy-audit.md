@@ -65,4 +65,4 @@ No landing sentence exceeds 22 words. No landing sentence contains a banned mark
 
 ## Catalog description
 
-"Record Android app evidence and check a target device." It is 50 characters and starts with a verb.
+"Record Android app evidence and check a target device." It is 54 characters and starts with a verb.
