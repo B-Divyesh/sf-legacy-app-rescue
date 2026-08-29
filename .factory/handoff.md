@@ -1,38 +1,41 @@
-# Legacy App Rescue — polish 4 handoff
+# Legacy App Rescue — independent verification 9 handoff
 
 ## Status: PASS
 
-Repair commit: `f5f23ea4791b85d527534d9b22878fd42ccae2e1` (pushed to `main`).
+Candidate `a0bfa93abdbc35cfb33ae9b39decab3e1ef104d9` passes independent product QA against <https://legacy-app-rescue.sociobot.in>. The previously reported deployment-only failure does not reproduce. No product code was changed.
 
-Production deployment: Static Web Apps production app `sf-legacy-app-rescue`, confirmed at <https://legacy-app-rescue.sociobot.in>. The deployment command returned <https://blue-plant-09d076810.7.azurestaticapps.net>.
+## What was verified
 
-## What changed
+- All 35 exact claim commands pass after the clean locked install.
+- Full local suite passes: 8 Rust tests, 52 Playwright tests, TypeScript, production build, formatting, warnings-as-errors Clippy, release build, Cargo package, and dependency audit.
+- A packaged crate and the public checksum-verifying installer both install into clean consumer directories and complete the JSON demo.
+- Normal CLI scan, custom output, private permissions, invalid inputs, missing ADB, device selection, compatibility, export hashing, refusal cleanup, and offline operation pass.
+- Live desktop and 390 px mobile flows pass cold-read, one-click demo, keyboard, visible focus, reduced motion, route, 404, console, axe, privacy-request, security-header, cache, and asset-budget checks.
+- Live build artifacts match the candidate byte-for-byte.
+- Mobile Lighthouse: four-run median LCP 1689 ms; separate full run 100/100/100/100.
+- Public v0.1.3 assets and SHA-256 manifests pass; Homebrew, Scoop, winget, DEB, RPM, and Linux installer checks pass.
+- Sociobot checkout returns a hosted Dodo 303. License verification allows 30 requests; request 31 returns 429 with `Retry-After: 4`.
 
-- Added eight tested public claims for the free-tier limit, selected-device record fields, custom output, device selection, JSON output, APK byte size, exported archive hash, and release asset set.
-- Added real fake-ADB and temporary-directory integration coverage for the new CLI behavior; the export test verifies the actual archive SHA-256.
-- Rewrote the first-screen free-tier wording and removed the four remaining duplicate eyebrow labels while preserving the botanical field-guide layout, palette, typography, and motion.
-- Completed the separately served HTTP 404 with canonical, Open Graph, Twitter, and Apple-touch metadata. Its home action now hands focus to the landing h1 after a real navigation.
-- Added `scripts/verify-url.sh` / `npm run verify:url`, extending the live verifier with language, alt-text, 404 metadata, and static-404 focus checks.
-- Updated the copy audit and verb-first 54-character catalog description.
+Full evidence: [verification-9.md](verification-9.md).
 
-## Verification
-
-- Final fresh clone: `/tmp/legacy-app-rescue-polish4-final.vMRn2z` at `1e52d850917c5b15d1acb76549f6e4e0106f13e3`; `npm ci`, all 35 exact claim commands, `npm test`, and `npm run build` passed. Evidence: `/work/.evidence/polish-4-final-clean-clone.log`.
-- Full browser suite: 8 Rust tests and 52 Playwright tests passed, covering routes, keyboard paths, mobile layout, demo isolation, privacy request boundaries, and Axe serious/critical findings.
-- Quality gates passed: formatting, Clippy with warnings denied, release build, Cargo package, npm audit, Lighthouse mobile performance (100 across four runs; median LCP 1658.5 ms), billing verification, and package-manager verification.
-- Cold production check passed after deployment: `npm run verify:url -- https://legacy-app-rescue.sociobot.in /work/.evidence/polish-4`.
-  Screenshots and route report: `/work/.evidence/polish-4/live-landing-mobile.png`, `live-demo-mobile.png`, `live-demo-scrolled-mobile.png`, `live-privacy-mobile.png`, `live-404-desktop.png`, and `live-browser.json`.
-
-## Run and deploy
+## Run locally
 
 ```sh
 npm ci
 npm test
 npm run build
+cargo build --release --locked
 ```
 
-Deploy the generated `dist/site/` through the Static Web Apps work-order configuration. The artifact remains a Rust CLI with a static landing/docs site; no infrastructure, DNS, billing, or secrets are stored in this repository.
+Additional live checks:
 
-## Known gaps
+```sh
+npm run verify:url -- https://legacy-app-rescue.sociobot.in /tmp/legacy-live
+npm run verify:package-managers
+npm run verify:billing
+npm run test:performance
+```
 
-None. All findings in `.factory/review-1.md` through `.factory/review-4.md` are mapped and resolved in `.factory/polish-4.md`.
+## Known gaps and next steps
+
+None. Deployment, DNS, billing configuration, and release signing remain operator-owned by contract; no repository action is required for acceptance.
