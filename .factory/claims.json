@@ -82,5 +82,103 @@
     "where": "privacy page, README",
     "test": "npm test -- --grep @claim:export-refusal-cleanup",
     "sandbox": "fake adb refuses run-as; assert failure text and no archive remains"
+  },
+  {
+    "id": "safety-boundaries",
+    "claim": "Does not alter supplied APKs or bypass Android data controls.",
+    "where": "landing boundaries, terms, README",
+    "test": "npm test -- --grep @claim:safety-boundaries",
+    "sandbox": "temporary sample APK; compare hashes before and after scan; fake ADB refuses run-as"
+  },
+  {
+    "id": "input-scope",
+    "claim": "Scans only APK file paths passed to the command.",
+    "where": "landing boundaries, privacy page, CLI help",
+    "test": "npm test -- --grep @claim:input-scope",
+    "sandbox": "temporary directory with one passed APK and one unpassed sentinel file"
+  },
+  {
+    "id": "device-serial-hash",
+    "claim": "Stores an attached device serial as a 16-character SHA-256 prefix.",
+    "where": "landing boundaries, privacy page, README",
+    "test": "npm test -- --grep @claim:device-serial-hash",
+    "sandbox": "fake ADB device with known serial; inspect emitted JSON"
+  },
+  {
+    "id": "compatibility-limit",
+    "claim": "Reports compatibility reasons as preservation evidence, not an installation guarantee.",
+    "where": "landing boundaries, terms, README",
+    "test": "npm test -- --grep @claim:compatibility-limit",
+    "sandbox": "bundled demo manifest plus rendered terms route"
+  },
+  {
+    "id": "merchant-and-refund",
+    "claim": "Sociobot handles checkout, and a revoked license does not activate Field Kit.",
+    "where": "landing paid section, terms, README",
+    "test": "npm test -- --grep @claim:merchant-and-refund",
+    "sandbox": "fresh browser context with a recorded revoked-license response"
+  },
+  {
+    "id": "browser-license-storage",
+    "claim": "Stores the website license in named browser storage and sends it only to Sociobot for verification.",
+    "where": "landing license form, privacy page",
+    "test": "npm test -- --grep @claim:browser-license-storage",
+    "sandbox": "fresh browser context with request logging, mocked Sociobot response, localStorage and cookie inspection"
+  },
+  {
+    "id": "release-metadata-privacy",
+    "claim": "The download section contacts only the GitHub Releases API and caches release details for one hour.",
+    "where": "privacy page",
+    "test": "npm test -- --grep @claim:release-metadata-privacy",
+    "sandbox": "fresh browser context with request logging, recorded GitHub response, reload, and localStorage timestamp inspection"
+  },
+  {
+    "id": "apk-transfer-boundary",
+    "claim": "Scanning never downloads, uploads, or changes an APK.",
+    "where": "README introduction and safety section",
+    "test": "npm test -- --grep @claim:apk-transfer-boundary",
+    "sandbox": "temporary APK scanned with unavailable HTTP proxies; compare file bytes before and after"
+  },
+  {
+    "id": "sample-is-noninstallable",
+    "claim": "The bundled sample APK has no executable DEX file.",
+    "where": "README demo section, demo documentation",
+    "test": "npm test -- --grep @claim:sample-is-noninstallable",
+    "sandbox": "build the bundled sample and inspect its complete ZIP entry list"
+  },
+  {
+    "id": "unsigned-builds",
+    "claim": "The macOS packages and Windows ZIP are unsigned.",
+    "where": "landing install status, README",
+    "test": "npm test -- --grep @claim:unsigned-builds",
+    "sandbox": "inspect the release packaging steps and assert that no signing inputs or commands exist"
+  },
+  {
+    "id": "no-cli-telemetry",
+    "claim": "The CLI has no telemetry, and scan and demo run without network access.",
+    "where": "README privacy section",
+    "test": "npm test -- --grep @claim:no-cli-telemetry",
+    "sandbox": "run bundled demo and a real scan with every HTTP proxy pointed to an unavailable endpoint"
+  },
+  {
+    "id": "license-busy-recovery",
+    "claim": "The website gives a retry step when the license service is busy.",
+    "where": "privacy page, README",
+    "test": "npm test -- --grep @claim:license-busy-recovery",
+    "sandbox": "fresh browser context with a recorded 429 response and Retry-After header"
+  },
+  {
+    "id": "winget-submission-manifest",
+    "claim": "The winget manifest contains current portable-package fields for owner submission.",
+    "where": "README install section",
+    "test": "npm test -- --grep @claim:winget-submission-manifest",
+    "sandbox": "validate identifier, version, architecture, installer type, alias, release URL, checksum, and schema version"
+  },
+  {
+    "id": "ci-output",
+    "claim": "The --ci option removes decorative output while retaining scan results.",
+    "where": "README CLI usage",
+    "test": "npm test -- --grep @claim:ci-output",
+    "sandbox": "compare normal and --ci output from the bundled demo"
   }
 ]

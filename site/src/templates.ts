@@ -10,7 +10,7 @@ export function header(demo = false) {
     <div class="header-inner">
       <a class="wordmark" href="/" data-route aria-label="Legacy App Rescue home">${fernMark}<span>Legacy App Rescue</span></a>
       <nav aria-label="Primary navigation">
-        <a href="/demo" data-route>Demo</a>
+        <a href="/?demo=1" data-route>Demo</a>
         <a href="/#install" data-route>Install</a>
         <a href="/privacy" data-route>Privacy</a>
       </nav>
@@ -45,8 +45,8 @@ export function landing() {
       <div class="hero-copy">
         <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
-        <p class="lede">For people preserving an old app they own, this tool records its needs and checks another device.</p>
-        <div class="hero-action"><a class="button primary" href="/demo" data-route>Try it with sample data</a><span>See a finished record. Nothing touches your files.</span></div>
+        <p class="lede">For people preserving an old app they own, it records the APK and checks whether another Android device matches.</p>
+        <div class="hero-action"><a class="button primary" href="/?demo=1" data-route>Try it with sample data</a><span>Open a finished record in separate demo storage.</span></div>
         <ul class="plain-facts" aria-label="Product facts">
           <li>Runs on macOS, Windows, and Linux.</li>
           <li>APK scans stay on your computer.</li>
@@ -68,7 +68,7 @@ export function landing() {
     </section>
 
     <section class="how" aria-labelledby="how-title">
-      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Make a record you can check later</h2></div>
+      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation manifest</h2></div>
       <ol class="ledger-steps">
         <li><span class="step-number">01</span><div><h3>Point to your APK</h3><p>Give the CLI a file you already own. It reads the archive in place.</p><code>rescue scan old-game.apk</code></div></li>
         <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record Android, CPU, and installed user packages.</p><code>rescue scan old-game.apk --device</code></div></li>
@@ -77,12 +77,12 @@ export function landing() {
     </section>
 
     <section class="boundaries" aria-labelledby="boundaries-title">
-      <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">Preserve evidence without changing the app</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
+      <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">What the tool does not change</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
       <ul class="checked-list"><li>Reads only paths you pass.</li><li>Stores the device serial as a short hash.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports data only when Android permits <code>run-as</code>.</li></ul>
     </section>
 
     <section class="install" id="install" aria-labelledby="install-title">
-      <div class="section-intro"><p class="eyebrow">Install</p><h2 id="install-title">Add one small command</h2><p data-platform-message>Checking the right download for this computer…</p></div>
+      <div class="section-intro"><p class="eyebrow">Install</p><h2 id="install-title">Install Legacy App Rescue</h2><p data-platform-message>Checking the right download for this computer…</p></div>
       <div class="download-panel">
         <div data-download-action class="download-state" aria-live="polite"><span class="loader" aria-hidden="true"></span> Checking published files…</div>
         <div class="command-row"><code data-install-command>curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh</code><button type="button" data-copy-command>Copy command</button></div>
@@ -93,8 +93,8 @@ export function landing() {
 
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
-      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Have a license?</a></div><p class="fine-print">Sociobot is the merchant of record. A refund turns off the license.</p></div>
-      <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p data-license-status aria-live="polite">The token stays in this browser. Remove stored license deletes it and its check status.</p></div></form>
+      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
+      <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required aria-describedby="license-status" /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p id="license-status" data-license-status aria-live="polite">Stored only in this browser. Remove it here at any time.</p></div></form>
     </section>
   </main>${footer()}`;
 }

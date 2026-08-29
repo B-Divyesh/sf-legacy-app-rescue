@@ -143,6 +143,17 @@ fn run() -> Result<()> {
             let found = device::inspect(serial.as_deref())?;
             if cli.json {
                 println!("{}", serde_json::to_string(&found)?);
+            } else if cli.ci {
+                println!(
+                    "Device: {} {}\nAndroid: {} (API {})\nCPU: {}\nUser packages: {}\nSerial hash: {}",
+                    found.manufacturer,
+                    found.model,
+                    found.android_version,
+                    found.sdk,
+                    found.abis.join(", "),
+                    found.installed_user_packages.len(),
+                    found.serial_hash
+                );
             } else {
                 println!(
                     "Device: {} {} · Android {} (API {})",
@@ -157,6 +168,15 @@ fn run() -> Result<()> {
             let (manifest, path) = demo::run(output.as_deref())?;
             if cli.json {
                 println!("{}", serde_json::to_string(&manifest)?);
+            } else if cli.ci {
+                println!("Sample record");
+                println!("APK hash: {}", manifest.apks[0].sha256);
+                println!(
+                    "Package: {}",
+                    manifest.apks[0].package.as_deref().unwrap_or("unknown")
+                );
+                println!("Device match: {:?}", manifest.compatibility[0].verdict);
+                println!("Manifest: {}", path.display());
             } else {
                 println!("LEGACY APP RESCUE · SAMPLE RECORD");
                 println!("✓ APK hash recorded");

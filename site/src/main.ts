@@ -20,7 +20,7 @@ function header(demo = false) {
     <div class="header-inner">
       <a class="wordmark" href="/" data-route aria-label="Legacy App Rescue home">${fernMark}<span>Legacy App Rescue</span></a>
       <nav aria-label="Primary navigation">
-        <a href="/demo" data-route>Demo</a>
+        <a href="/?demo=1" data-route>Demo</a>
         <a href="/#install" data-route>Install</a>
         <a href="/privacy" data-route>Privacy</a>
       </nav>
@@ -55,8 +55,8 @@ function landing() {
       <div class="hero-copy">
         <p class="eyebrow">A local preservation tool</p>
         <h1 id="page-title">Record your Android app before it disappears</h1>
-        <p class="lede">For people preserving an old app they own, this tool records its needs and checks another device.</p>
-        <div class="hero-action"><a class="button primary" href="/demo" data-route>Try it with sample data</a><span>See a finished record. Nothing touches your files.</span></div>
+        <p class="lede">For people preserving an old app they own, it records the APK and checks whether another Android device matches.</p>
+        <div class="hero-action"><a class="button primary" href="/?demo=1" data-route>Try it with sample data</a><span>Open a finished record in separate demo storage.</span></div>
         <ul class="plain-facts" aria-label="Product facts">
           <li>Runs on macOS, Windows, and Linux.</li>
           <li>APK scans stay on your computer.</li>
@@ -78,7 +78,7 @@ function landing() {
     </section>
 
     <section class="how" aria-labelledby="how-title">
-      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Make a record you can check later</h2></div>
+      <div class="section-intro"><p class="eyebrow">Three steps</p><h2 id="how-title">Create a preservation manifest</h2></div>
       <ol class="ledger-steps">
         <li><span class="step-number">01</span><div><h3>Point to your APK</h3><p>Give the CLI a file you already own. It reads the archive in place.</p><code>rescue scan old-game.apk</code></div></li>
         <li><span class="step-number">02</span><div><h3>Connect the target device</h3><p>Add <code>--device</code> to record Android, CPU, and installed user packages.</p><code>rescue scan old-game.apk --device</code></div></li>
@@ -87,12 +87,12 @@ function landing() {
     </section>
 
     <section class="boundaries" aria-labelledby="boundaries-title">
-      <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">Preserve evidence without changing the app</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
+      <div><p class="eyebrow">Clear boundaries</p><h2 id="boundaries-title">What the tool does not change</h2><p>Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls.</p></div>
       <ul class="checked-list"><li>Reads only paths you pass.</li><li>Stores the device serial as a short hash.</li><li>Labels compatibility as evidence, not a guarantee.</li><li>Exports data only when Android permits <code>run-as</code>.</li></ul>
     </section>
 
     <section class="install" id="install" aria-labelledby="install-title">
-      <div class="section-intro"><p class="eyebrow">Install</p><h2 id="install-title">Add one small command</h2><p data-platform-message>Checking the right download for this computer…</p></div>
+      <div class="section-intro"><p class="eyebrow">Install</p><h2 id="install-title">Install Legacy App Rescue</h2><p data-platform-message>Checking the right download for this computer…</p></div>
       <div class="download-panel">
         <div data-download-action class="download-state" aria-live="polite"><span class="loader" aria-hidden="true"></span> Checking published files…</div>
         <div class="command-row"><code data-install-command>curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh</code><button type="button" data-copy-command>Copy command</button></div>
@@ -103,8 +103,8 @@ function landing() {
 
     <section class="paid" id="field-kit" aria-labelledby="paid-title">
       <div class="price-stamp"><span>FIELD KIT</span><strong>$19</strong><small>one time</small></div>
-      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Have a license?</a></div><p class="fine-print">Sociobot is the merchant of record. A refund turns off the license.</p></div>
-      <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p data-license-status aria-live="polite">The token stays in this browser. Remove stored license deletes it and its check status.</p></div></form>
+      <div><p class="eyebrow">For more than one app</p><h2 id="paid-title">Scan more APKs at once</h2><p>The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export.</p><div class="paid-actions"><a class="button oxide" href="${API}/products/${PRODUCT}/checkout">Buy Field Kit for $19</a><a class="restore-link" href="#restore">Restore a license</a></div><p class="fine-print">Sociobot handles checkout. A refunded license stops Field Kit.</p></div>
+      <form class="license-form" id="restore"><label for="license-token">Paste a license from your receipt</label><div><input id="license-token" name="license" type="password" autocomplete="off" required aria-describedby="license-status" /><button type="submit">Verify license</button></div><div class="license-storage-actions"><button type="button" data-remove-license>Remove stored license</button><p id="license-status" data-license-status aria-live="polite">Stored only in this browser. Remove it here at any time.</p></div></form>
     </section>
   </main>${footer()}`;
 }
@@ -128,7 +128,7 @@ function demoPage() {
 }
 
 function privacyPage() {
-  return `${header()}<main id="main" class="prose-page" tabindex="-1"><p class="eyebrow">Field policy · 28 August 2026</p><h1 id="page-title">Privacy stays with the person preserving</h1>
+  return `${header()}<main id="main" class="prose-page" tabindex="-1"><p class="eyebrow">Privacy policy · 29 August 2026</p><h1 id="page-title">Keep preservation records on your computer</h1>
     <h2>APK and device scans</h2><p>The CLI reads only the APK paths and device you choose. It does not upload APKs, manifests, package lists, or app data.</p><p>The device serial is stored as a 16-character SHA-256 prefix. The manifest may contain installed package names.</p>
     <h2>App-data export</h2><p>Field Kit asks Android <code>run-as</code> for access. If Android refuses, the CLI stops. It does not use root or a bypass.</p>
     <h2>Website storage</h2><p>The demo uses keys beginning with <code>demo:legacy-app-rescue:</code>. Leaving the demo removes them.</p><p>A license is stored under <code>sb_license:legacy-app-rescue</code>. Release details may be cached for one hour.</p>
@@ -162,18 +162,27 @@ const routes: Record<string, { title: string; description: string; render: () =>
 
 function renderRoute(focus = false, restoreScroll = 0) {
   const path = window.location.pathname.replace(/\/$/, '') || '/';
-  const route = routes[path];
+  const routeKey = path === '/' && new URLSearchParams(location.search).get('demo') === '1' ? '/demo' : path;
+  const route = routes[routeKey];
   document.title = route?.title ?? 'Page not found — Legacy App Rescue';
-  document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = route?.description ?? 'This Legacy App Rescue page was not found.';
-  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `https://legacy-app-rescue.sociobot.in${path}`;
-  if (app.dataset.prerenderedRoute !== path) app.innerHTML = route ? route.render() : missingPage();
+  const description = route?.description ?? 'This Legacy App Rescue page was not found.';
+  const canonicalPath = routeKey === '/demo' ? '/demo' : path;
+  const canonical = `https://legacy-app-rescue.sociobot.in${canonicalPath}`;
+  document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = description;
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = canonical;
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')!.content = document.title;
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')!.content = description;
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')!.content = canonical;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')!.content = document.title;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')!.content = description;
+  if (app.dataset.prerenderedRoute !== routeKey) app.innerHTML = route ? route.render() : missingPage();
   delete app.dataset.prerenderedRoute;
-  if (path === '/demo') localStorage.setItem(`${DEMO_PREFIX}opened`, 'true');
+  if (routeKey === '/demo') localStorage.setItem(`${DEMO_PREFIX}opened`, 'true');
   bindNavigation();
   bindTerminal();
   bindDemo();
   bindLicense();
-  if (path === '/') bindDownloads();
+  if (routeKey === '/') bindDownloads();
   const h1 = document.querySelector<HTMLHeadingElement>('h1')!;
   announcer.textContent = document.title;
   if (focus) {
@@ -190,7 +199,7 @@ function bindNavigation() {
       if (url.origin !== window.location.origin) return;
       event.preventDefault();
       history.replaceState({ ...history.state, scrollY: window.scrollY }, '');
-      history.pushState({ scrollY: 0 }, '', url.pathname + url.hash);
+      history.pushState({ scrollY: 0 }, '', url.pathname + url.search + url.hash);
       renderRoute(true);
       if (url.hash) requestAnimationFrame(() => document.querySelector(url.hash)?.scrollIntoView());
     });
@@ -251,7 +260,7 @@ type Platform =
 function detectedPlatform(): Platform {
   const value = `${navigator.userAgent} ${navigator.platform}`.toLowerCase();
   if (/(android|iphone|ipad|ipod)/.test(value)) return { kind: 'unsupported', label: 'mobile', note: 'Legacy App Rescue is a desktop CLI. Use macOS, Windows, or Linux to install it.' };
-  if (value.includes('win')) return { kind: 'single', label: 'Windows', fragment: 'windows-x86_64.zip', command: 'irm https://legacy-app-rescue.sociobot.in/install.ps1 | iex', note: 'The portable Windows build is unsigned. Windows may ask for confirmation.' };
+  if (value.includes('win')) return { kind: 'single', label: 'Windows', fragment: 'windows-x86_64.zip', command: 'irm https://legacy-app-rescue.sociobot.in/install.ps1 | iex', note: 'The portable Windows ZIP is unsigned.' };
   if (value.includes('mac')) return { kind: 'macos', label: 'macOS', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'Choose the package for your Mac. The packages are unsigned; right-click, then choose Open.' };
   return { kind: 'single', label: 'Linux', fragment: 'linux-x86_64.tar.gz', command: 'curl -fsSL https://legacy-app-rescue.sociobot.in/install.sh | sh', note: 'The installer verifies SHA-256 before placing rescue on your PATH.' };
 }

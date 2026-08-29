@@ -14,9 +14,9 @@ The demo creates a fictional APK in a temporary folder. It scans the APK, matche
 rescue demo
 ```
 
-The website sandbox is at <https://legacy-app-rescue.sociobot.in/demo>. Its browser storage uses the `demo:legacy-app-rescue:` prefix.
+Open the website sandbox at <https://legacy-app-rescue.sociobot.in/?demo=1>. Its browser storage uses the `demo:legacy-app-rescue:` prefix.
 
-The sample source is in [`examples/sample-apk`](examples/sample-apk). It contains no installable app code.
+The sample source is in [`examples/sample-apk`](examples/sample-apk). It has a manifest, but no DEX executable.
 
 ## Install
 
@@ -36,7 +36,7 @@ The macOS package is unsigned. Right-click the downloaded package, then choose *
 irm https://legacy-app-rescue.sociobot.in/install.ps1 | iex
 ```
 
-The Windows build is unsigned. Windows may ask you to confirm the first run.
+The Windows build is unsigned.
 
 ### Homebrew
 
@@ -51,11 +51,11 @@ scoop bucket add legacy-app-rescue https://github.com/B-Divyesh/sf-legacy-app-re
 scoop install legacy-app-rescue
 ```
 
-Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a Windows portable ZIP, `SHA256SUMS`, and `latest.json`. The `winget/` manifest is ready for owner submission after release checksums are filled.
+Release assets include Linux `.deb` and `.rpm` packages, macOS `.pkg` files, a Windows portable ZIP, `SHA256SUMS`, and `latest.json`.
 
 ### winget manifest
 
-The checked v0.1.2 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/B-Divyesh.LegacyAppRescue.yaml). It is ready to submit to `microsoft/winget-pkgs`; it is not presented as an installed winget source until that upstream submission is accepted.
+The checked v0.1.2 manifest is [`winget/B-Divyesh.LegacyAppRescue.yaml`](winget/B-Divyesh.LegacyAppRescue.yaml). Submit it to `microsoft/winget-pkgs` after checking the release. It is not a public winget source until Microsoft accepts it.
 
 ## Use the CLI
 
@@ -139,7 +139,7 @@ Android must allow `adb run-as` for that app. Legacy App Rescue stops on refusal
 
 Legacy App Rescue does not distribute APKs, remove DRM, crack apps, or re-sign third-party software. Use it only with files and data you may lawfully access.
 
-Plain XML and Android binary XML manifests are supported. ZIP64 APK Signing Blocks are not read in version 0.1. The tool still records the whole-file hash when signer parsing is unavailable.
+Plain XML and Android binary XML manifests are supported. The tool still records the whole-file hash when signer parsing is unavailable.
 
 ## Build from source
 
@@ -158,7 +158,7 @@ The site output is exactly `dist/site/`. The release workflow builds platform bi
 
 `npm run verify:billing` is a live release check. It confirms the Sociobot checkout returns a `303` to a hosted Dodo session and that a successful redirect has no `Retry-After` header. It also checks that the verification service enforces its documented rate limit.
 
-`npm run verify:package-managers` is a live release check. It compares the public Homebrew formula and documented Scoop manifest with the current GitHub Release's `SHA256SUMS`, then checks the repository Homebrew, Scoop, and winget manifests.
+`npm run verify:package-managers` is a live release check. It checks public Homebrew and Scoop checksums against the current GitHub Release. It also checks the repository manifests.
 
 ## Test individual promises
 
@@ -171,6 +171,6 @@ npm test -- --grep @claim:local-private
 
 ## Privacy and license
 
-The CLI has no telemetry. APK scanning and the bundled demo need no network. License activation contacts only `api.sociobot.in`. The website verifies a stored license at most once a day. If the license service is busy, it asks you to try again shortly.
+The CLI has no telemetry. APK scanning and the bundled demo need no network. License activation uses the Sociobot license service. The website verifies a stored license at most once a day. If the license service is busy, it asks you to try again shortly.
 
 The source is available under the [MIT License](LICENSE). See the site [privacy page](https://legacy-app-rescue.sociobot.in/privacy) and [terms](https://legacy-app-rescue.sociobot.in/terms).

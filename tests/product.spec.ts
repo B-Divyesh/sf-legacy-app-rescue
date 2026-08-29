@@ -22,6 +22,7 @@ test('@claim:manifest-record records the complete APK evidence', async () => {
   expect(apk.min_sdk).toBe(21);
   expect(apk.target_sdk).toBe(28);
   expect(apk.native_abis).toEqual(['arm64-v8a']);
+  expect(manifest.device.installed_user_packages).toEqual(['in.sociobot.orchardnotes']);
 });
 
 test('@claim:compatibility-verdict checks SDK and CPU needs', async () => {
@@ -33,7 +34,8 @@ test('@claim:compatibility-verdict checks SDK and CPU needs', async () => {
 });
 
 test('@claim:demo-sandbox opens sample data without real storage', async ({ page }) => {
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
+  await expect(page).toHaveTitle('Demo — Legacy App Rescue');
   await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Orchard Notes 1.7.0' })).toBeVisible();
   await expect(page.getByText('in.sociobot.orchardnotes')).toBeVisible();
@@ -43,6 +45,7 @@ test('@claim:demo-sandbox opens sample data without real storage', async ({ page
   await expect(page.getByText('Orchard Notes 1.7.0')).toBeVisible();
   await page.getByRole('link', { name: 'Start for real' }).click();
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key.startsWith('demo:')))).toEqual([]);
+  expect(new URL(page.url()).search).toBe('');
 });
 
 test('@claim:local-private demo scan and web sandbox make no external request', async ({ page }) => {
@@ -294,6 +297,233 @@ test('@claim:export-refusal-cleanup removes a refused app-data archive without r
   expect(result.status, result.stderr).toBe(0);
 });
 
+test('@claim:safety-boundaries leaves the APK unchanged and stops when Android refuses access', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-safety-'));
+  const sampleManifest = join(root, 'sample.json');
+  execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', sampleManifest], { cwd: repo });
+  const apk = join(root, 'orchard-notes-1.7.apk');
+  const before = createHash('sha256').update(readFileSync(apk)).digest('hex');
+  const output = join(root, 'record.json');
+  execFileSync('cargo', ['run', '--quiet', '--', '--json', 'scan', apk, '--output', output], { cwd: repo });
+  expect(createHash('sha256').update(readFileSync(apk)).digest('hex')).toBe(before);
+  expect(JSON.parse(readFileSync(output, 'utf8')).apks).toHaveLength(1);
+  const refusal = spawnSync('cargo', ['test', 'app_data_export_is_private_and_cleans_up_on_refusal'], { cwd: repo, encoding: 'utf8' });
+  expect(refusal.status, refusal.stderr).toBe(0);
+});
+
+test('@claim:input-scope scans only the file path passed to the command', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-input-scope-'));
+  execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', join(root, 'sample.json')], { cwd: repo });
+  const selected = join(root, 'orchard-notes-1.7.apk');
+  const sentinel = join(root, 'do-not-read.apk');
+  writeFileSync(sentinel, 'private sentinel outside the selected path');
+  const sentinelBefore = createHash('sha256').update(readFileSync(sentinel)).digest('hex');
+  const output = join(root, 'selected.json');
+  execFileSync('cargo', ['run', '--quiet', '--', '--json', 'scan', selected, '--output', output], { cwd: repo });
+  const record = JSON.parse(readFileSync(output, 'utf8'));
+  expect(record.apks).toHaveLength(1);
+  expect(record.apks[0].path).toBe(selected);
+  expect(JSON.stringify(record)).not.toContain('do-not-read.apk');
+  expect(createHash('sha256').update(readFileSync(sentinel)).digest('hex')).toBe(sentinelBefore);
+});
+
+test('@claim:device-serial-hash stores a 16-character hash instead of the device serial', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-device-hash-'));
+  const bin = join(root, 'bin');
+  mkdirSync(bin);
+  const adb = join(bin, 'adb');
+  writeFileSync(adb, `#!/bin/sh
+if [ "$1" = "version" ]; then exit 0; fi
+if [ "$1" = "-s" ]; then shift 2; fi
+if [ "$1" = "shell" ] && [ "$2" = "getprop" ]; then
+  case "$3" in
+    ro.product.manufacturer) echo Sample ;;
+    ro.product.model) echo ArchivePhone ;;
+    ro.build.version.release) echo 13 ;;
+    ro.build.version.sdk) echo 33 ;;
+    ro.product.cpu.abilist) echo arm64-v8a,armeabi-v7a ;;
+  esac
+  exit 0
+fi
+if [ "$1" = "shell" ] && [ "$2" = "pm" ]; then echo package:in.sociobot.orchardnotes; exit 0; fi
+exit 1
+`);
+  chmodSync(adb, 0o755);
+  const serial = 'FIELD-DEVICE-123';
+  const raw = execFileSync('cargo', ['run', '--quiet', '--', '--json', 'device', '--serial', serial], {
+    cwd: repo,
+    encoding: 'utf8',
+    env: { ...process.env, PATH: `${bin}:${process.env.PATH}` }
+  });
+  const device = JSON.parse(raw);
+  expect(device.serial_hash).toBe(createHash('sha256').update(serial).digest('hex').slice(0, 16));
+  expect(device.serial_hash).toMatch(/^[a-f0-9]{16}$/);
+  expect(raw).not.toContain(serial);
+});
+
+test('@claim:compatibility-limit records reasons and says the verdict is not an install guarantee', async ({ page }) => {
+  const manifest = demoManifest();
+  expect(manifest.compatibility[0].reasons).toEqual(['SDK level and native CPU requirements match this device.']);
+  expect(manifest.notes).toContain('This manifest records preservation evidence. It does not guarantee that an APK will install or run.');
+  await page.goto('/terms');
+  await expect(page.getByText('A compatible result does not promise installation, activation, or correct behavior.')).toBeVisible();
+});
+
+test('@claim:merchant-and-refund routes checkout through Sociobot and rejects a revoked license', async ({ page }) => {
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.route('https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify**', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: '{"valid":false,"reason":"revoked"}'
+  }));
+  await page.goto('/?license=refunded-fixture');
+  await expect(page.getByText('Sociobot handles checkout. A refunded license stops Field Kit.')).toBeVisible();
+  await expect(page.getByText('License no longer active. Check the token or buy Field Kit.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Buy Field Kit for $19' })).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/legacy-app-rescue/checkout');
+  expect(JSON.parse((await page.evaluate(() => localStorage.getItem('sb_license_status:legacy-app-rescue'))) || '{}').valid).toBe(false);
+});
+
+test('@claim:browser-license-storage keeps a token in named browser storage and sends it only to Sociobot', async ({ page, context }) => {
+  const requests: string[] = [];
+  page.on('request', request => requests.push(request.url()));
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.route('https://api.sociobot.in/**', route => route.fulfill({ status: 200, contentType: 'application/json', body: '{"valid":true,"reason":"ok"}' }));
+  await page.goto('/?license=browser-only-token');
+  await expect(page.getByText('License active. Run rescue license activate TOKEN on each computer.')).toBeVisible();
+  const storage = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage)));
+  expect(storage['sb_license:legacy-app-rescue']).toBe('browser-only-token');
+  expect(Object.keys(storage).sort()).toEqual(['sb_license:legacy-app-rescue', 'sb_license_status:legacy-app-rescue']);
+  expect(page.url()).not.toContain('browser-only-token');
+  expect(await context.cookies()).toEqual([]);
+  const tokenRequests = requests.filter(url => url.includes('browser-only-token') && new URL(url).origin !== 'http://127.0.0.1:4173');
+  expect(tokenRequests).toHaveLength(1);
+  expect(new URL(tokenRequests[0]).origin).toBe('https://api.sociobot.in');
+});
+
+test('@claim:release-metadata-privacy contacts GitHub only and reuses release details for one hour', async ({ page }) => {
+  const external: string[] = [];
+  let githubRequests = 0;
+  page.on('request', request => {
+    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') external.push(request.url());
+  });
+  await page.route('https://api.github.com/**', route => {
+    githubRequests += 1;
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        tag_name: 'v0.1.2',
+        html_url: 'https://github.com/B-Divyesh/sf-legacy-app-rescue/releases/tag/v0.1.2',
+        assets: [{ name: 'rescue-linux-x86_64.tar.gz', browser_download_url: 'https://github.com/example/download' }]
+      })
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: 'Download for Linux' })).toBeVisible();
+  const cachedAt = await page.evaluate(() => JSON.parse(localStorage.getItem('release:legacy-app-rescue') || '{}').at);
+  expect(Math.abs(Date.now() - cachedAt)).toBeLessThan(5_000);
+  await page.reload();
+  await expect(page.getByRole('link', { name: 'Download for Linux' })).toBeVisible();
+  expect(githubRequests).toBe(1);
+  expect(external).toEqual(['https://api.github.com/repos/B-Divyesh/sf-legacy-app-rescue/releases/latest']);
+});
+
+test('@claim:apk-transfer-boundary scans without HTTP and never changes the supplied APK', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-transfer-boundary-'));
+  execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', join(root, 'sample.json')], { cwd: repo });
+  const apk = join(root, 'orchard-notes-1.7.apk');
+  const before = readFileSync(apk);
+  const result = spawnSync('cargo', ['run', '--quiet', '--', '--json', 'scan', apk, '--output', join(root, 'record.json')], {
+    cwd: repo,
+    encoding: 'utf8',
+    env: { ...process.env, HTTP_PROXY: 'http://127.0.0.1:1', HTTPS_PROXY: 'http://127.0.0.1:1', ALL_PROXY: 'http://127.0.0.1:1' }
+  });
+  expect(result.status, result.stderr).toBe(0);
+  expect(readFileSync(apk)).toEqual(before);
+  expect(JSON.parse(result.stdout).apks[0].path).toBe(apk);
+});
+
+test('@claim:sample-is-noninstallable builds a fixture without executable DEX files', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-sample-shape-'));
+  execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', join(root, 'sample.json')], { cwd: repo });
+  const listing = execFileSync('unzip', ['-Z1', join(root, 'orchard-notes-1.7.apk')], { encoding: 'utf8' }).trim().split('\n');
+  expect(listing).toContain('AndroidManifest.xml');
+  expect(listing.some(name => /(^|\/)classes\d*\.dex$/i.test(name))).toBe(false);
+  expect(readdirSync(join(repo, 'examples/sample-apk')).sort()).toEqual(['AndroidManifest.xml', 'README.md']);
+});
+
+test('@claim:unsigned-builds packages unsigned macOS and Windows release artifacts', async () => {
+  const workflow = readFileSync(join(repo, '.github/workflows/release.yml'), 'utf8');
+  const macSection = workflow.slice(workflow.indexOf('- name: Package macOS'), workflow.indexOf('- name: Verify macOS'));
+  const windowsSection = workflow.slice(workflow.indexOf('- name: Package Windows'), workflow.indexOf('- name: Verify Windows'));
+  expect(macSection).toContain('pkgbuild --root');
+  expect(macSection).not.toMatch(/--sign|productsign|codesign/);
+  expect(windowsSection).toContain('Compress-Archive');
+  expect(windowsSection).not.toMatch(/signtool|certificate|pfx/i);
+  expect(workflow).not.toContain('WINDOWS_CERT_PFX');
+  expect(workflow).not.toContain('APPLE_CERTIFICATE');
+});
+
+test('@claim:no-cli-telemetry runs scan and demo with all network proxies unavailable', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'rescue-no-telemetry-'));
+  const blocked = { ...process.env, HTTP_PROXY: 'http://127.0.0.1:1', HTTPS_PROXY: 'http://127.0.0.1:1', ALL_PROXY: 'http://127.0.0.1:1' };
+  const demo = spawnSync('cargo', ['run', '--quiet', '--', '--json', 'demo'], { cwd: repo, encoding: 'utf8', env: blocked });
+  expect(demo.status, demo.stderr).toBe(0);
+  execFileSync('cargo', ['run', '--quiet', '--', 'demo', '--output', join(root, 'sample.json')], { cwd: repo, env: blocked });
+  const scan = spawnSync('cargo', ['run', '--quiet', '--', '--json', 'scan', join(root, 'orchard-notes-1.7.apk'), '--output', join(root, 'record.json')], { cwd: repo, encoding: 'utf8', env: blocked });
+  expect(scan.status, scan.stderr).toBe(0);
+});
+
+test('@claim:license-busy-recovery gives a specific retry step after a 429 response', async ({ page }) => {
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.route('https://api.sociobot.in/api/v1/products/legacy-app-rescue/verify**', route => route.fulfill({
+    status: 429,
+    headers: { 'Access-Control-Expose-Headers': 'Retry-After', 'Retry-After': '45' },
+    body: 'busy'
+  }));
+  await page.goto('/');
+  await page.getByLabel('Paste a license from your receipt').fill('retry-fixture');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect(page.getByText('License checks are busy. Try again in 45 seconds.')).toBeVisible();
+});
+
+test('@claim:winget-submission-manifest validates current release fields before submission', async () => {
+  const manifest = readFileSync(join(repo, 'winget/B-Divyesh.LegacyAppRescue.yaml'), 'utf8');
+  expect(manifest).toContain('PackageIdentifier: B-Divyesh.LegacyAppRescue');
+  expect(manifest).toContain('PackageVersion: 0.1.2');
+  expect(manifest).toContain('Architecture: x64');
+  expect(manifest).toContain('InstallerType: zip');
+  expect(manifest).toContain('NestedInstallerType: portable');
+  expect(manifest).toContain('PortableCommandAlias: rescue');
+  expect(manifest).toContain('/releases/download/v0.1.2/rescue-windows-x86_64.zip');
+  expect(manifest.match(/InstallerSha256: ([A-F0-9]{64})/)?.[1]).toHaveLength(64);
+  expect(manifest).toContain('ManifestVersion: 1.9.0');
+});
+
+test('@claim:ci-output removes decorative output while retaining the result', async () => {
+  const normal = execFileSync('cargo', ['run', '--quiet', '--', 'demo'], { cwd: repo, encoding: 'utf8' });
+  const ci = execFileSync('cargo', ['run', '--quiet', '--', '--ci', 'demo'], { cwd: repo, encoding: 'utf8' });
+  expect(normal).toContain('✓');
+  expect(normal).toContain('LEGACY APP RESCUE');
+  expect(ci).not.toContain('✓');
+  expect(ci).not.toContain('LEGACY APP RESCUE');
+  expect(ci).toContain('Package: in.sociobot.orchardnotes');
+  expect(ci).toContain('Manifest:');
+});
+
+test('claims registry has one observable test for every declared claim', async () => {
+  const claims = JSON.parse(readFileSync(join(repo, '.factory/claims.json'), 'utf8')) as Array<{ id: string; test: string }>;
+  const source = readFileSync(join(repo, 'tests/product.spec.ts'), 'utf8');
+  const ids = claims.map(claim => claim.id);
+  expect(new Set(ids).size).toBe(ids.length);
+  for (const claim of claims) {
+    expect(claim.test).toBe(`npm test -- --grep @claim:${claim.id}`);
+    expect(source.match(new RegExp(`@claim:${claim.id}(?![a-z0-9-])`, 'g'))).toHaveLength(1);
+  }
+  const declaredTags = [...source.matchAll(/@claim:([a-z0-9-]+)/g)].map(match => match[1]).sort();
+  expect(declaredTags).toEqual([...ids].sort());
+});
+
 test('@claim:installer-verified verifies a Linux archive before placing the binary on PATH', async () => {
   const root = mkdtempSync(join(tmpdir(), 'rescue-installer-'));
   const stage = join(root, 'stage');
@@ -384,4 +614,24 @@ test('unknown routes show a real 404 configuration and a way home', async ({ pag
   await expect(page.getByRole('link', { name: 'Return to the home page' })).toHaveAttribute('href', '/');
   const config = JSON.parse(readFileSync(join(repo, 'dist/site/staticwebapp.config.json'), 'utf8')) as { routes: Array<{ route: string; statusCode?: number }> };
   expect(config.routes).toContainEqual({ route: '/*', statusCode: 404 });
+});
+
+test('real routes update title, metadata, focus, and browser history', async ({ page }) => {
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();
+  await expect(page).toHaveURL('/privacy');
+  await expect(page).toHaveTitle('Privacy — Legacy App Rescue');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://legacy-app-rescue.sociobot.in/privacy');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Privacy — Legacy App Rescue');
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', 'https://legacy-app-rescue.sociobot.in/privacy');
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Privacy — Legacy App Rescue');
+  await page.goBack();
+  await expect(page).toHaveTitle('Legacy App Rescue — record an Android app');
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL('/?demo=1');
+  await expect(page).toHaveTitle('Demo — Legacy App Rescue');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://legacy-app-rescue.sociobot.in/demo');
 });

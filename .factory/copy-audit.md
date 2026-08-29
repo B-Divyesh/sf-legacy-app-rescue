@@ -1,84 +1,77 @@
-# Landing copy audit
+# Copy audit
 
-Generated from the built landing page on 28 August 2026. Navigation and code-only samples are excluded from sentence limits where they are not prose.
+Audited from the built landing page on 29 August 2026. Code samples, package identifiers, and hashes are interface labels, not prose.
 
-| # | Visible copy | Words | Flag |
+| # | Visible copy | Words | Result |
 | ---: | --- | ---: | --- |
-| 1 | A local preservation tool | 4 | — |
-| 2 | Record your Android app before it disappears | 7 | — |
-| 3 | For people preserving an old app they own, this tool records its needs and checks another device. | 17 | — |
-| 4 | Try it with sample data | 5 | — |
-| 4a | See a finished record. Nothing touches your files. | 8 | — |
-| 5 | Runs on macOS, Windows, and Linux. | 6 | — |
-| 6 | APK scans stay on your computer. | 6 | — |
-| 7 | One APK is free. Field Kit costs $19 once. | 9 | — |
-| 8 | The product | 2 | — |
-| 9 | See what the manifest records | 5 | — |
-| 10 | Package names are only the start. The record ties each fact to the exact APK hash. | 16 | — |
-| 11 | Pause | 1 | — |
-| 12 | This recording comes from the bundled sample APK. Run the same scan with rescue demo. | 15 | — |
-| 13 | Package | 1 | — |
-| 14 | in.sociobot.orchardnotes | 3 | — |
-| 15 | SHA-256 | 1 | — |
-| 16 | eb4bf97b…65863ed2 | 2 | — |
-| 17 | SDK range | 2 | — |
-| 18 | API 21 → 28 | 3 | — |
-| 19 | Device match | 2 | — |
-| 20 | ✓ Compatible | 1 | — |
-| 21 | Three steps | 2 | — |
-| 22 | Make a record you can check later | 7 | — |
-| 23 | Point to your APK | 4 | — |
-| 24 | Give the CLI a file you already own. It reads the archive in place. | 14 | — |
-| 25 | Connect the target device | 4 | — |
-| 26 | Add --device to record Android, CPU, and installed user packages. | 10 | — |
-| 27 | Keep the manifest beside the APK | 6 | — |
-| 28 | The JSON file records hashes, signers, SDK needs, native CPUs, and compatibility reasons. | 13 | — |
-| 29 | Clear boundaries | 2 | — |
-| 30 | Preserve evidence without changing the app | 6 | — |
-| 31 | Legacy App Rescue does not download, crack, patch, or re-sign APKs. It cannot bypass Android data controls. | 17 | — |
-| 32 | Reads only paths you pass. | 5 | — |
-| 33 | Stores the device serial as a short hash. | 8 | — |
-| 34 | Labels compatibility as evidence, not a guarantee. | 7 | — |
-| 35 | Exports data only when Android permits run-as. | 7 | — |
-| 36 | Install | 1 | — |
-| 37 | Add one small command | 4 | — |
-| 38 | Download the Linux build, or use a package manager. | 9 | — |
-| 39 | Open the release page (external site) | 6 | — |
-| 40 | Copy command | 2 | — |
-| 41 | The installer verifies SHA-256 before placing rescue on your PATH. | 10 | — |
-| 42 | Other install choices | 3 | — |
-| 43 | Homebrewbrew install B-Divyesh/legacy-app-rescue/legacy-app-rescue | 5 | — |
-| 44 | Scoopscoop bucket add legacy-app-rescue https://github.com/B-Divyesh/sf-legacy-app-rescuescoop install legacy-app-rescue | 11 | — |
-| 45 | Cargocargo install --path . | 3 | — |
-| 46 | For more than one app | 5 | — |
-| 47 | Scan more APKs at once | 5 | — |
-| 48 | The free command scans one APK and checks one device. Field Kit adds batch scans and permitted app-data export. | 19 | — |
-| 49 | Buy Field Kit for $19 | 5 | — |
-| 50 | Have a license? | 3 | — |
-| 51 | Sociobot is the merchant of record. A refund turns off the license. | 12 | — |
-| 52 | Paste a license from your receipt | 6 | — |
-| 53 | Verify license | 2 | — |
-| 54 | Remove stored license | 3 | — |
-| 55 | The token stays in this browser. Remove stored license deletes it and its check status. | 15 | — |
-| 56 | Legacy App Rescue records Android app evidence on your computer. | 10 | — |
-| 57 | Version 0.1.2 · build 2026.08 | 5 | — |
+| 1 | A local preservation tool | 4 | Pass |
+| 2 | Record your Android app before it disappears | 7 | Pass |
+| 3 | For people preserving an old app they own, it records the APK and checks whether another Android device matches. | 19 | Pass |
+| 4 | Try it with sample data | 5 | Pass |
+| 5 | Open a finished record in separate demo storage. | 8 | Pass |
+| 6 | Runs on macOS, Windows, and Linux. | 6 | Pass |
+| 7 | APK scans stay on your computer. | 6 | Pass |
+| 8 | One APK is free. | 5 | Pass |
+| 9 | Field Kit costs $19 once. | 5 | Pass |
+| 10 | See what the manifest records | 5 | Pass |
+| 11 | Package names are only the start. | 6 | Pass |
+| 12 | The record ties each fact to the exact APK hash. | 10 | Pass |
+| 13 | Sample preservation record | 3 | Pass |
+| 14 | This recording comes from the bundled sample APK. | 8 | Pass |
+| 15 | Run the same scan with rescue demo. | 7 | Pass |
+| 16 | Create a preservation manifest | 4 | Pass |
+| 17 | Point to your APK | 4 | Pass |
+| 18 | Give the CLI a file you already own. | 9 | Pass |
+| 19 | It reads the archive in place. | 6 | Pass |
+| 20 | Connect the target device | 4 | Pass |
+| 21 | Add --device to record Android, CPU, and installed user packages. | 10 | Pass |
+| 22 | Keep the manifest beside the APK | 6 | Pass |
+| 23 | The JSON file records hashes, signers, SDK needs, native CPUs, and compatibility reasons. | 13 | Pass |
+| 24 | What the tool does not change | 6 | Pass |
+| 25 | Legacy App Rescue does not download, crack, patch, or re-sign APKs. | 11 | Pass |
+| 26 | It cannot bypass Android data controls. | 6 | Pass |
+| 27 | Reads only paths you pass. | 5 | Pass |
+| 28 | Stores the device serial as a short hash. | 8 | Pass |
+| 29 | Labels compatibility as evidence, not a guarantee. | 7 | Pass |
+| 30 | Exports data only when Android permits run-as. | 7 | Pass |
+| 31 | Install Legacy App Rescue | 4 | Pass |
+| 32 | Download the Linux build, or use a package manager. | 9 | Pass |
+| 33 | The installer verifies SHA-256 before placing rescue on your PATH. | 10 | Pass |
+| 34 | Other install choices | 3 | Pass |
+| 35 | Scan more APKs at once | 5 | Pass |
+| 36 | The free command scans one APK and checks one device. | 10 | Pass |
+| 37 | Field Kit adds batch scans and permitted app-data export. | 9 | Pass |
+| 38 | Buy Field Kit for $19 | 5 | Pass |
+| 39 | Restore a license | 3 | Pass |
+| 40 | Sociobot handles checkout. | 3 | Pass |
+| 41 | A refunded license stops Field Kit. | 6 | Pass |
+| 42 | Paste a license from your receipt | 6 | Pass |
+| 43 | Verify license | 2 | Pass |
+| 44 | Remove stored license | 3 | Pass |
+| 45 | Stored only in this browser. | 5 | Pass |
+| 46 | Remove it here at any time. | 6 | Pass |
+| 47 | Legacy App Rescue records Android app evidence on your computer. | 10 | Pass |
 
-## First-screen check
+No sentence exceeds 22 words. No sentence contains a banned marketing word.
 
-Read aloud: “Record your Android app before it disappears. For people preserving an old app they own, this tool records its needs and checks another device. Try it with sample data.” This fits one breath at a measured pace and names the job, person, change, and first action.
+## First-screen read-aloud
+
+“Record your Android app before it disappears. For people preserving an old app they own, it records the APK and checks whether another Android device matches. Try it with sample data.”
+
+The first screen names the job, owner, result, and next action in 31 words.
 
 ## Terminology
 
-| Concept | One term used |
+| Concept | Term |
 | --- | --- |
 | Android install file | APK |
 | Preservation output | manifest |
 | Connected hardware | device |
-| Compatibility outcome | device match |
+| Compatibility result | device match |
 | Paid tier | Field Kit |
-| Trial experience | demo |
+| Sample experience | demo |
 | Android-permitted private data copy | app-data export |
 
 ## Catalog description
 
-“Record an Android app before its device disappears.” (49 characters; starts with a verb.)
+“Record an Android app's APK evidence and check whether another device matches.” It is 78 characters and starts with a verb.
