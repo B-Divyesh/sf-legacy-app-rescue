@@ -13,6 +13,7 @@ The final Static Web Apps deployment was `dc8ef218-ff41-4666-b4e5-fae94081af3c`.
 - Added the same genuine scroll assertion and screenshot to `scripts/verify-live.mjs`.
 - Removed the two non-informative first-screen labels: “A local preservation tool” and “PLATE / 017”. A browser regression test prevents their return.
 - Updated the demo claim, demo documentation, copy audit, and catalog description. The catalog line is verb-first and 50 characters: “Record Android app evidence and check a target device.”
+- Added the README deployment section with the factory build command and `dist/site/` output directory.
 
 ## Verification
 

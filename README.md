@@ -155,6 +155,17 @@ npm run verify:package-managers
 
 The site output is exactly `dist/site/`. The release workflow builds platform binaries on GitHub Actions.
 
+## Deploy the static site
+
+The factory deploys this product as a static site. Build the deployment directory with:
+
+```sh
+npm ci
+npm run build:site
+```
+
+Deploy `dist/site/` through the factory work-order configuration. Do not add DNS, billing, or deployment secrets to this repository.
+
 `npm run verify:billing` is a live release check. It confirms the Sociobot checkout returns a `303` to a hosted Dodo session and that a successful redirect has no `Retry-After` header. It also checks that the verification service enforces its documented rate limit.
 
 `npm run verify:package-managers` is a live release check. It checks public Homebrew and Scoop checksums against the current GitHub Release. It also checks the repository manifests.
