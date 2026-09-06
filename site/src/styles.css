@@ -24,3 +24,8 @@ main{display:block}.hero{position:relative;max-width:1280px;min-height:720px;mar
 .restore-link,.download-state>a,.prose-page a{display:inline-flex;align-items:center;min-height:44px}
 button,.button,.header-inner nav a,.site-footer a,.demo-actions a{min-width:44px}
 @media(max-width:760px){.terminal pre{font-size:16px}}
+
+/* Paper and terminal need different focus colors so keyboard focus stays legible. */
+:root{--focus-paper:#173b27;--focus-dark:#fff9ea}
+:focus-visible{outline-color:var(--focus-paper)}
+.terminal :focus-visible,.boundaries :focus-visible,.site-footer :focus-visible,.skip-link:focus-visible{outline-color:var(--focus-dark)}

@@ -18,7 +18,9 @@ The visual metaphor stops at organization. Product copy always says APK, device,
 | `--moss-dark` | `#173B27` | action hover and dark surfaces |
 | `--lichen` | `#A7B58A` | rules and quiet highlights |
 | `--oxide` | `#9C3F2D` | warnings, paid stamp, incompatibility |
-| `--sun` | `#D6A744` | focus ring and small markers |
+| `--sun` | `#D6A744` | small markers and demo tag |
+| `--focus-paper` | `#173B27` | keyboard focus outline on paper surfaces; 10.4:1 on paper |
+| `--focus-dark` | `#FFF9EA` | keyboard focus outline on terminal and dark surfaces; 17.3:1 on night |
 | `--night` | `#0D1812` | terminal field and dark treatment |
 | `--cream` | `#FFF9EA` | text on moss/night |
 
@@ -42,7 +44,7 @@ The type scale is 16, 18, 22, 30, and clamp(40–68) px. Body measure stays unde
 ## Interaction grammar
 
 - Primary actions are dense moss rectangles with a pressed two-pixel shadow.
-- Links keep visible underlines. Focus uses a 3 px sun outline with 3 px offset.
+- Links keep visible underlines. Focus uses a 3 px dark-ink outline with 3 px offset on paper, and a cream outline on dark surfaces. Both treatments exceed 3:1 contrast against their adjacent surface.
 - Compatibility results arrive as a physical-looking stamped label. Color is always paired with text and a symbol.
 - Demo mode pins a narrow paper tag below the header. It names the sandbox and provides Reset demo and Start for real.
 

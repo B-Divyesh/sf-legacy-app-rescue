@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
@@ -9,6 +9,52 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const repo = process.cwd();
+
+type Rgb = [number, number, number];
+
+function rgb(value: string): Rgb {
+  const channels = value.match(/[\d.]+/g)?.map(Number);
+  if (!channels || channels.length < 3) throw new Error(`Expected a rendered RGB color, received ${value}`);
+  return [channels[0], channels[1], channels[2]];
+}
+
+function relativeLuminance([red, green, blue]: Rgb) {
+  const channel = (value: number) => {
+    const normalized = value / 255;
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(red) + 0.7152 * channel(green) + 0.0722 * channel(blue);
+}
+
+function contrastRatio(foreground: Rgb, background: Rgb) {
+  const [lighter, darker] = [relativeLuminance(foreground), relativeLuminance(background)].sort((a, b) => b - a);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+async function focusWithKeyboard(page: Page, target: Locator) {
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    await page.keyboard.press('Tab');
+    if (await target.evaluate(element => document.activeElement === element)) return;
+  }
+  throw new Error('Keyboard focus did not reach the expected control');
+}
+
+async function expectRenderedFocusContrast(target: Locator, surfaceSelector: string) {
+  const rendered = await target.evaluate((element, selector) => {
+    const surface = document.querySelector<HTMLElement>(selector);
+    if (!surface) throw new Error(`Missing focus surface ${selector}`);
+    const focus = getComputedStyle(element);
+    return {
+      color: focus.outlineColor,
+      style: focus.outlineStyle,
+      width: Number.parseFloat(focus.outlineWidth),
+      surface: getComputedStyle(surface).backgroundColor
+    };
+  }, surfaceSelector);
+  expect(rendered.style).toBe('solid');
+  expect(rendered.width).toBeGreaterThanOrEqual(3);
+  expect(contrastRatio(rgb(rendered.color), rgb(rendered.surface))).toBeGreaterThanOrEqual(3);
+}
 
 function runProcess(command: string, args: string[], options: { cwd: string; env: Record<string, string | undefined> }) {
   return new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
@@ -949,6 +995,21 @@ test('mobile layout and keyboard path', async ({ page }) => {
     })
     .map(element => `${element.tagName}:${(element.textContent || (element as HTMLInputElement).value).trim()}`));
   expect(tooSmall).toEqual([]);
+});
+
+test('keyboard focus indicators meet 3:1 contrast on paper and terminal surfaces', async ({ page }) => {
+  await page.route('https://api.github.com/**', route => route.fulfill({ status: 404, body: '{}' }));
+  await page.goto('/');
+  const sampleAction = page.getByRole('link', { name: 'Try it with sample data' });
+  await focusWithKeyboard(page, sampleAction);
+  await expect(sampleAction).toBeFocused();
+  await expectRenderedFocusContrast(sampleAction, 'body');
+
+  await page.goto('/demo');
+  const terminalToggle = page.getByRole('button', { name: 'Pause' });
+  await focusWithKeyboard(page, terminalToggle);
+  await expect(terminalToggle).toBeFocused();
+  await expectRenderedFocusContrast(terminalToggle, '.terminal');
 });
 
 test('unknown routes show a real 404 configuration and a way home', async ({ page }) => {
